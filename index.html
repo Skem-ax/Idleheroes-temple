@@ -26,7 +26,7 @@
 </head>
 <body class="bg-slate-925 text-slate-100 min-h-screen font-sans antialiased pb-16">
 
-  <!-- Tailwind Safelist -->
+  <!-- Tailwind Safelist (Ensures dynamic JS colors are loaded) -->
   <div class="hidden bg-sky-500/20 border-sky-500/30 text-sky-300 bg-purple-500/20 border-purple-500/30 text-purple-300 bg-emerald-500/20 border-emerald-500/30 text-emerald-300 bg-rose-500/20 border-rose-500/30 text-rose-300 bg-orange-500/20 border-orange-500/30 text-orange-300 bg-cyan-500/20 border-cyan-500/30 text-cyan-300 bg-blue-500/20 border-blue-500/30 text-blue-300 bg-amber-500/20 border-amber-500/30 text-amber-300 bg-violet-500/20 border-violet-500/30 text-violet-300"></div>
 
   <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-30">
@@ -182,7 +182,7 @@
       </div>
 
       <div class="box space-y-3">
-        <span class="badge bg-emerald-500/20 text-emerald-300 border-emerald-500/30">Sublimation Selection Chests</span>
+        <span class="badge bg-emerald-500/20 text-emerald-300 border-emerald-500/30">Sublimation Chests</span>
         <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
           <div><label class="block text-xs text-slate-300 mb-1">90k Chests</label><input id="chest_sub90k" type="text" oninput="saveAndCalc()" class="input-std text-emerald-300 focus:border-emerald-400" /></div>
           <div><label class="block text-xs text-slate-300 mb-1">45k Chests</label><input id="chest_sub45k" type="text" oninput="saveAndCalc()" class="input-std text-emerald-300 focus:border-emerald-400" /></div>
@@ -322,7 +322,7 @@
         }
       });
       if(r.picks.saved>0) b.push(`<span class="chest-badge bg-slate-800 border-slate-700 text-slate-300">${fmt(r.picks.saved)}× Save</span>`);
-      document.getElementById('plan_'+id).innerHTML = count ? `<div class="badge text-slate-400 px-0 mb-1.5">Picks (${fmt(count)}):</div><div class="flex flex-wrap gap-1.5">${b.join('')}</div>` : `<span class="text-slate-500">Enter chests to see picks.</span>`;
+      document.getElementById('plan_'+id).innerHTML = count ? `<div class="badge text-slate-400 mb-1.5 px-0">Picks (${fmt(count)}):</div><div class="flex flex-wrap gap-1.5">${b.join('')}</div>` : `<span class="text-slate-500">Enter chests to see picks.</span>`;
     }
 
     // --- Init & Calc ---
@@ -414,27 +414,17 @@
       let added = { cores:0, subActive:0, subP1:0, subP2:0, subP3:0, stellars:0, cot:0, spiritveins:0, auroraGems:0 };
       
       // 1. Pure Subs
-      let pSubCount=0, pSubHtmlLines=[];
+      let pSubCount=0, pSubSaved=0, pSubGains={Active:0,P1:0,P2:0,P3:0};
       [90000,45000,9000,1800,1].forEach(amt => {
-        const isK = amt>=1000;
-        const label = amt>1 ? (isK ? amt/1000+'k' : amt) : '1-pt';
-        const id = 'sub'+(amt>1 ? (isK ? amt/1000+'k' : amt) : 1);
+        const id = 'sub'+(amt>1?amt>=1000?amt/1000+'k':amt:1);
         const c = getNum('chest_'+id); pSubCount+=c;
-        if(c > 0) {
-          const r = allocateChestType(c, expandSubOpts(amt), defs);
-          Object.keys(r.added).forEach(k=>added[k]+=r.added[k]);
-          let b = [];
-          ['Active','P1','P2','P3'].forEach(k => {
-            if(r.picks[k]>0) {
-              const col = {Active:'blue',P1:'amber',P2:'violet',P3:'rose'}[k];
-              b.push(`<span class="chest-badge bg-${col}-500/20 text-${col}-300 border-${col}-500/30">${fmt(r.picks[k])}× ${k}</span>`);
-            }
-          });
-          if(r.picks.saved>0) b.push(`<span class="chest-badge bg-slate-800 border-slate-700 text-slate-300">${fmt(r.picks.saved)}× Saved</span>`);
-          pSubHtmlLines.push(`<div class="flex flex-wrap items-center gap-1.5 mt-1.5"><span class="text-xs font-semibold text-emerald-400/70 w-12 text-right mr-1">${label}:</span> ${b.join('')}</div>`);
-        }
+        const r = allocateChestType(c, expandSubOpts(amt), defs);
+        Object.keys(r.added).forEach(k=>added[k]+=r.added[k]); pSubSaved+=r.picks.saved;
+        ['Active','P1','P2','P3'].forEach(k=>pSubGains[k]+=r.picks[k]*amt);
       });
-      document.getElementById('plan_pureSub').innerHTML = pSubCount ? `<div class="badge text-slate-400 px-0 mb-1 border-b border-slate-800 w-full pb-1.5">Recommended Picks Per Chest Type:</div>` + pSubHtmlLines.join('') : `<span class="text-slate-500">Enter chests to see picks.</span>`;
+      const pSubBadges = []; ['Active','P1','P2','P3'].forEach(k => { if(pSubGains[k]>0) pSubBadges.push(`<span class="chest-badge bg-${{Active:'blue',P1:'amber',P2:'violet',P3:'rose'}[k]}-500/20 text-${{Active:'blue',P1:'amber',P2:'violet',P3:'rose'}[k]}-300">${k}: +${fmt(pSubGains[k])}</span>`); });
+      if(pSubSaved>0) pSubBadges.push(`<span class="chest-badge bg-slate-800 text-slate-300">${fmt(pSubSaved)}× Saved</span>`);
+      document.getElementById('plan_pureSub').innerHTML = pSubCount ? `<div class="badge text-slate-400 px-0 mb-1">Picks (${fmt(pSubCount)}):</div><div class="flex flex-wrap gap-1.5">${pSubBadges.join('')}</div>` : `<span class="text-slate-500">Enter chests to see picks.</span>`;
 
       // 2. Trans Spheres & Chests
       let trCnt=getNum('chest_transSphere')+getNum('chest_trans1');
@@ -442,14 +432,14 @@
       else {
         let trBdg = [], rS = allocateChestType(getNum('chest_transSphere'), [{key:'Stellars',deficitKey:'stellars',amount:250000,c:'sky'},{key:'CoT',deficitKey:'cot',amount:250000,c:'purple'}], defs);
         Object.keys(rS.added).forEach(k=>added[k]+=rS.added[k]);
-        if(rS.picks.Stellars) trBdg.push(`<span class="chest-badge bg-sky-500/20 border-sky-500/30 text-sky-300">${fmt(rS.picks.Stellars)}× Sph. → Stellars</span>`);
-        if(rS.picks.CoT) trBdg.push(`<span class="chest-badge bg-purple-500/20 border-purple-500/30 text-purple-300">${fmt(rS.picks.CoT)}× Sph. → CoT</span>`);
+        if(rS.picks.Stellars) trBdg.push(`<span class="chest-badge bg-sky-500/20 text-sky-300">${fmt(rS.picks.Stellars)}× Sph. → Stellars</span>`);
+        if(rS.picks.CoT) trBdg.push(`<span class="chest-badge bg-purple-500/20 text-purple-300">${fmt(rS.picks.CoT)}× Sph. → CoT</span>`);
         let rT = allocateChestType(getNum('chest_trans1'), [{key:'Stellars',deficitKey:'stellars',amount:1,c:'sky'},{key:'CoT',deficitKey:'cot',amount:1,c:'purple'}], defs);
         Object.keys(rT.added).forEach(k=>added[k]+=rT.added[k]);
-        if(rT.picks.Stellars) trBdg.push(`<span class="chest-badge bg-sky-500/20 border-sky-500/30 text-sky-300">${fmt(rT.picks.Stellars)}× Ch. → Stellars</span>`);
-        if(rT.picks.CoT) trBdg.push(`<span class="chest-badge bg-purple-500/20 border-purple-500/30 text-purple-300">${fmt(rT.picks.CoT)}× Ch. → CoT</span>`);
+        if(rT.picks.Stellars) trBdg.push(`<span class="chest-badge bg-sky-500/20 text-sky-300">${fmt(rT.picks.Stellars)}× Ch. → Stellars</span>`);
+        if(rT.picks.CoT) trBdg.push(`<span class="chest-badge bg-purple-500/20 text-purple-300">${fmt(rT.picks.CoT)}× Ch. → CoT</span>`);
         if(rS.picks.saved+rT.picks.saved>0) trBdg.push(`<span class="chest-badge bg-slate-800 text-slate-300">${fmt(rS.picks.saved+rT.picks.saved)}× Saved</span>`);
-        document.getElementById('plan_transChests').innerHTML = `<div class="badge text-slate-400 px-0 mb-1.5">Picks (${fmt(trCnt)}):</div><div class="flex flex-wrap gap-1.5">${trBdg.join('')}</div>`;
+        document.getElementById('plan_transChests').innerHTML = `<div class="badge text-slate-400 px-0 mb-1">Picks (${fmt(trCnt)}):</div><div class="flex flex-wrap gap-1.5">${trBdg.join('')}</div>`;
       }
 
       // 3. Mixed Chests
