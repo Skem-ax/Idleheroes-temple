@@ -40,7 +40,7 @@
         <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-amber-300 via-yellow-400 to-orange-400 bg-clip-text text-transparent">
           Idle Heroes • Destiny Temple Calculator
         </h1>
-        <p class="text-xs text-slate-400">Planner for Temple Levels 1–30* with Smart Chest Optimizer & Hero-Specific Cores</p>
+        <p class="text-xs text-slate-400">Simple planner for Temple Levels 1–30* with Smart Chest Optimizer</p>
       </div>
       <button onclick="resetAll()" class="text-xs px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-rose-950/60 hover:text-rose-300 border border-slate-700 transition">
         Reset All Data
@@ -182,3 +182,960 @@
         <!-- D6 -->
         <div class="bg-slate-850 border border-slate-800 rounded-xl p-3 flex flex-col justify-between">
           <div class="flex items-center justify-between gap-1 mb-1">
+            <span class="text-xs font-bold px-2 py-0.5 rounded bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/30 whitespace-nowrap">D6</span>
+            <span class="text-[11px] text-slate-400 whitespace-nowrap">60 Gems</span>
+          </div>
+          <p class="text-[11px] text-slate-500 mb-2">2.40M Veins</p>
+          <div class="flex items-center gap-1">
+            <button onclick="adjustHero('d6', -1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">-</button>
+            <input id="hero_d6" type="number" min="0" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded h-8 text-center font-bold text-white text-sm" />
+            <button onclick="adjustHero('d6', 1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">+</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Non-Destiny Trans Heroes (For 5M CoT credit) -->
+      <div class="bg-slate-850 border border-slate-800 rounded-xl p-3.5 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <span class="text-sm font-semibold text-white">Other Transcendence Heroes (Not Destiny Yet)</span>
+          <p class="text-xs text-slate-400">Each non-Destiny Trans hero you own already has <span class="text-purple-300 font-semibold">5,000,000 CoT</span> invested in them.</p>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button onclick="adjustHero('extraTrans', -1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">-</button>
+          <input id="hero_extraTrans" type="number" min="0" value="0" oninput="saveAndCalc()" class="w-20 bg-slate-900 border border-slate-700 rounded h-8 text-center font-bold text-purple-300 text-sm" />
+          <button onclick="adjustHero('extraTrans', 1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">+</button>
+        </div>
+      </div>
+
+      <!-- INFUSION HEROES TEMPORARY REGRESSION -->
+      <div class="bg-slate-850 border border-cyan-500/30 rounded-xl p-4 space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">Temporary Regression</span>
+              <h3 class="text-sm font-bold text-white">Infusion Heroes (Lv. 1–75)</h3>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">
+              Lv.16–40 refunds <span class="text-sky-300">300k Stellars + 300k CoT/lvl</span>. Lv.41–75 refunds <span class="text-sky-300">300k Stellars</span> + <span class="text-amber-300">38k Essences/lvl</span>, plus <span class="text-rose-300">4 Cores</span> & <span class="text-emerald-300">4× 180k Sublimation</span>.
+            </p>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-slate-300 font-medium">How many Infusion heroes?</span>
+            <button onclick="changeInfusionCount(-1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">-</button>
+            <input id="infusionCount" type="number" min="0" max="30" value="0" oninput="onInfusionCountInput()" class="w-16 bg-slate-900 border border-cyan-500/40 rounded h-8 text-center font-bold text-cyan-300 text-sm" />
+            <button onclick="changeInfusionCount(1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">+</button>
+          </div>
+        </div>
+
+        <!-- Dynamic list of each Infusion Hero level -->
+        <div id="infusionList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5"></div>
+
+        <!-- Infusion Refund Summary -->
+        <div id="infusionSummary" class="hidden pt-2 border-t border-slate-800 text-xs text-slate-300 flex flex-wrap items-center gap-x-4 gap-y-1">
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 3: BAG RESOURCES -->
+    <section class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-5">
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <div class="flex items-center gap-2.5">
+          <span class="w-7 h-7 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 font-bold text-sm flex items-center justify-center">3</span>
+          <div>
+            <h2 class="text-lg font-bold text-white">Resources in Your Bag</h2>
+            <p class="text-xs text-slate-400">You can type normal numbers or shorthand like <code class="text-amber-300">15M</code>, <code class="text-amber-300">180k</code>, <code class="text-amber-300">2.5M</code>.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cores of Origin Box -->
+      <div class="bg-slate-850 border border-slate-800 rounded-xl p-4">
+        <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+          <div>
+            <h3 class="text-sm font-bold text-rose-300">Cores of Origin in Bag</h3>
+            <p class="text-xs text-slate-400">1 Full Core = 4 Single Cores (400 Shards) • 1 Single Core = 100 Core Shards</p>
+          </div>
+          <div class="text-xs bg-slate-900 border border-slate-700 px-3 py-1 rounded-lg">
+            Bag Total: <span id="bagTotalCoresDisplay" class="font-bold text-rose-300">0</span> Cores
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Full Cores (1 Full = 4 Cores / 400 Shards)</label>
+            <input id="bag_fullCores" type="number" min="0" step="1" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-rose-400" />
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Single Cores (1 Core = 100 Shards)</label>
+            <input id="bag_singleCores" type="number" min="0" step="1" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-rose-400" />
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Loose Core Shards (100 Shards = 1 Core)</label>
+            <input id="bag_coreShards" type="number" min="0" step="5" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-rose-400" />
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 Sublimation Branches Box (Sub chests removed from here) -->
+      <div class="bg-slate-850 border border-slate-800 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <h3 class="text-sm font-bold text-emerald-300">Sublimation in Bag (4 Branches • 180k each per Hero)</h3>
+            <p class="text-xs text-slate-400">Enter your already-opened Sublimation for each branch. Put unopened chests in Step 4 below!</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div>
+            <label class="block text-xs text-blue-300 font-medium mb-1">Active Subli</label>
+            <input id="bag_subActive" type="text" value="0" oninput="saveAndCalc()" placeholder="e.g. 180k" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-blue-400" />
+          </div>
+          <div>
+            <label class="block text-xs text-amber-300 font-medium mb-1">Passive 1 (P1)</label>
+            <input id="bag_subP1" type="text" value="0" oninput="saveAndCalc()" placeholder="e.g. 180k" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-amber-400" />
+          </div>
+          <div>
+            <label class="block text-xs text-violet-300 font-medium mb-1">Passive 2 (P2)</label>
+            <input id="bag_subP2" type="text" value="0" oninput="saveAndCalc()" placeholder="e.g. 180k" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-violet-400" />
+          </div>
+          <div>
+            <label class="block text-xs text-rose-300 font-medium mb-1">Passive 3 / P4</label>
+            <input id="bag_subP3" type="text" value="0" oninput="saveAndCalc()" placeholder="e.g. 180k" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-rose-400" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Currencies -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div class="bg-slate-850 border border-slate-800 rounded-xl p-3">
+          <label class="block text-xs text-amber-300 font-semibold mb-1">Spiritual Essences</label>
+          <input id="bag_essences" type="text" value="0" oninput="saveAndCalc()" placeholder="e.g. 5M" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-amber-400" />
+        </div>
+        <div class="bg-slate-850 border border-slate-800 rounded-xl p-3">
+          <label class="block text-xs text-sky-300 font-semibold mb-1">Stellar Shards</label>
+          <input id="bag_stellars" type="text" value="0" oninput="saveAndCalc()" placeholder="e.g. 50M" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-sky-400" />
+        </div>
+        <div class="bg-slate-850 border border-slate-800 rounded-xl p-3">
+          <label class="block text-xs text-purple-300 font-semibold mb-1">CoT (Trans Crystals)</label>
+          <input id="bag_cot" type="text" value="0" oninput="saveAndCalc()" placeholder="e.g. 20M" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-purple-400" />
+        </div>
+        <div class="bg-slate-850 border border-slate-800 rounded-xl p-3">
+          <label class="block text-xs text-orange-300 font-semibold mb-1">Spiritveins</label>
+          <input id="bag_spiritveins" type="text" value="0" oninput="saveAndCalc()" placeholder="e.g. 1.5M" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-orange-400" />
+        </div>
+        <div class="bg-slate-850 border border-slate-800 rounded-xl p-3">
+          <label class="block text-xs text-cyan-300 font-semibold mb-1">Aurora Gems (Whole)</label>
+          <input id="bag_auroraGems" type="text" value="0" oninput="saveAndCalc()" placeholder="e.g. 45" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-cyan-400" />
+        </div>
+        <div class="bg-slate-850 border border-slate-800 rounded-xl p-3">
+          <label class="block text-xs text-cyan-200 font-semibold mb-1">Aurora Shards (5k=1)</label>
+          <input id="bag_auroraShards" type="text" value="0" oninput="saveAndCalc()" placeholder="e.g. 3750" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-cyan-400" />
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 4: SELECTION CHESTS & SMART PICK OPTIMIZER -->
+    <section class="bg-slate-900 border border-amber-500/30 rounded-2xl p-5 shadow-lg space-y-5">
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <div class="flex items-center gap-2.5">
+          <span class="w-7 h-7 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 font-bold text-sm flex items-center justify-center">4</span>
+          <div>
+            <h2 class="text-lg font-bold text-white">Selection Chests & What to Pick</h2>
+            <p class="text-xs text-slate-400">Enter how many chests you have. The calculator automatically splits your chests across the exact options you need most.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Chest 1: Relay 1x Sub / Core Chest -->
+        <div class="bg-slate-850 border border-slate-800 rounded-xl p-4 flex flex-col justify-between space-y-4">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Relay Chest #1</span>
+              <h3 class="text-base font-bold text-white mt-1.5">Relay 1× Sub / Core Chest</h3>
+              <p class="text-xs text-slate-400 mt-0.5">
+                Choose 1 per chest: <span class="text-emerald-300 font-semibold">9,000 Sublimation</span> (Active, P1, P2, or P3) OR <span class="text-rose-300 font-semibold">5/100 Core Shards</span> (0.05 Core).
+              </p>
+            </div>
+            <div class="flex items-center gap-1 shrink-0">
+              <button onclick="adjustChest('relaySubCore', -1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">-</button>
+              <input id="chest_relaySubCore" type="number" min="0" value="0" oninput="saveAndCalc()" class="w-16 bg-slate-900 border border-emerald-500/40 rounded h-8 text-center font-bold text-emerald-300 text-sm" />
+              <button onclick="adjustChest('relaySubCore', 1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">+</button>
+            </div>
+          </div>
+
+          <div id="plan_relaySubCore" class="bg-slate-900/90 border border-slate-800 rounded-lg p-3 text-xs">
+          </div>
+        </div>
+
+        <!-- Chest 2: Relay 1x Destiny Pick Chest -->
+        <div class="bg-slate-850 border border-slate-800 rounded-xl p-4 flex flex-col justify-between space-y-4">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">Relay Chest #2</span>
+              <h3 class="text-base font-bold text-white mt-1.5">Relay 1× Destiny Pick Chest</h3>
+              <p class="text-xs text-slate-400 mt-0.5">
+                Choose 1 per chest: <span class="text-orange-300 font-semibold">30,000 Spiritveins</span> OR <span class="text-cyan-300 font-semibold">3,750 Aurora Gem Shards</span> (0.75 Gem; 5,000 shards = 1 Gem).
+              </p>
+            </div>
+            <div class="flex items-center gap-1 shrink-0">
+              <button onclick="adjustChest('relayDestiny', -1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">-</button>
+              <input id="chest_relayDestiny" type="number" min="0" value="0" oninput="saveAndCalc()" class="w-16 bg-slate-900 border border-cyan-500/40 rounded h-8 text-center font-bold text-cyan-300 text-sm" />
+              <button onclick="adjustChest('relayDestiny', 1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">+</button>
+            </div>
+          </div>
+
+          <div id="plan_relayDestiny" class="bg-slate-900/90 border border-slate-800 rounded-lg p-3 text-xs">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 5: RESULTS -->
+    <section class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-5">
+      <div class="flex items-center justify-between flex-wrap gap-3">
+        <div class="flex items-center gap-2.5">
+          <span class="w-7 h-7 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 font-bold text-sm flex items-center justify-center">5</span>
+          <div>
+            <h2 class="text-lg font-bold text-white">Results for Target Temple Level <span id="resTargetLvlLabel" class="text-amber-400"></span></h2>
+            <p id="resHeroStatusText" class="text-xs text-slate-400"></p>
+          </div>
+        </div>
+        <div id="overallBadge" class="px-3.5 py-1.5 rounded-xl font-bold text-xs"></div>
+      </div>
+
+      <!-- 4 Sublimation Branch Cards -->
+      <div>
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2.5">Sublimation Breakdown (180k per Hero per Branch • Includes Recommended Chest Picks)</h3>
+        <div id="subliCardsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3"></div>
+      </div>
+
+      <!-- Main Resource Table -->
+      <div class="overflow-x-auto border border-slate-800 rounded-xl">
+        <table class="w-full text-left border-collapse text-sm">
+          <thead>
+            <tr class="bg-slate-850 text-slate-400 text-xs uppercase border-b border-slate-800">
+              <th class="py-3 px-4">Resource</th>
+              <th class="py-3 px-4 text-right">Target Needs</th>
+              <th class="py-3 px-4 text-right">In Heroes + Infusions</th>
+              <th class="py-3 px-4 text-right">In Bag + Chest Picks</th>
+              <th class="py-3 px-4 text-right">Still Needed (Missing)</th>
+            </tr>
+          </thead>
+          <tbody id="resultsTableBody" class="divide-y divide-slate-800/70"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // Temple Level Chart Data (Levels 1-30)
+    const TEMPLE_LEVELS = [
+      { level: 1, label: "1", dp: 0, max: [3,2,1,0,0,0], d: [1,0,0,0,0,0], heroes: 1, cores: 4, sublis: 720000, essences: 1248120, stellars: 14929100, cot: 5420000, spiritveins: 0, auroraGems: 5 },
+      { level: 2, label: "2", dp: 0, max: [4,3,2,0,0,0], d: [3,0,0,0,0,0], heroes: 3, cores: 12, sublis: 2160000, essences: 3744360, stellars: 47251920, cot: 16260000, spiritveins: 591708, auroraGems: 15 },
+      { level: 3, label: "3", dp: 1, max: [5,4,3,0,0,0], d: [2,2,0,0,0,0], heroes: 4, cores: 16, sublis: 2880000, essences: 4992480, stellars: 65312560, cot: 22860000, spiritveins: 1343344, auroraGems: 34 },
+      { level: 4, label: "4", dp: 2, max: [6,5,4,1,0,0], d: [0,1,2,0,0,0], heroes: 3, cores: 12, sublis: 2160000, essences: 3744360, stellars: 53686920, cot: 19530000, spiritveins: 2136108, auroraGems: 54 },
+      { level: 5, label: "5", dp: 3, max: [7,6,5,2,0,0], d: [2,1,1,1,0,0], heroes: 5, cores: 20, sublis: 3600000, essences: 6240600, stellars: 87003200, cot: 31290000, spiritveins: 2966180, auroraGems: 75 },
+      { level: 6, label: "6", dp: 4, max: [8,7,6,3,0,0], d: [0,2,2,1,0,0], heroes: 5, cores: 20, sublis: 3600000, essences: 6240600, stellars: 90798200, cot: 33220000, spiritveins: 3876980, auroraGems: 98 },
+      { level: 7, label: "7", dp: 4, max: [9,8,7,4,1,0], d: [1,1,2,2,0,0], heroes: 6, cores: 24, sublis: 4320000, essences: 7488720, stellars: 109848840, cot: 40310000, spiritveins: 4866216, auroraGems: 123 },
+      { level: 8, label: "8", dp: 5, max: [10,9,8,5,2,0], d: [0,0,2,2,1,0], heroes: 5, cores: 20, sublis: 3600000, essences: 6240600, stellars: 99543200, cot: 37660000, spiritveins: 5975780, auroraGems: 151 },
+      { level: 9, label: "9", dp: 5, max: [11,10,9,6,3,0], d: [0,0,2,3,1,0], heroes: 6, cores: 24, sublis: 4320000, essences: 7488720, stellars: 119748840, cot: 45340000, spiritveins: 7242216, auroraGems: 183 },
+      { level: 10, label: "10", dp: 6, max: [12,11,10,7,4,1], d: [0,0,3,2,2,0], heroes: 7, cores: 28, sublis: 5040000, essences: 8736840, stellars: 140284480, cot: 53200000, spiritveins: 8587852, auroraGems: 217 },
+      { level: 11, label: "11", dp: 6, max: [12,12,11,8,5,2], d: [0,0,2,2,2,1], heroes: 7, cores: 28, sublis: 5040000, essences: 8736840, stellars: 146823430, cot: 56470000, spiritveins: 10157552, auroraGems: 256 },
+      { level: 12, label: "12", dp: 7, max: [12,12,12,9,6,3], d: [0,0,1,3,3,1], heroes: 8, cores: 32, sublis: 5760000, essences: 9984960, stellars: 170989070, cot: 66170000, spiritveins: 12374388, auroraGems: 312 },
+      { level: 13, label: "13", dp: 7, max: [12,12,12,10,7,4], d: [0,0,1,3,3,2], heroes: 9, cores: 36, sublis: 6480000, essences: 11233080, stellars: 195918660, cot: 76200000, spiritveins: 14774924, auroraGems: 372 },
+      { level: 14, label: "14", dp: 8, max: [12,12,12,11,8,5], d: [0,0,0,4,3,3], heroes: 10, cores: 40, sublis: 7200000, essences: 12481200, stellars: 222663250, cot: 87150000, spiritveins: 17611060, auroraGems: 443 },
+      { level: 15, label: "15", dp: 8, max: [12,12,12,12,9,6], d: [0,0,0,5,4,3], heroes: 12, cores: 48, sublis: 8640000, essences: 14977440, stellars: 265219530, cot: 103610000, spiritveins: 20658732, auroraGems: 520 },
+      { level: 16, label: "16", dp: 9, max: [12,12,12,12,10,8], d: [0,0,0,6,4,4], heroes: 14, cores: 56, sublis: 10080000, essences: 17473680, stellars: 310354760, cot: 121320000, spiritveins: 24325704, auroraGems: 612 },
+      { level: 17, label: "17", dp: 9, max: [16,12,12,12,11,8], d: [0,0,0,8,6,4], heroes: 18, cores: 72, sublis: 12960000, essences: 22466160, stellars: 395467320, cot: 154240000, spiritveins: 30421048, auroraGems: 766 },
+      { level: 18, label: "18", dp: 9, max: [16,16,12,12,12,8], d: [0,0,0,10,6,5], heroes: 21, cores: 84, sublis: 15120000, essences: 26210520, stellars: 460808190, cot: 179630000, spiritveins: 35354456, auroraGems: 890 },
+      { level: 19, label: "19", dp: 10, max: [16,16,16,12,12,10], d: [0,0,0,12,8,5], heroes: 25, cores: 100, sublis: 18000000, essences: 31203000, stellars: 545920750, cot: 212550000, spiritveins: 41449800, auroraGems: 1044 },
+      { level: 20, label: "20", dp: 10, max: [16,16,16,16,12,10], d: [0,0,0,12,8,6], heroes: 26, cores: 104, sublis: 18720000, essences: 32451120, stellars: 570850340, cot: 222580000, spiritveins: 43850336, auroraGems: 1104 },
+      { level: 21, label: "21", dp: 10, max: [16,16,16,16,14,12], d: [0,0,0,14,10,6], heroes: 30, cores: 120, sublis: 21600000, essences: 37443600, stellars: 655962900, cot: 255500000, spiritveins: 49945680, auroraGems: 1258 },
+      { level: 22, label: "22", dp: 10, max: [16,16,16,16,16,12], d: [0,0,0,16,12,8], heroes: 36, cores: 144, sublis: 25920000, essences: 44932320, stellars: 790934640, cot: 308480000, spiritveins: 60842096, auroraGems: 1532 },
+      { level: 23, label: "23", dp: 11, max: [18,18,18,16,16,12], d: [0,0,0,16,14,8], heroes: 38, cores: 152, sublis: 27360000, essences: 47428560, stellars: 835635920, cot: 326040000, spiritveins: 64404568, auroraGems: 1622 },
+      { level: 24, label: "24*", dp: 11, max: [18,18,18,18,16,14], d: [0,0,0,16,16,10], heroes: 42, cores: 168, sublis: 30240000, essences: 52421040, stellars: 930196380, cot: 363660000, spiritveins: 72768112, auroraGems: 1832 },
+      { level: 25, label: "25*", dp: 12, max: [20,20,20,18,18,14], d: [0,0,0,18,16,12], heroes: 46, cores: 184, sublis: 33120000, essences: 57413520, stellars: 1020466840, cot: 399080000, spiritveins: 80102056, auroraGems: 2016 },
+      { level: 26, label: "26*", dp: 12, max: [20,20,20,20,18,14], d: [0,0,0,18,18,12], heroes: 48, cores: 192, sublis: 34560000, essences: 59909760, stellars: 1065168120, cot: 416640000, spiritveins: 83664528, auroraGems: 2106 },
+      { level: 27, label: "27*", dp: 13, max: [22,22,22,20,20,16], d: [0,0,0,20,18,14], heroes: 52, cores: 208, sublis: 37440000, essences: 64902240, stellars: 1155438580, cot: 452060000, spiritveins: 90998472, auroraGems: 2290 },
+      { level: 28, label: "28*", dp: 13, max: [22,22,22,22,20,16], d: [0,0,0,20,20,14], heroes: 54, cores: 216, sublis: 38880000, essences: 67398480, stellars: 1200139860, cot: 469620000, spiritveins: 94560944, auroraGems: 2380 },
+      { level: 29, label: "29*", dp: 14, max: [24,24,24,22,22,16], d: [0,0,0,22,20,16], heroes: 58, cores: 232, sublis: 41760000, essences: 72390960, stellars: 1290410320, cot: 505040000, spiritveins: 101894888, auroraGems: 2564 },
+      { level: 30, label: "30*", dp: 15, max: [24,24,24,24,24,18], d: [0,0,0,22,22,16], heroes: 60, cores: 240, sublis: 43200000, essences: 74887200, stellars: 1335111600, cot: 522600000, spiritveins: 105457360, auroraGems: 2654 }
+    ];
+
+    // Individual Hero Costs (Includes 5,000,000 Base Trans CoT per hero)
+    const HERO_COSTS = {
+      d1_1: { cores: 4, subEach: 180000, stellars: 14929100, essences: 1248120, auroraGems: 5, cot: 5420000, spiritveins: 0 },
+      d1:   { cores: 4, subEach: 180000, stellars: 15750640, essences: 1248120, auroraGems: 5, cot: 5420000, spiritveins: 197236 },
+      d2:   { cores: 4, subEach: 180000, stellars: 16893670, essences: 1248120, auroraGems: 12, cot: 6010000, spiritveins: 474436 },
+      d3:   { cores: 4, subEach: 180000, stellars: 18390640, essences: 1248120, auroraGems: 21, cot: 6760000, spiritveins: 830836 },
+      d4:   { cores: 4, subEach: 180000, stellars: 20205640, essences: 1248120, auroraGems: 32, cot: 7680000, spiritveins: 1266436 },
+      d5:   { cores: 4, subEach: 180000, stellars: 22350640, essences: 1248120, auroraGems: 45, cot: 8780000, spiritveins: 1781236 },
+      d6:   { cores: 4, subEach: 180000, stellars: 24929590, essences: 1248120, auroraGems: 60, cot: 10030000, spiritveins: 2400536 }
+    };
+
+    let infusionLevels = [];
+
+    function parseNum(val) {
+      if (val === undefined || val === null) return 0;
+      const str = String(val).trim().replace(/,/g, '').toLowerCase();
+      if (!str) return 0;
+      const match = str.match(/^(-?\d+(\.\d+)?)\s*([kmb])?$/);
+      if (!match) {
+        const raw = parseFloat(str);
+        return isNaN(raw) ? 0 : raw;
+      }
+      const num = parseFloat(match[1]);
+      const unit = match[3];
+      if (unit === 'k') return Math.round(num * 1e3);
+      if (unit === 'm') return Math.round(num * 1e6);
+      if (unit === 'b') return Math.round(num * 1e9);
+      return Math.round(num);
+    }
+
+    function fmt(n) {
+      return Math.round(n).toLocaleString('en-US');
+    }
+
+    function fmtDec(n, dec = 2) {
+      if (Math.abs(n - Math.round(n)) < 1e-6) return Math.round(n).toLocaleString('en-US');
+      return Number(n.toFixed(dec)).toLocaleString('en-US');
+    }
+
+    function fmtShort(n) {
+      const abs = Math.abs(n);
+      if (abs >= 1e9) return (n / 1e9).toFixed(2) + 'B';
+      if (abs >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+      if (abs >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+      return fmtDec(n, 2);
+    }
+
+    function getSingleInfusionRefund(lvl) {
+      const L = Math.max(1, Math.min(75, parseInt(lvl) || 1));
+      const lvls16to40 = Math.max(0, Math.min(L, 40) - 15);
+      const lvls41to75 = Math.max(0, L - 40);
+
+      const stellars = (lvls16to40 + lvls41to75) * 300000;
+      const cot = lvls16to40 * 300000;
+      const essences = lvls41to75 * 38000;
+
+      let cores = 0;
+      if (L >= 45) cores++;
+      if (L >= 55) cores++;
+      if (L >= 65) cores++;
+      if (L >= 75) cores++;
+
+      function calcBranchSub(startLvl, endLvl) {
+        if (L <= startLvl) return 0;
+        if (L >= endLvl) return 180000;
+        const steps = Math.min(7, Math.floor(((L - startLvl) / (endLvl - startLvl)) * 7));
+        return Math.min(180000, steps * 25800);
+      }
+
+      const subActive = calcBranchSub(41, 48);
+      const subP1     = calcBranchSub(48, 55);
+      const subP2     = calcBranchSub(55, 62);
+      const subP3     = calcBranchSub(62, 70);
+
+      return { stellars, cot, essences, cores, subActive, subP1, subP2, subP3 };
+    }
+
+    function renderInfusionInputs() {
+      const container = document.getElementById('infusionList');
+      container.innerHTML = '';
+      infusionLevels.forEach((lvl, idx) => {
+        const card = document.createElement('div');
+        card.className = 'bg-slate-900 border border-slate-800 rounded-lg p-2.5 flex items-center justify-between gap-2';
+        card.innerHTML = `
+          <span class="text-xs font-semibold text-cyan-300">Hero #${idx + 1}</span>
+          <div class="flex items-center gap-1">
+            <button type="button" onclick="setInfusionLvl(${idx}, 40)" class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300">40</button>
+            <button type="button" onclick="setInfusionLvl(${idx}, 70)" class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300">70</button>
+            <button type="button" onclick="setInfusionLvl(${idx}, 75)" class="text-[10px] px-1.5 py-0.5 rounded bg-cyan-900/50 hover:bg-cyan-800/60 text-cyan-200">75</button>
+            <input type="number" min="1" max="75" value="${lvl}" oninput="updateInfusionLvl(${idx}, this.value)"
+              class="w-14 bg-slate-850 border border-slate-700 rounded px-2 py-1 text-center font-bold text-white text-xs" />
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function changeInfusionCount(delta) {
+      const input = document.getElementById('infusionCount');
+      const next = Math.max(0, Math.min(30, (parseInt(input.value) || 0) + delta));
+      input.value = next;
+      onInfusionCountInput();
+    }
+
+    function onInfusionCountInput() {
+      const count = Math.max(0, Math.min(30, parseInt(document.getElementById('infusionCount').value) || 0));
+      while (infusionLevels.length < count) infusionLevels.push(75);
+      if (infusionLevels.length > count) infusionLevels.length = count;
+      renderInfusionInputs();
+      saveAndCalc();
+    }
+
+    function setInfusionLvl(idx, val) {
+      infusionLevels[idx] = val;
+      renderInfusionInputs();
+      saveAndCalc();
+    }
+
+    function updateInfusionLvl(idx, val) {
+      infusionLevels[idx] = Math.max(1, Math.min(75, parseInt(val) || 1));
+      saveAndCalc();
+    }
+
+    function adjustHero(key, delta) {
+      const el = document.getElementById('hero_' + key);
+      const next = Math.max(0, (parseInt(el.value) || 0) + delta);
+      el.value = next;
+      saveAndCalc();
+    }
+
+    function adjustChest(key, delta) {
+      const el = document.getElementById('chest_' + key);
+      const next = Math.max(0, (parseInt(el.value) || 0) + delta);
+      el.value = next;
+      saveAndCalc();
+    }
+
+    function onLevelChange() {
+      const cur = parseInt(document.getElementById('currentLevel').value) || 1;
+      let tgt = parseInt(document.getElementById('targetLevel').value) || 2;
+      if (tgt < cur) {
+        tgt = cur;
+        document.getElementById('targetLevel').value = tgt;
+      }
+      saveAndCalc();
+    }
+
+    function populateLevelSelects() {
+      const curSel = document.getElementById('currentLevel');
+      const tgtSel = document.getElementById('targetLevel');
+      curSel.innerHTML = `<option value="0">Level 0 (None yet)</option>`;
+      tgtSel.innerHTML = '';
+
+      TEMPLE_LEVELS.forEach(row => {
+        const reqStr = row.d.map((c, i) => c > 0 ? `${c}× D${i+1}` : null).filter(Boolean).join(', ');
+        curSel.innerHTML += `<option value="${row.level}">Temple Level ${row.label} (${row.heroes} Heroes: ${reqStr})</option>`;
+        tgtSel.innerHTML += `<option value="${row.level}">Temple Level ${row.label} (${row.heroes} Heroes: ${reqStr})</option>`;
+      });
+
+      curSel.value = "1";
+      tgtSel.value = "5";
+    }
+
+    function renderLevelSummary(levelNum, elId) {
+      const el = document.getElementById(elId);
+      if (levelNum <= 0) {
+        el.innerHTML = `<span class="text-slate-500">No Temple Level active</span>`;
+        return;
+      }
+      const row = TEMPLE_LEVELS.find(r => r.level === levelNum);
+      if (!row) return;
+      const pills = row.d.map((c, i) => c > 0 ? `<span class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 font-semibold text-amber-300">${c}× D${i+1}</span>` : '').join('');
+      el.innerHTML = `
+        <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300">Total Heroes: <b>${row.heroes}</b></span>
+        <span class="px-2 py-0.5 rounded bg-slate-800 text-emerald-300">DP Gain: <b>+${row.dp}</b></span>
+        ${pills}
+      `;
+    }
+
+    // Smart Optimizer for Relay 1x Sub / Core Chest
+    // Each chest gives EITHER 9,000 Subli (Active/P1/P2/P3) OR 5 Core Shards (0.05 Core)
+    function optimizeRelaySubCoreChests(count, deficits) {
+      const picks = { Active: 0, P1: 0, P2: 0, P3: 0, Cores: 0, saved: 0 };
+      let rem = {
+        Active: Math.max(0, deficits.Active),
+        P1:     Math.max(0, deficits.P1),
+        P2:     Math.max(0, deficits.P2),
+        P3:     Math.max(0, deficits.P3),
+        Cores:  Math.max(0, deficits.Cores) // in single cores (0.05 per chest)
+      };
+
+      for (let i = 0; i < count; i++) {
+        // Measure how many chests each option still needs to reach 0 deficit
+        const candidates = [
+          { key: 'Active', chestsNeeded: rem.Active / 9000 },
+          { key: 'P1',     chestsNeeded: rem.P1 / 9000 },
+          { key: 'P2',     chestsNeeded: rem.P2 / 9000 },
+          { key: 'P3',     chestsNeeded: rem.P3 / 9000 },
+          { key: 'Cores',  chestsNeeded: rem.Cores / 0.05 }
+        ].filter(c => c.chestsNeeded > 1e-6);
+
+        if (candidates.length === 0) {
+          picks.saved++;
+          continue;
+        }
+
+        // Pick the option that requires the most chests to finish (balances deficits & avoids waste)
+        candidates.sort((a, b) => b.chestsNeeded - a.chestsNeeded);
+        const best = candidates[0].key;
+        picks[best]++;
+
+        if (best === 'Cores') {
+          rem.Cores = Math.max(0, rem.Cores - 0.05);
+        } else {
+          rem[best] = Math.max(0, rem[best] - 9000);
+        }
+      }
+
+      return {
+        picks,
+        added: {
+          subActive: picks.Active * 9000,
+          subP1:     picks.P1 * 9000,
+          subP2:     picks.P2 * 9000,
+          subP3:     picks.P3 * 9000,
+          cores:     picks.Cores * 0.05,
+          coreShards: picks.Cores * 5
+        }
+      };
+    }
+
+    // Smart Optimizer for Relay 1x Destiny Pick Chest
+    // Each chest gives EITHER 30,000 Spiritveins OR 3,750 Aurora Gem Shards (0.75 Aurora Gem)
+    function optimizeRelayDestinyChests(count, deficits) {
+      const picks = { Spiritveins: 0, AuroraGems: 0, saved: 0 };
+      let remVeins = Math.max(0, deficits.spiritveins);
+      let remGems  = Math.max(0, deficits.auroraGems); // in Gems (0.75 per chest)
+
+      for (let i = 0; i < count; i++) {
+        const candidates = [
+          { key: 'Spiritveins', chestsNeeded: remVeins / 30000 },
+          { key: 'AuroraGems',  chestsNeeded: remGems / 0.75 }
+        ].filter(c => c.chestsNeeded > 1e-6);
+
+        if (candidates.length === 0) {
+          picks.saved++;
+          continue;
+        }
+
+        candidates.sort((a, b) => b.chestsNeeded - a.chestsNeeded);
+        const best = candidates[0].key;
+        picks[best]++;
+
+        if (best === 'Spiritveins') {
+          remVeins = Math.max(0, remVeins - 30000);
+        } else {
+          remGems = Math.max(0, remGems - 0.75);
+        }
+      }
+
+      return {
+        picks,
+        added: {
+          spiritveins: picks.Spiritveins * 30000,
+          auroraGems:  picks.AuroraGems * 0.75,
+          auroraShards: picks.AuroraGems * 3750
+        }
+      };
+    }
+
+    function renderChestPlanSubCore(count, opt) {
+      const el = document.getElementById('plan_relaySubCore');
+      if (count <= 0) {
+        el.innerHTML = `<span class="text-slate-500">Enter how many Relay Sub / Core Chests you have to see exact picks.</span>`;
+        return;
+      }
+
+      const items = [];
+      if (opt.picks.Active > 0) items.push(`<span class="px-2 py-1 rounded bg-blue-500/20 border border-blue-500/30 text-blue-300 font-bold">${opt.picks.Active}× Active Subli (+${fmt(opt.added.subActive)})</span>`);
+      if (opt.picks.P1 > 0)     items.push(`<span class="px-2 py-1 rounded bg-amber-500/20 border border-amber-500/30 text-amber-300 font-bold">${opt.picks.P1}× P1 Subli (+${fmt(opt.added.subP1)})</span>`);
+      if (opt.picks.P2 > 0)     items.push(`<span class="px-2 py-1 rounded bg-violet-500/20 border border-violet-500/30 text-violet-300 font-bold">${opt.picks.P2}× P2 Subli (+${fmt(opt.added.subP2)})</span>`);
+      if (opt.picks.P3 > 0)     items.push(`<span class="px-2 py-1 rounded bg-rose-500/20 border border-rose-500/30 text-rose-300 font-bold">${opt.picks.P3}× P3 Subli (+${fmt(opt.added.subP3)})</span>`);
+      if (opt.picks.Cores > 0)  items.push(`<span class="px-2 py-1 rounded bg-rose-500/20 border border-rose-500/30 text-rose-200 font-bold">${opt.picks.Cores}× Core Shards (+${opt.added.coreShards}/100 = +${fmtDec(opt.added.cores, 2)} Core)</span>`);
+      if (opt.picks.saved > 0)  items.push(`<span class="px-2 py-1 rounded bg-slate-800 border border-slate-700 text-slate-300 font-semibold">${opt.picks.saved}× Save (Target already met!)</span>`);
+
+      el.innerHTML = `
+        <div class="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-2">Recommended Picks (${count} Chests):</div>
+        <div class="flex flex-wrap gap-1.5">${items.join('')}</div>
+      `;
+    }
+
+    function renderChestPlanDestiny(count, opt) {
+      const el = document.getElementById('plan_relayDestiny');
+      if (count <= 0) {
+        el.innerHTML = `<span class="text-slate-500">Enter how many Relay Destiny Chests you have to see exact picks.</span>`;
+        return;
+      }
+
+      const items = [];
+      if (opt.picks.Spiritveins > 0) {
+        items.push(`<span class="px-2 py-1 rounded bg-orange-500/20 border border-orange-500/30 text-orange-300 font-bold">${opt.picks.Spiritveins}× Spiritveins (+${fmt(opt.added.spiritveins)})</span>`);
+      }
+      if (opt.picks.AuroraGems > 0) {
+        items.push(`<span class="px-2 py-1 rounded bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 font-bold">${opt.picks.AuroraGems}× Aurora Gem Shards (+${fmt(opt.added.auroraShards)} Shards = +${fmtDec(opt.added.auroraGems, 2)} Gems)</span>`);
+      }
+      if (opt.picks.saved > 0) {
+        items.push(`<span class="px-2 py-1 rounded bg-slate-800 border border-slate-700 text-slate-300 font-semibold">${opt.picks.saved}× Save (Target already met!)</span>`);
+      }
+
+      el.innerHTML = `
+        <div class="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-2">Recommended Picks (${count} Chests):</div>
+        <div class="flex flex-wrap gap-1.5">${items.join('')}</div>
+      `;
+    }
+
+    function saveAndCalc() {
+      const curLvl = parseInt(document.getElementById('currentLevel').value) || 0;
+      const tgtLvl = parseInt(document.getElementById('targetLevel').value) || 1;
+
+      renderLevelSummary(curLvl, 'currentLevelSummary');
+      renderLevelSummary(tgtLvl, 'targetLevelSummary');
+
+      const targetRow = TEMPLE_LEVELS.find(r => r.level === tgtLvl) || TEMPLE_LEVELS[0];
+      document.getElementById('resTargetLvlLabel').textContent = targetRow.label;
+
+      // Read owned heroes
+      const hKeys = ['d1_1', 'd1', 'd2', 'd3', 'd4', 'd5', 'd6'];
+      const owned = {};
+      let totalOwnedDestiny = 0;
+      hKeys.forEach(k => {
+        owned[k] = Math.max(0, parseInt(document.getElementById('hero_' + k).value) || 0);
+        totalOwnedDestiny += owned[k];
+      });
+      const extraTrans = Math.max(0, parseInt(document.getElementById('hero_extraTrans').value) || 0);
+      document.getElementById('ownedTotalHeroes').textContent = totalOwnedDestiny;
+
+      // Sum resources invested in owned heroes
+      const invested = {
+        cores: 0,
+        subActive: 0, subP1: 0, subP2: 0, subP3: 0,
+        essences: 0, stellars: 0, cot: extraTrans * 5000000, spiritveins: 0, auroraGems: 0
+      };
+
+      hKeys.forEach(k => {
+        const count = owned[k];
+        const cost = HERO_COSTS[k];
+        invested.cores      += count * cost.cores;
+        invested.subActive  += count * cost.subEach;
+        invested.subP1      += count * cost.subEach;
+        invested.subP2      += count * cost.subEach;
+        invested.subP3      += count * cost.subEach;
+        invested.essences   += count * cost.essences;
+        invested.stellars   += count * cost.stellars;
+        invested.cot        += count * cost.cot;
+        invested.spiritveins+= count * cost.spiritveins;
+        invested.auroraGems += count * cost.auroraGems;
+      });
+
+      // Add Infusion refunds
+      const infTotals = { stellars: 0, cot: 0, essences: 0, cores: 0, subActive: 0, subP1: 0, subP2: 0, subP3: 0 };
+      infusionLevels.forEach(lvl => {
+        const r = getSingleInfusionRefund(lvl);
+        infTotals.stellars  += r.stellars;
+        infTotals.cot       += r.cot;
+        infTotals.essences  += r.essences;
+        infTotals.cores     += r.cores;
+        infTotals.subActive += r.subActive;
+        infTotals.subP1     += r.subP1;
+        infTotals.subP2     += r.subP2;
+        infTotals.subP3     += r.subP3;
+      });
+
+      const infSummaryEl = document.getElementById('infusionSummary');
+      if (infusionLevels.length > 0) {
+        infSummaryEl.classList.remove('hidden');
+        infSummaryEl.innerHTML = `
+          <span class="font-bold text-cyan-300">Infusion Regression Refund:</span>
+          <span>Stellars: <b class="text-sky-300">+${fmtShort(infTotals.stellars)}</b></span>
+          <span>CoT: <b class="text-purple-300">+${fmtShort(infTotals.cot)}</b></span>
+          <span>Essences: <b class="text-amber-300">+${fmtShort(infTotals.essences)}</b></span>
+          <span>Cores: <b class="text-rose-300">+${infTotals.cores}</b></span>
+          <span>Sublis: <b class="text-emerald-300">+${fmtShort(infTotals.subActive + infTotals.subP1 + infTotals.subP2 + infTotals.subP3)}</b></span>
+        `;
+      } else {
+        infSummaryEl.classList.add('hidden');
+      }
+
+      invested.stellars  += infTotals.stellars;
+      invested.cot       += infTotals.cot;
+      invested.essences  += infTotals.essences;
+      invested.cores     += infTotals.cores;
+      invested.subActive += infTotals.subActive;
+      invested.subP1     += infTotals.subP1;
+      invested.subP2     += infTotals.subP2;
+      invested.subP3     += infTotals.subP3;
+
+      // Read Bag Inputs (Exact Core Shards & Aurora Gem Shards)
+      const fullCores   = Math.max(0, parseFloat(document.getElementById('bag_fullCores').value) || 0);
+      const singleCores = Math.max(0, parseFloat(document.getElementById('bag_singleCores').value) || 0);
+      const coreShards  = Math.max(0, parseFloat(document.getElementById('bag_coreShards').value) || 0);
+      const bagCores = fullCores * 4 + singleCores + (coreShards / 100);
+      const totalBagCoreShards = Math.round(bagCores * 100);
+      document.getElementById('bagTotalCoresDisplay').textContent = `${fmtDec(bagCores, 2)} (${fmt(totalBagCoreShards)} Shards)`;
+
+      const wholeAuroraGems = Math.max(0, parseNum(document.getElementById('bag_auroraGems').value));
+      const looseAuroraShards = Math.max(0, parseNum(document.getElementById('bag_auroraShards').value));
+      const bagAuroraGemsTotal = wholeAuroraGems + (looseAuroraShards / 5000);
+
+      const bag = {
+        cores: bagCores,
+        subActive: Math.max(0, parseNum(document.getElementById('bag_subActive').value)),
+        subP1:     Math.max(0, parseNum(document.getElementById('bag_subP1').value)),
+        subP2:     Math.max(0, parseNum(document.getElementById('bag_subP2').value)),
+        subP3:     Math.max(0, parseNum(document.getElementById('bag_subP3').value)),
+        essences:  Math.max(0, parseNum(document.getElementById('bag_essences').value)),
+        stellars:  Math.max(0, parseNum(document.getElementById('bag_stellars').value)),
+        cot:       Math.max(0, parseNum(document.getElementById('bag_cot').value)),
+        spiritveins: Math.max(0, parseNum(document.getElementById('bag_spiritveins').value)),
+        auroraGems:  bagAuroraGemsTotal
+      };
+
+      // Calculate Deficits BEFORE Chests
+      const branchTarget = targetRow.heroes * 180000;
+      const preDeficitsSubCore = {
+        Active: Math.max(0, branchTarget - (invested.subActive + bag.subActive)),
+        P1:     Math.max(0, branchTarget - (invested.subP1 + bag.subP1)),
+        P2:     Math.max(0, branchTarget - (invested.subP2 + bag.subP2)),
+        P3:     Math.max(0, branchTarget - (invested.subP3 + bag.subP3)),
+        Cores:  Math.max(0, targetRow.cores - (invested.cores + bag.cores))
+      };
+
+      const preDeficitsDestiny = {
+        spiritveins: Math.max(0, targetRow.spiritveins - (invested.spiritveins + bag.spiritveins)),
+        auroraGems:  Math.max(0, targetRow.auroraGems - (invested.auroraGems + bag.auroraGems))
+      };
+
+      // Read Chest Counts & Run Smart Optimizers
+      const relaySubCoreCount = Math.max(0, parseInt(document.getElementById('chest_relaySubCore').value) || 0);
+      const relayDestinyCount = Math.max(0, parseInt(document.getElementById('chest_relayDestiny').value) || 0);
+
+      const optSubCore = optimizeRelaySubCoreChests(relaySubCoreCount, preDeficitsSubCore);
+      const optDestiny = optimizeRelayDestinyChests(relayDestinyCount, preDeficitsDestiny);
+
+      renderChestPlanSubCore(relaySubCoreCount, optSubCore);
+      renderChestPlanDestiny(relayDestinyCount, optDestiny);
+
+      // Sublimation Branch Allocation (including recommended chest picks)
+      const branches = [
+        { key: 'Active', label: 'Active Sublimation', color: 'text-blue-300', have: invested.subActive + bag.subActive + optSubCore.added.subActive, fromChest: optSubCore.added.subActive },
+        { key: 'P1',     label: 'Passive 1 (P1)',     color: 'text-amber-300', have: invested.subP1 + bag.subP1 + optSubCore.added.subP1,         fromChest: optSubCore.added.subP1 },
+        { key: 'P2',     label: 'Passive 2 (P2)',     color: 'text-violet-300', have: invested.subP2 + bag.subP2 + optSubCore.added.subP2,       fromChest: optSubCore.added.subP2 },
+        { key: 'P3',     label: 'Passive 3 / P4',     color: 'text-rose-300', have: invested.subP3 + bag.subP3 + optSubCore.added.subP3,         fromChest: optSubCore.added.subP3 }
+      ];
+
+      let totalSubMissing = 0;
+      const subGrid = document.getElementById('subliCardsGrid');
+      subGrid.innerHTML = '';
+
+      branches.forEach(b => {
+        const deficit = Math.max(0, branchTarget - b.have);
+        totalSubMissing += deficit;
+        const isDone = deficit === 0;
+
+        subGrid.innerHTML += `
+          <div class="bg-slate-850 border ${isDone ? 'border-emerald-500/30' : 'border-rose-500/30'} rounded-xl p-3">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-xs font-bold ${b.color}">${b.label}</span>
+              <span class="text-[11px] font-bold px-2 py-0.5 rounded ${isDone ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}">
+                ${isDone ? 'Ready' : 'Need ' + fmtShort(deficit)}
+              </span>
+            </div>
+            <div class="text-xs text-slate-400 flex justify-between mt-2">
+              <span>Target: <b class="text-slate-200">${fmt(branchTarget)}</b></span>
+              <span>Have: <b class="text-slate-200">${fmt(b.have)}</b></span>
+            </div>
+            ${b.fromChest > 0 ? `<div class="text-[11px] text-emerald-300 mt-1">+${fmt(b.fromChest)} from Relay Chests</div>` : ''}
+          </div>
+        `;
+      });
+
+      // Totals in Bag + Chest Picks
+      const totalBagPlusChestCores = bag.cores + optSubCore.added.cores;
+      const totalBagPlusChestSub   = bag.subActive + bag.subP1 + bag.subP2 + bag.subP3 +
+                                     optSubCore.added.subActive + optSubCore.added.subP1 + optSubCore.added.subP2 + optSubCore.added.subP3;
+      const totalBagPlusChestVeins = bag.spiritveins + optDestiny.added.spiritveins;
+      const totalBagPlusChestGems  = bag.auroraGems + optDestiny.added.auroraGems;
+
+      // Main Resource Rows
+      const rows = [
+        {
+          name: 'Cores of Origin',
+          color: 'text-rose-300',
+          target: targetRow.cores,
+          inHeroes: invested.cores,
+          inBag: totalBagPlusChestCores,
+          missing: Math.max(0, targetRow.cores - (invested.cores + totalBagPlusChestCores)),
+          fmtVal: (v) => `${fmtDec(v, 2)} (${fmt(Math.round(v * 100))} Shards)`,
+          extraMissingText: (m) => `${fmtDec(m, 2)} Cores (${fmt(Math.round(m * 100))} Shards / ${fmtDec(m / 4, 2)} Full)`
+        },
+        {
+          name: 'Sublimation (All 4 Branches)',
+          color: 'text-emerald-300',
+          target: targetRow.sublis,
+          inHeroes: invested.subActive + invested.subP1 + invested.subP2 + invested.subP3,
+          inBag: totalBagPlusChestSub,
+          missing: totalSubMissing,
+          extraMissingText: (m) => `${fmt(m)} (${Math.ceil(m / 9000)}× 9k Relay Chests)`
+        },
+        {
+          name: 'Spiritual Essences',
+          color: 'text-amber-300',
+          target: targetRow.essences,
+          inHeroes: invested.essences,
+          inBag: bag.essences,
+          missing: Math.max(0, targetRow.essences - (invested.essences + bag.essences))
+        },
+        {
+          name: 'Stellar Shards',
+          color: 'text-sky-300',
+          target: targetRow.stellars,
+          inHeroes: invested.stellars,
+          inBag: bag.stellars,
+          missing: Math.max(0, targetRow.stellars - (invested.stellars + bag.stellars))
+        },
+        {
+          name: 'CoT (Includes 5M per Trans Hero)',
+          color: 'text-purple-300',
+          target: targetRow.cot,
+          inHeroes: invested.cot,
+          inBag: bag.cot,
+          missing: Math.max(0, targetRow.cot - (invested.cot + bag.cot))
+        },
+        {
+          name: 'Spiritveins',
+          color: 'text-orange-300',
+          target: targetRow.spiritveins,
+          inHeroes: invested.spiritveins,
+          inBag: totalBagPlusChestVeins,
+          missing: Math.max(0, targetRow.spiritveins - (invested.spiritveins + totalBagPlusChestVeins))
+        },
+        {
+          name: 'Aurora Gems',
+          color: 'text-cyan-300',
+          target: targetRow.auroraGems,
+          inHeroes: invested.auroraGems,
+          inBag: totalBagPlusChestGems,
+          missing: Math.max(0, targetRow.auroraGems - (invested.auroraGems + totalBagPlusChestGems)),
+          fmtVal: (v) => `${fmtDec(v, 2)} (${fmt(Math.round(v * 5000))} Shards)`,
+          extraMissingText: (m) => `${fmtDec(m, 2)} Gems (${fmt(Math.round(m * 5000))} Shards)`
+        }
+      ];
+
+      const tbody = document.getElementById('resultsTableBody');
+      tbody.innerHTML = '';
+      let anyMissing = false;
+
+      rows.forEach(r => {
+        if (r.missing > 1e-6) anyMissing = true;
+        const formatCell = r.fmtVal ? r.fmtVal : fmt;
+        const missingDisplay = r.missing <= 1e-6
+          ? `<span class="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 font-bold text-xs">✓ Enough (+${fmtShort((r.inHeroes + r.inBag) - r.target)})</span>`
+          : `<span class="text-rose-400 font-bold">${r.extraMissingText ? r.extraMissingText(r.missing) : fmt(r.missing) + ' (' + fmtShort(r.missing) + ')'}</span>`;
+
+        tbody.innerHTML += `
+          <tr class="hover:bg-slate-850/60">
+            <td class="py-3 px-4 font-semibold ${r.color}">${r.name}</td>
+            <td class="py-3 px-4 text-right font-mono text-slate-200">${fmt(r.target)}</td>
+            <td class="py-3 px-4 text-right font-mono text-slate-300">${fmt(r.inHeroes)}</td>
+            <td class="py-3 px-4 text-right font-mono text-slate-300">${formatCell(r.inBag)}</td>
+            <td class="py-3 px-4 text-right">${missingDisplay}</td>
+          </tr>
+        `;
+      });
+
+      const heroDiff = Math.max(0, targetRow.heroes - totalOwnedDestiny);
+      document.getElementById('resHeroStatusText').textContent =
+        heroDiff === 0
+          ? `You have ${totalOwnedDestiny} / ${targetRow.heroes} required Destiny Heroes.`
+          : `You have ${totalOwnedDestiny} / ${targetRow.heroes} required Destiny Heroes (Need ${heroDiff} more Destiny Heroes).`;
+
+      const badge = document.getElementById('overallBadge');
+      if (!anyMissing) {
+        badge.className = 'px-3.5 py-1.5 rounded-xl font-bold text-xs bg-emerald-500/20 border border-emerald-500/40 text-emerald-300';
+        badge.textContent = '✓ All Resources Ready for Level ' + targetRow.label;
+      } else {
+        badge.className = 'px-3.5 py-1.5 rounded-xl font-bold text-xs bg-amber-500/20 border border-amber-500/40 text-amber-300';
+        badge.textContent = 'Still Missing Resources for Level ' + targetRow.label;
+      }
+
+      saveToStorage();
+    }
+
+    function saveToStorage() {
+      const state = {
+        currentLevel: document.getElementById('currentLevel').value,
+        targetLevel: document.getElementById('targetLevel').value,
+        heroes: {
+          d1_1: document.getElementById('hero_d1_1').value,
+          d1: document.getElementById('hero_d1').value,
+          d2: document.getElementById('hero_d2').value,
+          d3: document.getElementById('hero_d3').value,
+          d4: document.getElementById('hero_d4').value,
+          d5: document.getElementById('hero_d5').value,
+          d6: document.getElementById('hero_d6').value,
+          extraTrans: document.getElementById('hero_extraTrans').value,
+        },
+        infusionLevels,
+        bag: {
+          fullCores: document.getElementById('bag_fullCores').value,
+          singleCores: document.getElementById('bag_singleCores').value,
+          coreShards: document.getElementById('bag_coreShards').value,
+          subActive: document.getElementById('bag_subActive').value,
+          subP1: document.getElementById('bag_subP1').value,
+          subP2: document.getElementById('bag_subP2').value,
+          subP3: document.getElementById('bag_subP3').value,
+          essences: document.getElementById('bag_essences').value,
+          stellars: document.getElementById('bag_stellars').value,
+          cot: document.getElementById('bag_cot').value,
+          spiritveins: document.getElementById('bag_spiritveins').value,
+          auroraGems: document.getElementById('bag_auroraGems').value,
+          auroraShards: document.getElementById('bag_auroraShards').value,
+        },
+        chests: {
+          relaySubCore: document.getElementById('chest_relaySubCore').value,
+          relayDestiny: document.getElementById('chest_relayDestiny').value,
+        }
+      };
+      localStorage.setItem('ih_destiny_temple_v4', JSON.stringify(state));
+    }
+
+    function loadFromStorage() {
+      try {
+        const raw = localStorage.getItem('ih_destiny_temple_v4');
+        if (!raw) return;
+        const s = JSON.parse(raw);
+        if (s.currentLevel !== undefined) document.getElementById('currentLevel').value = s.currentLevel;
+        if (s.targetLevel !== undefined) document.getElementById('targetLevel').value = s.targetLevel;
+        if (s.heroes) {
+          Object.keys(s.heroes).forEach(k => {
+            const el = document.getElementById('hero_' + k);
+            if (el) el.value = s.heroes[k];
+          });
+        }
+        if (Array.isArray(s.infusionLevels)) {
+          infusionLevels = s.infusionLevels;
+          document.getElementById('infusionCount').value = infusionLevels.length;
+          renderInfusionInputs();
+        }
+        if (s.bag) {
+          Object.keys(s.bag).forEach(k => {
+            const el = document.getElementById('bag_' + k);
+            if (el) el.value = s.bag[k];
+          });
+        }
+        if (s.chests) {
+          Object.keys(s.chests).forEach(k => {
+            const el = document.getElementById('chest_' + k);
+            if (el) el.value = s.chests[k];
+          });
+        }
+      } catch (e) {}
+    }
+
+    function resetAll() {
+      localStorage.removeItem('ih_destiny_temple_v4');
+      location.reload();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      populateLevelSelects();
+      loadFromStorage();
+      saveAndCalc();
+    });
+  </script>
+</body>
+</html>
