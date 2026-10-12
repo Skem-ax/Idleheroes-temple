@@ -5,1411 +5,494 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Idle Heroes - Destiny Temple Calculator</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style type="text/tailwindcss">
+    @layer components {
+      .panel { @apply bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-5; }
+      .box { @apply bg-slate-850 border border-slate-800 rounded-xl p-4; }
+      .box-sm { @apply bg-slate-850 border border-slate-800 rounded-xl p-3; }
+      .input-std { @apply w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:border-amber-400 focus:outline-none transition-colors; }
+      .input-mini { @apply w-16 bg-slate-900 border border-slate-700 rounded h-8 text-center font-bold text-white text-sm focus:outline-none; }
+      .btn-math { @apply w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300 flex items-center justify-center shrink-0; }
+      .badge { @apply text-[11px] font-bold px-2 py-0.5 rounded whitespace-nowrap; }
+      .chest-badge { @apply px-2 py-1 rounded border font-bold text-xs; }
+    }
+  </style>
   <script>
     tailwind.config = {
       darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            slate: {
-              850: '#161f33',
-              925: '#0b1120',
-            }
-          }
-        }
-      }
+      theme: { extend: { colors: { slate: { 850: '#161f33', 925: '#0b1120' } } } }
     }
   </script>
-  <style>
-    input[type="number"]::-webkit-inner-spin-button,
-    input[type="number"]::-webkit-outer-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
-    input[type="number"] {
-      -moz-appearance: textfield;
-    }
-  </style>
 </head>
 <body class="bg-slate-925 text-slate-100 min-h-screen font-sans antialiased pb-16">
 
-  <!-- Header -->
+  <!-- Tailwind Safelist -->
+  <div class="hidden bg-sky-500/20 border-sky-500/30 text-sky-300 bg-purple-500/20 border-purple-500/30 text-purple-300 bg-emerald-500/20 border-emerald-500/30 text-emerald-300 bg-rose-500/20 border-rose-500/30 text-rose-300 bg-orange-500/20 border-orange-500/30 text-orange-300 bg-cyan-500/20 border-cyan-500/30 text-cyan-300 bg-blue-500/20 border-blue-500/30 text-blue-300 bg-amber-500/20 border-amber-500/30 text-amber-300 bg-violet-500/20 border-violet-500/30 text-violet-300"></div>
+
   <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-30">
     <div class="max-w-5xl mx-auto px-4 py-4 flex flex-wrap items-center justify-between gap-3">
       <div>
-        <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-amber-300 via-yellow-400 to-orange-400 bg-clip-text text-transparent">
-          Idle Heroes • Destiny Temple Calculator
-        </h1>
-        <p class="text-xs text-slate-400">Planner for Temple Levels 1–30* with Smart Chest Optimizer & Hero-Specific Cores</p>
+        <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-amber-300 via-yellow-400 to-orange-400 bg-clip-text text-transparent">Idle Heroes • Destiny Temple Calculator</h1>
+        <p class="text-xs text-slate-400">Planner for Temple Levels 1–30* with Smart Chest Optimizer</p>
       </div>
-      <button onclick="resetAll()" class="text-xs px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-rose-950/60 hover:text-rose-300 border border-slate-700 transition">
-        Reset All Data
-      </button>
+      <button onclick="resetAll()" class="text-xs px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-rose-950/60 hover:text-rose-300 border border-slate-700 transition">Reset All Data</button>
     </div>
   </header>
 
   <main class="max-w-5xl mx-auto px-4 pt-6 space-y-6">
 
-    <!-- STEP 1: TEMPLE LEVEL -->
-    <section class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
+    <!-- STEP 1 -->
+    <section class="panel">
       <div class="flex items-center gap-2.5 mb-4">
         <span class="w-7 h-7 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 font-bold text-sm flex items-center justify-center">1</span>
         <h2 class="text-lg font-bold text-white">Select Temple Levels</h2>
       </div>
-
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- Current Level -->
-        <div class="bg-slate-850 border border-slate-800 rounded-xl p-4">
-          <label class="block text-xs uppercase tracking-wider text-slate-400 font-semibold mb-2">Current Temple Level</label>
-          <select id="currentLevel" onchange="onLevelChange()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-white font-semibold focus:outline-none focus:border-amber-400">
-          </select>
+        <div class="box">
+          <label class="block text-xs uppercase text-slate-400 font-semibold mb-2">Current Temple Level</label>
+          <select id="currentLevel" onchange="onLevelChange()" class="input-std"></select>
           <div id="currentLevelSummary" class="mt-3 text-xs text-slate-400 flex flex-wrap gap-2"></div>
         </div>
-
-        <!-- Target Level -->
         <div class="bg-slate-850 border border-amber-500/30 rounded-xl p-4">
-          <label class="block text-xs uppercase tracking-wider text-amber-300 font-semibold mb-2">Target Temple Level</label>
-          <select id="targetLevel" onchange="onLevelChange()" class="w-full bg-slate-900 border border-amber-500/50 rounded-lg px-3 py-2.5 text-amber-300 font-bold focus:outline-none focus:border-amber-400">
-          </select>
+          <label class="block text-xs uppercase text-amber-300 font-semibold mb-2">Target Temple Level</label>
+          <select id="targetLevel" onchange="onLevelChange()" class="input-std !border-amber-500/50 text-amber-300"></select>
           <div id="targetLevelSummary" class="mt-3 text-xs text-slate-300 flex flex-wrap gap-2"></div>
         </div>
       </div>
     </section>
 
-    <!-- STEP 2: YOUR HEROES & INFUSIONS -->
-    <section class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-5">
+    <!-- STEP 2 -->
+    <section class="panel">
       <div class="flex items-center justify-between flex-wrap gap-2">
         <div class="flex items-center gap-2.5">
           <span class="w-7 h-7 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 font-bold text-sm flex items-center justify-center">2</span>
           <div>
             <h2 class="text-lg font-bold text-white">Your Destiny Heroes & Infusions</h2>
-            <p class="text-xs text-slate-400">
-              <span class="text-teal-300 font-semibold">D0 = D1 Lvl 1 (0 Veins)</span> • <span class="text-emerald-300 font-semibold">D1 = D1 Lvl 100</span> • Each hero includes 5M Base Trans CoT + 4 Cores + 4× 180k Sublis.
-            </p>
+            <p class="text-xs text-slate-400"><span class="text-teal-300 font-semibold">D0 = D1 Lv.1</span> • Each hero includes 5M Trans CoT + 4 Cores + 4× 180k Sublis.</p>
           </div>
         </div>
-        <div class="text-xs bg-slate-850 border border-slate-700 px-3 py-1.5 rounded-lg text-slate-300">
-          Total Destiny Heroes Owned: <span id="ownedTotalHeroes" class="font-bold text-amber-400">0</span>
-        </div>
+        <div class="text-xs bg-slate-850 border border-slate-700 px-3 py-1.5 rounded-lg text-slate-300">Total Destiny Heroes: <span id="ownedTotalHeroes" class="font-bold text-amber-400">0</span></div>
       </div>
 
-      <!-- D0 - D6 Grid -->
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-3">
-        <!-- D0 (D1 Lvl 1) -->
-        <div class="bg-slate-850 border border-slate-800 rounded-xl p-3 flex flex-col justify-between">
-          <div class="flex items-center justify-between gap-1 mb-1">
-            <span class="text-xs font-bold px-2 py-0.5 rounded bg-teal-500/20 text-teal-300 border border-teal-500/30 whitespace-nowrap">D0</span>
-            <span class="text-[11px] text-slate-400 whitespace-nowrap">5 Gems</span>
-          </div>
-          <p class="text-[11px] text-slate-500 mb-2">D1 Lv.1 (0 Veins)</p>
-          <div class="flex items-center gap-1">
-            <button onclick="adjustHero('d1_1', -1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">-</button>
-            <input id="hero_d1_1" type="number" min="0" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded h-8 text-center font-bold text-white text-sm" />
-            <button onclick="adjustHero('d1_1', 1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">+</button>
-          </div>
-        </div>
+      <!-- Hero Grid -->
+      <div id="heroGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-3"></div>
 
-        <!-- D1 (D1 Lvl 100) -->
-        <div class="bg-slate-850 border border-slate-800 rounded-xl p-3 flex flex-col justify-between">
-          <div class="flex items-center justify-between gap-1 mb-1">
-            <span class="text-xs font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 whitespace-nowrap">D1</span>
-            <span class="text-[11px] text-slate-400 whitespace-nowrap">5 Gems</span>
-          </div>
-          <p class="text-[11px] text-slate-500 mb-2">197k Veins</p>
-          <div class="flex items-center gap-1">
-            <button onclick="adjustHero('d1', -1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">-</button>
-            <input id="hero_d1" type="number" min="0" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded h-8 text-center font-bold text-white text-sm" />
-            <button onclick="adjustHero('d1', 1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">+</button>
-          </div>
-        </div>
-
-        <!-- D2 -->
-        <div class="bg-slate-850 border border-slate-800 rounded-xl p-3 flex flex-col justify-between">
-          <div class="flex items-center justify-between gap-1 mb-1">
-            <span class="text-xs font-bold px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30 whitespace-nowrap">D2</span>
-            <span class="text-[11px] text-slate-400 whitespace-nowrap">12 Gems</span>
-          </div>
-          <p class="text-[11px] text-slate-500 mb-2">474k Veins</p>
-          <div class="flex items-center gap-1">
-            <button onclick="adjustHero('d2', -1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">-</button>
-            <input id="hero_d2" type="number" min="0" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded h-8 text-center font-bold text-white text-sm" />
-            <button onclick="adjustHero('d2', 1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">+</button>
-          </div>
-        </div>
-
-        <!-- D3 -->
-        <div class="bg-slate-850 border border-slate-800 rounded-xl p-3 flex flex-col justify-between">
-          <div class="flex items-center justify-between gap-1 mb-1">
-            <span class="text-xs font-bold px-2 py-0.5 rounded bg-violet-500/20 text-violet-300 border border-violet-500/30 whitespace-nowrap">D3</span>
-            <span class="text-[11px] text-slate-400 whitespace-nowrap">21 Gems</span>
-          </div>
-          <p class="text-[11px] text-slate-500 mb-2">831k Veins</p>
-          <div class="flex items-center gap-1">
-            <button onclick="adjustHero('d3', -1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">-</button>
-            <input id="hero_d3" type="number" min="0" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded h-8 text-center font-bold text-white text-sm" />
-            <button onclick="adjustHero('d3', 1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">+</button>
-          </div>
-        </div>
-
-        <!-- D4 -->
-        <div class="bg-slate-850 border border-slate-800 rounded-xl p-3 flex flex-col justify-between">
-          <div class="flex items-center justify-between gap-1 mb-1">
-            <span class="text-xs font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 whitespace-nowrap">D4</span>
-            <span class="text-[11px] text-slate-400 whitespace-nowrap">32 Gems</span>
-          </div>
-          <p class="text-[11px] text-slate-500 mb-2">1.27M Veins</p>
-          <div class="flex items-center gap-1">
-            <button onclick="adjustHero('d4', -1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">-</button>
-            <input id="hero_d4" type="number" min="0" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded h-8 text-center font-bold text-white text-sm" />
-            <button onclick="adjustHero('d4', 1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">+</button>
-          </div>
-        </div>
-
-        <!-- D5 -->
-        <div class="bg-slate-850 border border-slate-800 rounded-xl p-3 flex flex-col justify-between">
-          <div class="flex items-center justify-between gap-1 mb-1">
-            <span class="text-xs font-bold px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30 whitespace-nowrap">D5</span>
-            <span class="text-[11px] text-slate-400 whitespace-nowrap">45 Gems</span>
-          </div>
-          <p class="text-[11px] text-slate-500 mb-2">1.78M Veins</p>
-          <div class="flex items-center gap-1">
-            <button onclick="adjustHero('d5', -1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">-</button>
-            <input id="hero_d5" type="number" min="0" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded h-8 text-center font-bold text-white text-sm" />
-            <button onclick="adjustHero('d5', 1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">+</button>
-          </div>
-        </div>
-
-        <!-- D6 -->
-        <div class="bg-slate-850 border border-slate-800 rounded-xl p-3 flex flex-col justify-between">
-          <div class="flex items-center justify-between gap-1 mb-1">
-            <span class="text-xs font-bold px-2 py-0.5 rounded bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/30 whitespace-nowrap">D6</span>
-            <span class="text-[11px] text-slate-400 whitespace-nowrap">60 Gems</span>
-          </div>
-          <p class="text-[11px] text-slate-500 mb-2">2.40M Veins</p>
-          <div class="flex items-center gap-1">
-            <button onclick="adjustHero('d6', -1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">-</button>
-            <input id="hero_d6" type="number" min="0" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded h-8 text-center font-bold text-white text-sm" />
-            <button onclick="adjustHero('d6', 1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">+</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Non-Destiny Trans Heroes (For 5M CoT credit) -->
-      <div class="bg-slate-850 border border-slate-800 rounded-xl p-3.5 flex flex-wrap items-center justify-between gap-3">
+      <!-- Non-Destiny Trans -->
+      <div class="box-sm flex flex-wrap items-center justify-between gap-3">
         <div>
           <span class="text-sm font-semibold text-white">Other Transcendence Heroes (Not Destiny Yet)</span>
-          <p class="text-xs text-slate-400">Each non-Destiny Trans hero you own already has <span class="text-purple-300 font-semibold">5,000,000 CoT</span> invested in them.</p>
+          <p class="text-xs text-slate-400">Each hero credits <span class="text-purple-300 font-semibold">5,000,000 CoT</span>.</p>
         </div>
         <div class="flex items-center gap-1.5">
-          <button onclick="adjustHero('extraTrans', -1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">-</button>
-          <input id="hero_extraTrans" type="number" min="0" value="0" oninput="saveAndCalc()" class="w-20 bg-slate-900 border border-slate-700 rounded h-8 text-center font-bold text-purple-300 text-sm" />
-          <button onclick="adjustHero('extraTrans', 1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">+</button>
+          <button onclick="adjustVal('hero_extraTrans', -1)" class="btn-math">-</button>
+          <input id="hero_extraTrans" type="number" min="0" value="0" oninput="saveAndCalc()" class="input-mini text-purple-300" />
+          <button onclick="adjustVal('hero_extraTrans', 1)" class="btn-math">+</button>
         </div>
       </div>
 
-      <!-- INFUSION HEROES TEMPORARY REGRESSION -->
+      <!-- Infusions -->
       <div class="bg-slate-850 border border-cyan-500/30 rounded-xl p-4 space-y-3">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div>
             <div class="flex items-center gap-2">
-              <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">Temporary Regression</span>
+              <span class="badge bg-cyan-500/20 text-cyan-300 border-cyan-500/30">Temporary Regression</span>
               <h3 class="text-sm font-bold text-white">Infusion Heroes (Lv. 1–75)</h3>
             </div>
-            <p class="text-xs text-slate-400 mt-1">
-              Lv.16–40 refunds <span class="text-sky-300">300k Stellars + 300k CoT/lvl</span>. Lv.41–75 refunds <span class="text-sky-300">300k Stellars</span> + <span class="text-amber-300">38k Essences/lvl</span>, plus <span class="text-rose-300">4 Cores</span> & <span class="text-emerald-300">4× 180k Sublimation</span>.
-            </p>
+            <p class="text-xs text-slate-400 mt-1">Refunds Stellars, CoT, Essences, Cores, and Sublimation based on level.</p>
           </div>
-
           <div class="flex items-center gap-2">
-            <span class="text-xs text-slate-300 font-medium">How many Infusion heroes?</span>
-            <button onclick="changeInfusionCount(-1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">-</button>
-            <input id="infusionCount" type="number" min="0" max="30" value="0" oninput="onInfusionCountInput()" class="w-16 bg-slate-900 border border-cyan-500/40 rounded h-8 text-center font-bold text-cyan-300 text-sm" />
-            <button onclick="changeInfusionCount(1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">+</button>
+            <span class="text-xs text-slate-300">How many?</span>
+            <button onclick="changeArrCount('infusion', -1)" class="btn-math">-</button>
+            <input id="infusionCount" type="number" min="0" max="30" value="0" oninput="onArrCountInput('infusion')" class="input-mini text-cyan-300 !border-cyan-500/40" />
+            <button onclick="changeArrCount('infusion', 1)" class="btn-math">+</button>
           </div>
         </div>
-
         <div id="infusionList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5"></div>
         <div id="infusionSummary" class="hidden pt-2 border-t border-slate-800 text-xs text-slate-300 flex flex-wrap items-center gap-x-4 gap-y-1"></div>
       </div>
     </section>
 
-    <!-- STEP 3: BAG RESOURCES -->
-    <section class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-5">
-      <div class="flex items-center justify-between flex-wrap gap-2">
-        <div class="flex items-center gap-2.5">
-          <span class="w-7 h-7 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 font-bold text-sm flex items-center justify-center">3</span>
-          <div>
-            <h2 class="text-lg font-bold text-white">Resources in Your Bag</h2>
-            <p class="text-xs text-slate-400">You can type normal numbers or shorthand like <code class="text-amber-300">15M</code>, <code class="text-amber-300">180k</code>, <code class="text-amber-300">2.5M</code>.</p>
-          </div>
-        </div>
+    <!-- STEP 3 -->
+    <section class="panel">
+      <div class="flex items-center gap-2.5">
+        <span class="w-7 h-7 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 font-bold text-sm flex items-center justify-center">3</span>
+        <div><h2 class="text-lg font-bold text-white">Resources in Your Bag</h2></div>
       </div>
 
-      <!-- Cores of Origin Box (HERO-SPECIFIC CORE TRACKER) -->
+      <!-- Cores -->
       <div class="bg-slate-850 border border-rose-500/30 rounded-xl p-4 space-y-4">
         <div class="flex items-center justify-between flex-wrap gap-2">
           <div>
             <div class="flex items-center gap-2">
               <h3 class="text-sm font-bold text-rose-300">Cores of Origin (Hero-Specific Aware)</h3>
-              <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30">400 Shards = 1 Full Hero Core</span>
+              <span class="badge bg-rose-500/20 text-rose-300 border-rose-500/30">400 Shards = 1 Full Hero Core</span>
             </div>
-            <p class="text-xs text-slate-400 mt-0.5">
-              Since cores are locked to specific heroes, two half-built heroes cannot be combined into one Full Core. Add any partially built hero cores below!
-            </p>
           </div>
-          <div class="text-xs bg-slate-900 border border-slate-700 px-3 py-1.5 rounded-lg">
-            Usable Bag Cores: <span id="bagTotalCoresDisplay" class="font-bold text-rose-300">0</span>
-          </div>
+          <div class="text-xs bg-slate-900 border border-slate-700 px-3 py-1.5 rounded-lg">Usable Bag Cores: <span id="bagTotalCoresDisplay" class="font-bold text-rose-300">0</span></div>
         </div>
-
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div>
-            <label class="block text-xs text-slate-300 font-medium mb-1">Ready Full Cores (3★ = 400/400 on 1 Hero)</label>
-            <input id="bag_fullCores" type="number" min="0" step="1" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-rose-400" />
-          </div>
-          <div>
-            <label class="block text-xs text-slate-300 font-medium mb-1">50-Shard Core Chests (Universal = 0.5 Core)</label>
-            <input id="bag_coreChests50" type="number" min="0" step="1" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-rose-400" />
-          </div>
-          <div>
-            <label class="block text-xs text-slate-300 font-medium mb-1">Universal Core Shards (100 Shards = 1 Core)</label>
-            <input id="bag_coreShards" type="number" min="0" step="5" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-rose-400" />
-          </div>
+          <div><label class="block text-xs text-slate-300 mb-1">Full Cores (1 = 400 Shards)</label><input id="bag_fullCores" type="number" oninput="saveAndCalc()" class="input-std focus:border-rose-400" /></div>
+          <div><label class="block text-xs text-slate-300 mb-1">50-Shard Chests (1 = 0.5 Core)</label><input id="bag_coreChests50" type="number" oninput="saveAndCalc()" class="input-std focus:border-rose-400" /></div>
+          <div><label class="block text-xs text-slate-300 mb-1">Uni. Shards (100 = 1 Core)</label><input id="bag_coreShards" type="number" oninput="saveAndCalc()" class="input-std focus:border-rose-400" /></div>
         </div>
-
-        <!-- Partial Hero-Specific Cores -->
         <div class="pt-3 border-t border-slate-800 space-y-2.5">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <span class="text-xs font-bold text-white">Heroes with Partial Cores (Locked to Specific Heroes)</span>
-              <p class="text-[11px] text-slate-400">Have 1★ (100 shards), 2★ (200 shards), or 300 shards already opened on specific heroes? Add them here so we calculate how many Universal Shards are needed to finish each one.</p>
+              <span class="text-xs font-bold text-white">Heroes with Partial Cores</span>
+              <p class="text-[11px] text-slate-400">Prevents locking shards by combining them into the wrong hero.</p>
             </div>
             <div class="flex items-center gap-1.5">
-              <button onclick="changePartialCoreCount(-1)" class="w-7 h-7 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300 text-xs">-</button>
-              <input id="partialCoreCount" type="number" min="0" max="30" value="0" oninput="onPartialCoreCountInput()" class="w-14 bg-slate-900 border border-rose-500/40 rounded h-7 text-center font-bold text-rose-300 text-xs" />
-              <button onclick="changePartialCoreCount(1)" class="w-7 h-7 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300 text-xs">+</button>
+              <button onclick="changeArrCount('partialCore', -1)" class="btn-math h-7 w-7 text-xs">-</button>
+              <input id="partialCoreCount" type="number" min="0" max="30" value="0" oninput="onArrCountInput('partialCore')" class="input-mini h-7 text-rose-300 !border-rose-500/40 text-xs" />
+              <button onclick="changeArrCount('partialCore', 1)" class="btn-math h-7 w-7 text-xs">+</button>
             </div>
           </div>
-
           <div id="partialCoresList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5"></div>
           <div id="partialCoresPlan" class="hidden bg-slate-900/90 border border-slate-800 rounded-lg p-3 text-xs space-y-1"></div>
         </div>
       </div>
 
-      <!-- 4 Sublimation Branches Box -->
-      <div class="bg-slate-850 border border-slate-800 rounded-xl p-4">
-        <div class="flex items-center justify-between mb-3">
-          <div>
-            <h3 class="text-sm font-bold text-emerald-300">Sublimation in Bag (4 Branches • 180k each per Hero)</h3>
-            <p class="text-xs text-slate-400">Enter your already-assigned/opened Sublimation for each branch. Put unopened Sublimation chests in Step 4!</p>
-          </div>
-        </div>
+      <!-- Sublimation -->
+      <div class="box">
+        <h3 class="text-sm font-bold text-emerald-300 mb-3">Sublimation Opened in Bag (Unopened chests go in Step 4!)</h3>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div>
-            <label class="block text-xs text-blue-300 font-medium mb-1">Active Subli</label>
-            <input id="bag_subActive" type="text" value="0" oninput="saveAndCalc()" placeholder="e.g. 180k" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-blue-400" />
-          </div>
-          <div>
-            <label class="block text-xs text-amber-300 font-medium mb-1">Passive 1 (P1)</label>
-            <input id="bag_subP1" type="text" value="0" oninput="saveAndCalc()" placeholder="e.g. 180k" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-amber-400" />
-          </div>
-          <div>
-            <label class="block text-xs text-violet-300 font-medium mb-1">Passive 2 (P2)</label>
-            <input id="bag_subP2" type="text" value="0" oninput="saveAndCalc()" placeholder="e.g. 180k" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-violet-400" />
-          </div>
-          <div>
-            <label class="block text-xs text-rose-300 font-medium mb-1">Passive 3 / P4</label>
-            <input id="bag_subP3" type="text" value="0" oninput="saveAndCalc()" placeholder="e.g. 180k" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-rose-400" />
-          </div>
+          <div><label class="block text-xs text-blue-300 font-medium mb-1">Active</label><input id="bag_subActive" type="text" oninput="saveAndCalc()" class="input-std focus:border-blue-400" /></div>
+          <div><label class="block text-xs text-amber-300 font-medium mb-1">Passive 1</label><input id="bag_subP1" type="text" oninput="saveAndCalc()" class="input-std focus:border-amber-400" /></div>
+          <div><label class="block text-xs text-violet-300 font-medium mb-1">Passive 2</label><input id="bag_subP2" type="text" oninput="saveAndCalc()" class="input-std focus:border-violet-400" /></div>
+          <div><label class="block text-xs text-rose-300 font-medium mb-1">Passive 3 / 4</label><input id="bag_subP3" type="text" oninput="saveAndCalc()" class="input-std focus:border-rose-400" /></div>
         </div>
       </div>
 
       <!-- Main Currencies -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-        <div class="bg-slate-850 border border-slate-800 rounded-xl p-3">
-          <label class="block text-xs text-amber-300 font-semibold mb-1">Spiritual Essences</label>
-          <input id="bag_essences" type="text" value="0" oninput="saveAndCalc()" placeholder="e.g. 5M" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-amber-400" />
-        </div>
-        <div class="bg-slate-850 border border-slate-800 rounded-xl p-3">
-          <label class="block text-xs text-sky-300 font-semibold mb-1">Stellar Shards</label>
-          <input id="bag_stellars" type="text" value="0" oninput="saveAndCalc()" placeholder="e.g. 50M" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-sky-400" />
-        </div>
-        <div class="bg-slate-850 border border-slate-800 rounded-xl p-3">
-          <label class="block text-xs text-purple-300 font-semibold mb-1">CoT (Trans Crystals)</label>
-          <input id="bag_cot" type="text" value="0" oninput="saveAndCalc()" placeholder="e.g. 20M" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-purple-400" />
-        </div>
-        <div class="bg-slate-850 border border-slate-800 rounded-xl p-3">
-          <label class="block text-xs text-orange-300 font-semibold mb-1">Spiritveins</label>
-          <input id="bag_spiritveins" type="text" value="0" oninput="saveAndCalc()" placeholder="e.g. 1.5M" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-orange-400" />
-        </div>
-        <div class="bg-slate-850 border border-slate-800 rounded-xl p-3">
-          <label class="block text-xs text-cyan-300 font-semibold mb-1">Aurora Gems (Whole)</label>
-          <input id="bag_auroraGems" type="text" value="0" oninput="saveAndCalc()" placeholder="e.g. 45" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-cyan-400" />
-        </div>
-        <div class="bg-slate-850 border border-slate-800 rounded-xl p-3">
-          <label class="block text-xs text-cyan-200 font-semibold mb-1">Aurora Shards (5k=1)</label>
-          <input id="bag_auroraShards" type="text" value="0" oninput="saveAndCalc()" placeholder="e.g. 3750" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-cyan-400" />
-        </div>
+      <div class="grid grid-cols-2 lg:grid-cols-6 gap-3">
+        <div class="box-sm"><label class="block text-xs text-amber-300 mb-1">Essences</label><input id="bag_essences" type="text" oninput="saveAndCalc()" class="input-std focus:border-amber-400" /></div>
+        <div class="box-sm"><label class="block text-xs text-sky-300 mb-1">Stellars</label><input id="bag_stellars" type="text" oninput="saveAndCalc()" class="input-std focus:border-sky-400" /></div>
+        <div class="box-sm"><label class="block text-xs text-purple-300 mb-1">CoT</label><input id="bag_cot" type="text" oninput="saveAndCalc()" class="input-std focus:border-purple-400" /></div>
+        <div class="box-sm"><label class="block text-xs text-orange-300 mb-1">Spiritveins</label><input id="bag_spiritveins" type="text" oninput="saveAndCalc()" class="input-std focus:border-orange-400" /></div>
+        <div class="box-sm"><label class="block text-xs text-cyan-300 mb-1">Whole Gems</label><input id="bag_auroraGems" type="text" oninput="saveAndCalc()" class="input-std focus:border-cyan-400" /></div>
+        <div class="box-sm"><label class="block text-xs text-cyan-200 mb-1">Gem Shards</label><input id="bag_auroraShards" type="text" oninput="saveAndCalc()" class="input-std focus:border-cyan-400" /></div>
       </div>
     </section>
 
-    <!-- STEP 4: SELECTION CHESTS & SMART PICK OPTIMIZER -->
-    <section class="bg-slate-900 border border-amber-500/30 rounded-2xl p-5 shadow-lg space-y-5">
-      <div class="flex items-center justify-between flex-wrap gap-2">
-        <div class="flex items-center gap-2.5">
-          <span class="w-7 h-7 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 font-bold text-sm flex items-center justify-center">4</span>
-          <div>
-            <h2 class="text-lg font-bold text-white">Selection Chests & Smart Pick Optimizer</h2>
-            <p class="text-xs text-slate-400">
-              Single-purpose chests (Sublimation & Spheres) are allocated first so your versatile chests (Star Expedition, Imp's, Relay) are saved for your hardest bottlenecks!
-            </p>
-          </div>
-        </div>
+    <!-- STEP 4 -->
+    <section class="panel !border-amber-500/30">
+      <div class="flex items-center gap-2.5">
+        <span class="w-7 h-7 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 font-bold text-sm flex items-center justify-center">4</span>
+        <div><h2 class="text-lg font-bold text-white">Selection Chests & Smart Pick Optimizer</h2><p class="text-xs text-slate-400">Auto-allocates single-purpose chests first, then flexible ones!</p></div>
       </div>
 
-      <!-- Group A: Sublimation Chests (90k, 45k, 9k, 1800, 1) -->
-      <div class="bg-slate-850 border border-slate-800 rounded-xl p-4 space-y-3">
-        <div>
-          <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Sublimation Selection Chests</span>
-          <p class="text-xs text-slate-400 mt-1">Choose Active, P1, P2, or P3. Supports shorthand like <code class="text-emerald-300">90k</code> for the 1-Sub chest.</p>
-        </div>
+      <div class="box space-y-3">
+        <span class="badge bg-emerald-500/20 text-emerald-300 border-emerald-500/30">Sublimation Selection Chests</span>
         <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
-          <div>
-            <label class="block text-xs text-slate-300 font-semibold mb-1">90k Sub Chests</label>
-            <input id="chest_sub90k" type="text" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-emerald-300 font-bold text-sm focus:outline-none focus:border-emerald-400" />
-          </div>
-          <div>
-            <label class="block text-xs text-slate-300 font-semibold mb-1">45k Sub Chests</label>
-            <input id="chest_sub45k" type="text" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-emerald-300 font-bold text-sm focus:outline-none focus:border-emerald-400" />
-          </div>
-          <div>
-            <label class="block text-xs text-slate-300 font-semibold mb-1">9k Sub Chests</label>
-            <input id="chest_sub9k" type="text" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-emerald-300 font-bold text-sm focus:outline-none focus:border-emerald-400" />
-          </div>
-          <div>
-            <label class="block text-xs text-slate-300 font-semibold mb-1">1,800 Sub Chests</label>
-            <input id="chest_sub1800" type="text" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-emerald-300 font-bold text-sm focus:outline-none focus:border-emerald-400" />
-          </div>
-          <div class="col-span-2 sm:col-span-1">
-            <label class="block text-xs text-slate-300 font-semibold mb-1">1 Sub Chests (1 pt)</label>
-            <input id="chest_sub1" type="text" value="0" oninput="saveAndCalc()" placeholder="e.g. 45k" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-emerald-300 font-bold text-sm focus:outline-none focus:border-emerald-400" />
-          </div>
+          <div><label class="block text-xs text-slate-300 mb-1">90k Chests</label><input id="chest_sub90k" type="text" oninput="saveAndCalc()" class="input-std text-emerald-300 focus:border-emerald-400" /></div>
+          <div><label class="block text-xs text-slate-300 mb-1">45k Chests</label><input id="chest_sub45k" type="text" oninput="saveAndCalc()" class="input-std text-emerald-300 focus:border-emerald-400" /></div>
+          <div><label class="block text-xs text-slate-300 mb-1">9k Chests</label><input id="chest_sub9k" type="text" oninput="saveAndCalc()" class="input-std text-emerald-300 focus:border-emerald-400" /></div>
+          <div><label class="block text-xs text-slate-300 mb-1">1,800 Chests</label><input id="chest_sub1800" type="text" oninput="saveAndCalc()" class="input-std text-emerald-300 focus:border-emerald-400" /></div>
+          <div><label class="block text-xs text-slate-300 mb-1">1-pt Chests</label><input id="chest_sub1" type="text" oninput="saveAndCalc()" class="input-std text-emerald-300 focus:border-emerald-400" /></div>
         </div>
         <div id="plan_pureSub" class="bg-slate-900/90 border border-slate-800 rounded-lg p-3 text-xs"></div>
       </div>
 
-      <!-- Group B: Transcendence Spheres & 1-Resource Trans Chests -->
-      <div class="bg-slate-850 border border-slate-800 rounded-xl p-4 space-y-3">
-        <div>
-          <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30">Transcendence Spheres & Trans Chests</span>
-          <p class="text-xs text-slate-400 mt-1">Choose between <span class="text-sky-300 font-semibold">Stellar Shards</span> or <span class="text-purple-300 font-semibold">CoT</span>.</p>
-        </div>
+      <div class="box space-y-3">
+        <span class="badge bg-sky-500/20 text-sky-300 border-sky-500/30">Transcendence</span>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs text-slate-300 font-semibold mb-1">Transcendence Spheres (250k Stellar or 250k CoT)</label>
-            <input id="chest_transSphere" type="text" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sky-300 font-bold text-sm focus:outline-none focus:border-sky-400" />
-          </div>
-          <div>
-            <label class="block text-xs text-slate-300 font-semibold mb-1">Trans Chests (1 Stellar or 1 CoT each • e.g. 2.5M)</label>
-            <input id="chest_trans1" type="text" value="0" oninput="saveAndCalc()" placeholder="e.g. 1.5M" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sky-300 font-bold text-sm focus:outline-none focus:border-sky-400" />
-          </div>
+          <div><label class="block text-xs text-slate-300 mb-1">Spheres (250k)</label><input id="chest_transSphere" type="text" oninput="saveAndCalc()" class="input-std text-sky-300 focus:border-sky-400" /></div>
+          <div><label class="block text-xs text-slate-300 mb-1">1-pt Trans Chests</label><input id="chest_trans1" type="text" oninput="saveAndCalc()" class="input-std text-sky-300 focus:border-sky-400" /></div>
         </div>
         <div id="plan_transChests" class="bg-slate-900/90 border border-slate-800 rounded-lg p-3 text-xs"></div>
       </div>
 
-      <!-- Group C: Multi-Option Event & Mode Chests -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- Monthly F2P Chest -->
-        <div class="bg-slate-850 border border-slate-800 rounded-xl p-4 flex flex-col justify-between space-y-3">
-          <div class="flex items-start justify-between gap-3">
-            <div>
-              <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">Monthly F2P Chest</span>
-              <h3 class="text-sm font-bold text-white mt-1.5">Monthly F2P Chest</h3>
-              <p class="text-xs text-slate-400 mt-0.5">
-                Choose 1: <span class="text-sky-300">2,500 Stellar</span> OR <span class="text-purple-300">2,500 CoT</span> OR <span class="text-emerald-300">180 Subli</span> (Active/P1/P2/P3).
-              </p>
-            </div>
-            <input id="chest_monthlyF2p" type="text" value="0" oninput="saveAndCalc()" class="w-20 bg-slate-900 border border-amber-500/40 rounded-lg px-2.5 py-1.5 text-center font-bold text-amber-300 text-sm" />
-          </div>
-          <div id="plan_monthlyF2p" class="bg-slate-900/90 border border-slate-800 rounded-lg p-3 text-xs"></div>
-        </div>
-
-        <!-- Relay 1x Sub / Core Chest -->
-        <div class="bg-slate-850 border border-slate-800 rounded-xl p-4 flex flex-col justify-between space-y-3">
-          <div class="flex items-start justify-between gap-3">
-            <div>
-              <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Relay Chest #1</span>
-              <h3 class="text-sm font-bold text-white mt-1.5">Relay 1× Sub / Core Chest</h3>
-              <p class="text-xs text-slate-400 mt-0.5">
-                Choose 1: <span class="text-emerald-300">9,000 Subli</span> (Active/P1/P2/P3) OR <span class="text-rose-300">5 Core Shards</span> (0.05 Core).
-              </p>
-            </div>
-            <input id="chest_relaySubCore" type="text" value="0" oninput="saveAndCalc()" class="w-20 bg-slate-900 border border-emerald-500/40 rounded-lg px-2.5 py-1.5 text-center font-bold text-emerald-300 text-sm" />
-          </div>
-          <div id="plan_relaySubCore" class="bg-slate-900/90 border border-slate-800 rounded-lg p-3 text-xs"></div>
-        </div>
-
-        <!-- Relay 1x Destiny Pick Chest -->
-        <div class="bg-slate-850 border border-slate-800 rounded-xl p-4 flex flex-col justify-between space-y-3">
-          <div class="flex items-start justify-between gap-3">
-            <div>
-              <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">Relay Chest #2</span>
-              <h3 class="text-sm font-bold text-white mt-1.5">Relay 1× Destiny Pick Chest</h3>
-              <p class="text-xs text-slate-400 mt-0.5">
-                Choose 1: <span class="text-orange-300">30,000 Spiritveins</span> OR <span class="text-cyan-300">3,750 Aurora Shards</span> (0.75 Gem).
-              </p>
-            </div>
-            <input id="chest_relayDestiny" type="text" value="0" oninput="saveAndCalc()" class="w-20 bg-slate-900 border border-cyan-500/40 rounded-lg px-2.5 py-1.5 text-center font-bold text-cyan-300 text-sm" />
-          </div>
-          <div id="plan_relayDestiny" class="bg-slate-900/90 border border-slate-800 rounded-lg p-3 text-xs"></div>
-        </div>
-
-        <!-- Star Expedition Chest -->
-        <div class="bg-slate-850 border border-slate-800 rounded-xl p-4 flex flex-col justify-between space-y-3">
-          <div class="flex items-start justify-between gap-3">
-            <div>
-              <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-violet-500/20 text-violet-300 border border-violet-500/30">Star Expedition</span>
-              <h3 class="text-sm font-bold text-white mt-1.5">Star Expedition Chest</h3>
-              <p class="text-xs text-slate-400 mt-0.5">
-                Choose 1: <span class="text-sky-300">25k Stellar</span>, <span class="text-purple-300">25k CoT</span>, <span class="text-emerald-300">1,800 Subli</span>, <span class="text-rose-300">1 Core Shard</span>, <span class="text-orange-300">5,000 Spiritveins</span>, or <span class="text-cyan-300">625 Aurora Shards</span>.
-              </p>
-            </div>
-            <input id="chest_starExp" type="text" value="0" oninput="saveAndCalc()" class="w-20 bg-slate-900 border border-violet-500/40 rounded-lg px-2.5 py-1.5 text-center font-bold text-violet-300 text-sm" />
-          </div>
-          <div id="plan_starExp" class="bg-slate-900/90 border border-slate-800 rounded-lg p-3 text-xs"></div>
-        </div>
-
-        <!-- Imp's Adventure Chest -->
-        <div class="bg-slate-850 border border-slate-800 rounded-xl p-4 flex flex-col justify-between space-y-3 md:col-span-2">
-          <div class="flex items-start justify-between gap-3">
-            <div>
-              <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30">Imp's Adventure</span>
-              <h3 class="text-sm font-bold text-white mt-1.5">Imp's Chest</h3>
-              <p class="text-xs text-slate-400 mt-0.5">
-                Choose 1: <span class="text-sky-300">62k Stellar</span>, <span class="text-purple-300">62k CoT</span>, <span class="text-emerald-300">4,500 Subli</span> (Active/P1/P2/P3), <span class="text-rose-300">3 Core Shards</span>, <span class="text-orange-300">12,000 Spiritveins</span>, or <span class="text-cyan-300">1,500 Aurora Shards</span>.
-              </p>
-            </div>
-            <input id="chest_imps" type="text" value="0" oninput="saveAndCalc()" class="w-24 bg-slate-900 border border-rose-500/40 rounded-lg px-2.5 py-1.5 text-center font-bold text-rose-300 text-sm" />
-          </div>
-          <div id="plan_imps" class="bg-slate-900/90 border border-slate-800 rounded-lg p-3 text-xs"></div>
-        </div>
-      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="mixedChestsGrid"></div>
     </section>
 
     <!-- STEP 5: RESULTS -->
-    <section class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-5">
+    <section class="panel">
       <div class="flex items-center justify-between flex-wrap gap-3">
         <div class="flex items-center gap-2.5">
           <span class="w-7 h-7 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 font-bold text-sm flex items-center justify-center">5</span>
-          <div>
-            <h2 class="text-lg font-bold text-white">Results for Target Temple Level <span id="resTargetLvlLabel" class="text-amber-400"></span></h2>
-            <p id="resHeroStatusText" class="text-xs text-slate-400"></p>
-          </div>
+          <div><h2 class="text-lg font-bold text-white">Results for Level <span id="resTargetLvlLabel" class="text-amber-400"></span></h2><p id="resHeroStatusText" class="text-xs text-slate-400"></p></div>
         </div>
         <div id="overallBadge" class="px-3.5 py-1.5 rounded-xl font-bold text-xs"></div>
       </div>
-
-      <!-- 4 Sublimation Branch Cards -->
       <div>
-        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2.5">Sublimation Breakdown (180k per Hero per Branch • Includes Recommended Chest Picks)</h3>
+        <h3 class="text-xs font-bold uppercase text-slate-400 mb-2.5">Sublimation Breakdown</h3>
         <div id="subliCardsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3"></div>
       </div>
-
-      <!-- Main Resource Table -->
       <div class="overflow-x-auto border border-slate-800 rounded-xl">
         <table class="w-full text-left border-collapse text-sm">
           <thead>
             <tr class="bg-slate-850 text-slate-400 text-xs uppercase border-b border-slate-800">
-              <th class="py-3 px-4">Resource</th>
-              <th class="py-3 px-4 text-right">Target Needs</th>
-              <th class="py-3 px-4 text-right">In Heroes + Infusions</th>
-              <th class="py-3 px-4 text-right">In Bag + Chest Picks</th>
-              <th class="py-3 px-4 text-right">Still Needed (Missing)</th>
+              <th class="py-3 px-4">Resource</th><th class="py-3 px-4 text-right">Target</th><th class="py-3 px-4 text-right">Heroes</th><th class="py-3 px-4 text-right">Bag + Chests</th><th class="py-3 px-4 text-right">Missing</th>
             </tr>
           </thead>
           <tbody id="resultsTableBody" class="divide-y divide-slate-800/70"></tbody>
         </table>
       </div>
     </section>
-
   </main>
 
   <script>
-    // Temple Level Chart Data (Levels 1-30)
-    const TEMPLE_LEVELS = [
-      { level: 1, label: "1", dp: 0, max: [3,2,1,0,0,0], d: [1,0,0,0,0,0], heroes: 1, cores: 4, sublis: 720000, essences: 1248120, stellars: 14929100, cot: 5420000, spiritveins: 0, auroraGems: 5 },
-      { level: 2, label: "2", dp: 0, max: [4,3,2,0,0,0], d: [3,0,0,0,0,0], heroes: 3, cores: 12, sublis: 2160000, essences: 3744360, stellars: 47251920, cot: 16260000, spiritveins: 591708, auroraGems: 15 },
-      { level: 3, label: "3", dp: 1, max: [5,4,3,0,0,0], d: [2,2,0,0,0,0], heroes: 4, cores: 16, sublis: 2880000, essences: 4992480, stellars: 65312560, cot: 22860000, spiritveins: 1343344, auroraGems: 34 },
-      { level: 4, label: "4", dp: 2, max: [6,5,4,1,0,0], d: [0,1,2,0,0,0], heroes: 3, cores: 12, sublis: 2160000, essences: 3744360, stellars: 53686920, cot: 19530000, spiritveins: 2136108, auroraGems: 54 },
-      { level: 5, label: "5", dp: 3, max: [7,6,5,2,0,0], d: [2,1,1,1,0,0], heroes: 5, cores: 20, sublis: 3600000, essences: 6240600, stellars: 87003200, cot: 31290000, spiritveins: 2966180, auroraGems: 75 },
-      { level: 6, label: "6", dp: 4, max: [8,7,6,3,0,0], d: [0,2,2,1,0,0], heroes: 5, cores: 20, sublis: 3600000, essences: 6240600, stellars: 90798200, cot: 33220000, spiritveins: 3876980, auroraGems: 98 },
-      { level: 7, label: "7", dp: 4, max: [9,8,7,4,1,0], d: [1,1,2,2,0,0], heroes: 6, cores: 24, sublis: 4320000, essences: 7488720, stellars: 109848840, cot: 40310000, spiritveins: 4866216, auroraGems: 123 },
-      { level: 8, label: "8", dp: 5, max: [10,9,8,5,2,0], d: [0,0,2,2,1,0], heroes: 5, cores: 20, sublis: 3600000, essences: 6240600, stellars: 99543200, cot: 37660000, spiritveins: 5975780, auroraGems: 151 },
-      { level: 9, label: "9", dp: 5, max: [11,10,9,6,3,0], d: [0,0,2,3,1,0], heroes: 6, cores: 24, sublis: 4320000, essences: 7488720, stellars: 119748840, cot: 45340000, spiritveins: 7242216, auroraGems: 183 },
-      { level: 10, label: "10", dp: 6, max: [12,11,10,7,4,1], d: [0,0,3,2,2,0], heroes: 7, cores: 28, sublis: 5040000, essences: 8736840, stellars: 140284480, cot: 53200000, spiritveins: 8587852, auroraGems: 217 },
-      { level: 11, label: "11", dp: 6, max: [12,12,11,8,5,2], d: [0,0,2,2,2,1], heroes: 7, cores: 28, sublis: 5040000, essences: 8736840, stellars: 146823430, cot: 56470000, spiritveins: 10157552, auroraGems: 256 },
-      { level: 12, label: "12", dp: 7, max: [12,12,12,9,6,3], d: [0,0,1,3,3,1], heroes: 8, cores: 32, sublis: 5760000, essences: 9984960, stellars: 170989070, cot: 66170000, spiritveins: 12374388, auroraGems: 312 },
-      { level: 13, label: "13", dp: 7, max: [12,12,12,10,7,4], d: [0,0,1,3,3,2], heroes: 9, cores: 36, sublis: 6480000, essences: 11233080, stellars: 195918660, cot: 76200000, spiritveins: 14774924, auroraGems: 372 },
-      { level: 14, label: "14", dp: 8, max: [12,12,12,11,8,5], d: [0,0,0,4,3,3], heroes: 10, cores: 40, sublis: 7200000, essences: 12481200, stellars: 222663250, cot: 87150000, spiritveins: 17611060, auroraGems: 443 },
-      { level: 15, label: "15", dp: 8, max: [12,12,12,12,9,6], d: [0,0,0,5,4,3], heroes: 12, cores: 48, sublis: 8640000, essences: 14977440, stellars: 265219530, cot: 103610000, spiritveins: 20658732, auroraGems: 520 },
-      { level: 16, label: "16", dp: 9, max: [12,12,12,12,10,8], d: [0,0,0,6,4,4], heroes: 14, cores: 56, sublis: 10080000, essences: 17473680, stellars: 310354760, cot: 121320000, spiritveins: 24325704, auroraGems: 612 },
-      { level: 17, label: "17", dp: 9, max: [16,12,12,12,11,8], d: [0,0,0,8,6,4], heroes: 18, cores: 72, sublis: 12960000, essences: 22466160, stellars: 395467320, cot: 154240000, spiritveins: 30421048, auroraGems: 766 },
-      { level: 18, label: "18", dp: 9, max: [16,16,12,12,12,8], d: [0,0,0,10,6,5], heroes: 21, cores: 84, sublis: 15120000, essences: 26210520, stellars: 460808190, cot: 179630000, spiritveins: 35354456, auroraGems: 890 },
-      { level: 19, label: "19", dp: 10, max: [16,16,16,12,12,10], d: [0,0,0,12,8,5], heroes: 25, cores: 100, sublis: 18000000, essences: 31203000, stellars: 545920750, cot: 212550000, spiritveins: 41449800, auroraGems: 1044 },
-      { level: 20, label: "20", dp: 10, max: [16,16,16,16,12,10], d: [0,0,0,12,8,6], heroes: 26, cores: 104, sublis: 18720000, essences: 32451120, stellars: 570850340, cot: 222580000, spiritveins: 43850336, auroraGems: 1104 },
-      { level: 21, label: "21", dp: 10, max: [16,16,16,16,14,12], d: [0,0,0,14,10,6], heroes: 30, cores: 120, sublis: 21600000, essences: 37443600, stellars: 655962900, cot: 255500000, spiritveins: 49945680, auroraGems: 1258 },
-      { level: 22, label: "22", dp: 10, max: [16,16,16,16,16,12], d: [0,0,0,16,12,8], heroes: 36, cores: 144, sublis: 25920000, essences: 44932320, stellars: 790934640, cot: 308480000, spiritveins: 60842096, auroraGems: 1532 },
-      { level: 23, label: "23", dp: 11, max: [18,18,18,16,16,12], d: [0,0,0,16,14,8], heroes: 38, cores: 152, sublis: 27360000, essences: 47428560, stellars: 835635920, cot: 326040000, spiritveins: 64404568, auroraGems: 1622 },
-      { level: 24, label: "24*", dp: 11, max: [18,18,18,18,16,14], d: [0,0,0,16,16,10], heroes: 42, cores: 168, sublis: 30240000, essences: 52421040, stellars: 930196380, cot: 363660000, spiritveins: 72768112, auroraGems: 1832 },
-      { level: 25, label: "25*", dp: 12, max: [20,20,20,18,18,14], d: [0,0,0,18,16,12], heroes: 46, cores: 184, sublis: 33120000, essences: 57413520, stellars: 1020466840, cot: 399080000, spiritveins: 80102056, auroraGems: 2016 },
-      { level: 26, label: "26*", dp: 12, max: [20,20,20,20,18,14], d: [0,0,0,18,18,12], heroes: 48, cores: 192, sublis: 34560000, essences: 59909760, stellars: 1065168120, cot: 416640000, spiritveins: 83664528, auroraGems: 2106 },
-      { level: 27, label: "27*", dp: 13, max: [22,22,22,20,20,16], d: [0,0,0,20,18,14], heroes: 52, cores: 208, sublis: 37440000, essences: 64902240, stellars: 1155438580, cot: 452060000, spiritveins: 90998472, auroraGems: 2290 },
-      { level: 28, label: "28*", dp: 13, max: [22,22,22,22,20,16], d: [0,0,0,20,20,14], heroes: 54, cores: 216, sublis: 38880000, essences: 67398480, stellars: 1200139860, cot: 469620000, spiritveins: 94560944, auroraGems: 2380 },
-      { level: 29, label: "29*", dp: 14, max: [24,24,24,22,22,16], d: [0,0,0,22,20,16], heroes: 58, cores: 232, sublis: 41760000, essences: 72390960, stellars: 1290410320, cot: 505040000, spiritveins: 101894888, auroraGems: 2564 },
-      { level: 30, label: "30*", dp: 15, max: [24,24,24,24,24,18], d: [0,0,0,22,22,16], heroes: 60, cores: 240, sublis: 43200000, essences: 74887200, stellars: 1335111600, cot: 522600000, spiritveins: 105457360, auroraGems: 2654 }
+    // --- Data Defs ---
+    const TEMPLE_LEVELS=[{level:1,label:"1",dp:0,max:[3,2,1,0,0,0],d:[1,0,0,0,0,0],heroes:1,cores:4,sublis:720000,essences:1248120,stellars:14929100,cot:5420000,spiritveins:0,auroraGems:5},{level:2,label:"2",dp:0,max:[4,3,2,0,0,0],d:[3,0,0,0,0,0],heroes:3,cores:12,sublis:2160000,essences:3744360,stellars:47251920,cot:16260000,spiritveins:591708,auroraGems:15},{level:3,label:"3",dp:1,max:[5,4,3,0,0,0],d:[2,2,0,0,0,0],heroes:4,cores:16,sublis:2880000,essences:4992480,stellars:65312560,cot:22860000,spiritveins:1343344,auroraGems:34},{level:4,label:"4",dp:2,max:[6,5,4,1,0,0],d:[0,1,2,0,0,0],heroes:3,cores:12,sublis:2160000,essences:3744360,stellars:53686920,cot:19530000,spiritveins:2136108,auroraGems:54},{level:5,label:"5",dp:3,max:[7,6,5,2,0,0],d:[2,1,1,1,0,0],heroes:5,cores:20,sublis:3600000,essences:6240600,stellars:87003200,cot:31290000,spiritveins:2966180,auroraGems:75},{level:6,label:"6",dp:4,max:[8,7,6,3,0,0],d:[0,2,2,1,0,0],heroes:5,cores:20,sublis:3600000,essences:6240600,stellars:90798200,cot:33220000,spiritveins:3876980,auroraGems:98},{level:7,label:"7",dp:4,max:[9,8,7,4,1,0],d:[1,1,2,2,0,0],heroes:6,cores:24,sublis:4320000,essences:7488720,stellars:109848840,cot:40310000,spiritveins:4866216,auroraGems:123},{level:8,label:"8",dp:5,max:[10,9,8,5,2,0],d:[0,0,2,2,1,0],heroes:5,cores:20,sublis:3600000,essences:6240600,stellars:99543200,cot:37660000,spiritveins:5975780,auroraGems:151},{level:9,label:"9",dp:5,max:[11,10,9,6,3,0],d:[0,0,2,3,1,0],heroes:6,cores:24,sublis:4320000,essences:7488720,stellars:119748840,cot:45340000,spiritveins:7242216,auroraGems:183},{level:10,label:"10",dp:6,max:[12,11,10,7,4,1],d:[0,0,3,2,2,0],heroes:7,cores:28,sublis:5040000,essences:8736840,stellars:140284480,cot:53200000,spiritveins:8587852,auroraGems:217},{level:11,label:"11",dp:6,max:[12,12,11,8,5,2],d:[0,0,2,2,2,1],heroes:7,cores:28,sublis:5040000,essences:8736840,stellars:146823430,cot:56470000,spiritveins:10157552,auroraGems:256},{level:12,label:"12",dp:7,max:[12,12,12,9,6,3],d:[0,0,1,3,3,1],heroes:8,cores:32,sublis:5760000,essences:9984960,stellars:170989070,cot:66170000,spiritveins:12374388,auroraGems:312},{level:13,label:"13",dp:7,max:[12,12,12,10,7,4],d:[0,0,1,3,3,2],heroes:9,cores:36,sublis:6480000,essences:11233080,stellars:195918660,cot:76200000,spiritveins:14774924,auroraGems:372},{level:14,label:"14",dp:8,max:[12,12,12,11,8,5],d:[0,0,0,4,3,3],heroes:10,cores:40,sublis:7200000,essences:12481200,stellars:222663250,cot:87150000,spiritveins:17611060,auroraGems:443},{level:15,label:"15",dp:8,max:[12,12,12,12,9,6],d:[0,0,0,5,4,3],heroes:12,cores:48,sublis:8640000,essences:14977440,stellars:265219530,cot:103610000,spiritveins:20658732,auroraGems:520},{level:16,label:"16",dp:9,max:[12,12,12,12,10,8],d:[0,0,0,6,4,4],heroes:14,cores:56,sublis:10080000,essences:17473680,stellars:310354760,cot:121320000,spiritveins:24325704,auroraGems:612},{level:17,label:"17",dp:9,max:[16,12,12,12,11,8],d:[0,0,0,8,6,4],heroes:18,cores:72,sublis:12960000,essences:22466160,stellars:395467320,cot:154240000,spiritveins:30421048,auroraGems:766},{level:18,label:"18",dp:9,max:[16,16,12,12,12,8],d:[0,0,0,10,6,5],heroes:21,cores:84,sublis:15120000,essences:26210520,stellars:460808190,cot:179630000,spiritveins:35354456,auroraGems:890},{level:19,label:"19",dp:10,max:[16,16,16,12,12,10],d:[0,0,0,12,8,5],heroes:25,cores:100,sublis:18000000,essences:31203000,stellars:545920750,cot:212550000,spiritveins:41449800,auroraGems:1044},{level:20,label:"20",dp:10,max:[16,16,16,16,12,10],d:[0,0,0,12,8,6],heroes:26,cores:104,sublis:18720000,essences:32451120,stellars:570850340,cot:222580000,spiritveins:43850336,auroraGems:1104},{level:21,label:"21",dp:10,max:[16,16,16,16,14,12],d:[0,0,0,14,10,6],heroes:30,cores:120,sublis:21600000,essences:37443600,stellars:655962900,cot:255500000,spiritveins:49945680,auroraGems:1258},{level:22,label:"22",dp:10,max:[16,16,16,16,16,12],d:[0,0,0,16,12,8],heroes:36,cores:144,sublis:25920000,essences:44932320,stellars:790934640,cot:308480000,spiritveins:60842096,auroraGems:1532},{level:23,label:"23",dp:11,max:[18,18,18,16,16,12],d:[0,0,0,16,14,8],heroes:38,cores:152,sublis:27360000,essences:47428560,stellars:835635920,cot:326040000,spiritveins:64404568,auroraGems:1622},{level:24,label:"24*",dp:11,max:[18,18,18,18,16,14],d:[0,0,0,16,16,10],heroes:42,cores:168,sublis:30240000,essences:52421040,stellars:930196380,cot:363660000,spiritveins:72768112,auroraGems:1832},{level:25,label:"25*",dp:12,max:[20,20,20,18,18,14],d:[0,0,0,18,16,12],heroes:46,cores:184,sublis:33120000,essences:57413520,stellars:1020466840,cot:399080000,spiritveins:80102056,auroraGems:2016},{level:26,label:"26*",dp:12,max:[20,20,20,20,18,14],d:[0,0,0,18,18,12],heroes:48,cores:192,sublis:34560000,essences:59909760,stellars:1065168120,cot:416640000,spiritveins:83664528,auroraGems:2106},{level:27,label:"27*",dp:13,max:[22,22,22,20,20,16],d:[0,0,0,20,18,14],heroes:52,cores:208,sublis:37440000,essences:64902240,stellars:1155438580,cot:452060000,spiritveins:90998472,auroraGems:2290},{level:28,label:"28*",dp:13,max:[22,22,22,22,20,16],d:[0,0,0,20,20,14],heroes:54,cores:216,sublis:38880000,essences:67398480,stellars:1200139860,cot:469620000,spiritveins:94560944,auroraGems:2380},{level:29,label:"29*",dp:14,max:[24,24,24,22,22,16],d:[0,0,0,22,20,16],heroes:58,cores:232,sublis:41760000,essences:72390960,stellars:1290410320,cot:505040000,spiritveins:101894888,auroraGems:2564},{level:30,label:"30*",dp:15,max:[24,24,24,24,24,18],d:[0,0,0,22,22,16],heroes:60,cores:240,sublis:43200000,essences:74887200,stellars:1335111600,cot:522600000,spiritveins:105457360,auroraGems:2654}];
+    const HERO_DEFS = [
+      { id: 'd1_1', label: 'D0', desc: 'D1 Lv.1 (0 Veins)', color: 'teal', gems: 5, costs: { stellars:14929100, spiritveins:0, auroraGems:5 } },
+      { id: 'd1', label: 'D1', desc: '197k Veins', color: 'emerald', gems: 5, costs: { stellars:15750640, spiritveins:197236, auroraGems:5 } },
+      { id: 'd2', label: 'D2', desc: '474k Veins', color: 'sky', gems: 12, costs: { stellars:16893670, spiritveins:474436, auroraGems:12, cotOff: 590000 } },
+      { id: 'd3', label: 'D3', desc: '831k Veins', color: 'violet', gems: 21, costs: { stellars:18390640, spiritveins:830836, auroraGems:21, cotOff: 1340000 } },
+      { id: 'd4', label: 'D4', desc: '1.27M Veins', color: 'amber', gems: 32, costs: { stellars:20205640, spiritveins:1266436, auroraGems:32, cotOff: 2260000 } },
+      { id: 'd5', label: 'D5', desc: '1.78M Veins', color: 'rose', gems: 45, costs: { stellars:22350640, spiritveins:1781236, auroraGems:45, cotOff: 3360000 } },
+      { id: 'd6', label: 'D6', desc: '2.40M Veins', color: 'fuchsia', gems: 60, costs: { stellars:24929590, spiritveins:2400536, auroraGems:60, cotOff: 4610000 } }
+    ];
+    const MIXED_CHESTS = [
+      { id: 'monthlyF2p', badge: 'amber', title: 'Monthly F2P Chest', desc: '2,5k Stellar/CoT or 180 Sub', color: 'amber', opts: [{key:'Stellars', deficitKey:'stellars', amt:2500, c:'sky'}, {key:'CoT', deficitKey:'cot', amt:2500, c:'purple'}, 'SUB_180'] },
+      { id: 'relaySubCore', badge: 'emerald', title: 'Relay 1× Sub / Core Chest', desc: '9k Sub or 5 Core Shards', color: 'emerald', opts: ['SUB_9000', {key:'Cores', deficitKey:'cores', amt:0.05, c:'rose'}] },
+      { id: 'relayDestiny', badge: 'cyan', title: 'Relay 1× Destiny Pick Chest', desc: '30k Veins or 3,750 Gems', color: 'cyan', opts: [{key:'Spiritveins', deficitKey:'spiritveins', amt:30000, c:'orange'}, {key:'AuroraGems', deficitKey:'auroraGems', amt:0.75, c:'cyan'}] },
+      { id: 'starExp', badge: 'violet', title: 'Star Expedition Chest', desc: '25k S/CoT, 1800 Sub, 1 Core, 5k Veins...', color: 'violet', opts: [{key:'Stellars', deficitKey:'stellars', amt:25000, c:'sky'}, {key:'CoT', deficitKey:'cot', amt:25000, c:'purple'}, 'SUB_1800', {key:'Cores', deficitKey:'cores', amt:0.01, c:'rose'}, {key:'Spiritveins', deficitKey:'spiritveins', amt:5000, c:'orange'}, {key:'AuroraGems', deficitKey:'auroraGems', amt:0.125, c:'cyan'}] },
+      { id: 'imps', badge: 'rose', title: 'Imp\'s Chest', desc: '62k S/CoT, 4.5k Sub, 3 Cores, 12k Veins...', color: 'rose', colSpan: 'md:col-span-2', opts: [{key:'Stellars', deficitKey:'stellars', amt:62000, c:'sky'}, {key:'CoT', deficitKey:'cot', amt:62000, c:'purple'}, 'SUB_4500', {key:'Cores', deficitKey:'cores', amt:0.03, c:'rose'}, {key:'Spiritveins', deficitKey:'spiritveins', amt:12000, c:'orange'}, {key:'AuroraGems', deficitKey:'auroraGems', amt:0.3, c:'cyan'}] }
     ];
 
-    // Individual Hero Costs (Includes 5,000,000 Base Trans CoT per hero)
-    const HERO_COSTS = {
-      d1_1: { cores: 4, subEach: 180000, stellars: 14929100, essences: 1248120, auroraGems: 5, cot: 5420000, spiritveins: 0 },
-      d1:   { cores: 4, subEach: 180000, stellars: 15750640, essences: 1248120, auroraGems: 5, cot: 5420000, spiritveins: 197236 },
-      d2:   { cores: 4, subEach: 180000, stellars: 16893670, essences: 1248120, auroraGems: 12, cot: 6010000, spiritveins: 474436 },
-      d3:   { cores: 4, subEach: 180000, stellars: 18390640, essences: 1248120, auroraGems: 21, cot: 6760000, spiritveins: 830836 },
-      d4:   { cores: 4, subEach: 180000, stellars: 20205640, essences: 1248120, auroraGems: 32, cot: 7680000, spiritveins: 1266436 },
-      d5:   { cores: 4, subEach: 180000, stellars: 22350640, essences: 1248120, auroraGems: 45, cot: 8780000, spiritveins: 1781236 },
-      d6:   { cores: 4, subEach: 180000, stellars: 24929590, essences: 1248120, auroraGems: 60, cot: 10030000, spiritveins: 2400536 }
-    };
+    const INPUT_IDS = [
+      'currentLevel','targetLevel',
+      ...HERO_DEFS.map(h=>'hero_'+h.id), 'hero_extraTrans',
+      'bag_fullCores','bag_coreChests50','bag_coreShards','bag_subActive','bag_subP1','bag_subP2','bag_subP3','bag_essences','bag_stellars','bag_cot','bag_spiritveins','bag_auroraGems','bag_auroraShards',
+      'chest_sub90k','chest_sub45k','chest_sub9k','chest_sub1800','chest_sub1','chest_transSphere','chest_trans1', ...MIXED_CHESTS.map(c=>'chest_'+c.id)
+    ];
 
-    let infusionLevels = [];
-    let partialCoreShards = []; // Shards (1-399) locked on specific heroes
+    let infusionLevels = [], partialCoreShards = [];
 
-    function parseNum(val) {
-      if (val === undefined || val === null) return 0;
-      const str = String(val).trim().replace(/,/g, '').toLowerCase();
-      if (!str) return 0;
-      const match = str.match(/^(-?\d+(\.\d+)?)\s*([kmb])?$/);
-      if (!match) {
-        const raw = parseFloat(str);
-        return isNaN(raw) ? 0 : raw;
-      }
-      const num = parseFloat(match[1]);
-      const unit = match[3];
-      if (unit === 'k') return Math.round(num * 1e3);
-      if (unit === 'm') return Math.round(num * 1e6);
-      if (unit === 'b') return Math.round(num * 1e9);
-      return Math.round(num);
-    }
+    // --- Utils ---
+    const getNum = id => Math.max(0, parseFloat(String(document.getElementById(id).value).trim().replace(/,/g, '').replace(/k/i,'e3').replace(/m/i,'e6').replace(/b/i,'e9')) || 0);
+    const fmt = n => Math.round(n).toLocaleString('en-US');
+    const fmtDec = (n, d=2) => Math.abs(n-Math.round(n))<1e-6 ? fmt(n) : Number(n.toFixed(d)).toLocaleString('en-US');
+    const fmtShort = n => { const a=Math.abs(n); return a>=1e9 ? (n/1e9).toFixed(2)+'B' : a>=1e6 ? (n/1e6).toFixed(2)+'M' : a>=1e3 ? (n/1e3).toFixed(1)+'K' : fmtDec(n,2); };
+    const adjustVal = (id, delta) => { const e=document.getElementById(id); e.value = Math.max(0, (parseInt(e.value)||0)+delta); saveAndCalc(); };
 
-    function fmt(n) {
-      return Math.round(n).toLocaleString('en-US');
-    }
-
-    function fmtDec(n, dec = 2) {
-      if (Math.abs(n - Math.round(n)) < 1e-6) return Math.round(n).toLocaleString('en-US');
-      return Number(n.toFixed(dec)).toLocaleString('en-US');
-    }
-
-    function fmtShort(n) {
-      const abs = Math.abs(n);
-      if (abs >= 1e9) return (n / 1e9).toFixed(2) + 'B';
-      if (abs >= 1e6) return (n / 1e6).toFixed(2) + 'M';
-      if (abs >= 1e3) return (n / 1e3).toFixed(1) + 'K';
-      return fmtDec(n, 2);
-    }
-
-    // Infusion Hero Refund
-    function getSingleInfusionRefund(lvl) {
-      const L = Math.max(1, Math.min(75, parseInt(lvl) || 1));
-      const lvls16to40 = Math.max(0, Math.min(L, 40) - 15);
-      const lvls41to75 = Math.max(0, L - 40);
-
-      const stellars = (lvls16to40 + lvls41to75) * 300000;
-      const cot = lvls16to40 * 300000;
-      const essences = lvls41to75 * 38000;
-
-      let cores = 0;
-      if (L >= 45) cores++;
-      if (L >= 55) cores++;
-      if (L >= 65) cores++;
-      if (L >= 75) cores++;
-
-      function calcBranchSub(startLvl, endLvl) {
-        if (L <= startLvl) return 0;
-        if (L >= endLvl) return 180000;
-        const steps = Math.min(7, Math.floor(((L - startLvl) / (endLvl - startLvl)) * 7));
-        return Math.min(180000, steps * 25800);
-      }
-
-      const subActive = calcBranchSub(41, 48);
-      const subP1     = calcBranchSub(48, 55);
-      const subP2     = calcBranchSub(55, 62);
-      const subP3     = calcBranchSub(62, 70);
-
-      return { stellars, cot, essences, cores, subActive, subP1, subP2, subP3 };
-    }
-
-    function renderInfusionInputs() {
-      const container = document.getElementById('infusionList');
-      container.innerHTML = '';
-      infusionLevels.forEach((lvl, idx) => {
-        const card = document.createElement('div');
-        card.className = 'bg-slate-900 border border-slate-800 rounded-lg p-2.5 flex items-center justify-between gap-2';
-        card.innerHTML = `
-          <span class="text-xs font-semibold text-cyan-300">Hero #${idx + 1}</span>
+    // --- Arrays UI ---
+    function renderArr(type) {
+      const isInf = type==='infusion';
+      const arr = isInf ? infusionLevels : partialCoreShards;
+      const html = arr.map((v, i) => `
+        <div class="box-sm flex items-center justify-between gap-2 p-2.5">
+          <span class="text-xs font-semibold text-${isInf?'cyan':'rose'}-300">#${i+1}</span>
           <div class="flex items-center gap-1">
-            <button type="button" onclick="setInfusionLvl(${idx}, 40)" class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300">40</button>
-            <button type="button" onclick="setInfusionLvl(${idx}, 70)" class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300">70</button>
-            <button type="button" onclick="setInfusionLvl(${idx}, 75)" class="text-[10px] px-1.5 py-0.5 rounded bg-cyan-900/50 hover:bg-cyan-800/60 text-cyan-200">75</button>
-            <input type="number" min="1" max="75" value="${lvl}" oninput="updateInfusionLvl(${idx}, this.value)"
-              class="w-14 bg-slate-850 border border-slate-700 rounded px-2 py-1 text-center font-bold text-white text-xs" />
+            ${isInf 
+              ? `<button onclick="setArrVal('${type}',${i},40)" class="btn-math w-auto px-1.5 h-6 text-[10px]">40</button><button onclick="setArrVal('${type}',${i},70)" class="btn-math w-auto px-1.5 h-6 text-[10px]">70</button><button onclick="setArrVal('${type}',${i},75)" class="btn-math w-auto px-1.5 h-6 text-[10px] !bg-cyan-900/50 !text-cyan-200">75</button>`
+              : `<button onclick="setArrVal('${type}',${i},100)" class="btn-math w-auto px-1.5 h-6 text-[10px]">1★(100)</button><button onclick="setArrVal('${type}',${i},200)" class="btn-math w-auto px-1.5 h-6 text-[10px]">2★(200)</button><button onclick="setArrVal('${type}',${i},300)" class="btn-math w-auto px-1.5 h-6 text-[10px]">300</button>`}
+            <input type="number" min="1" max="${isInf?75:399}" value="${v}" oninput="setArrVal('${type}',${i},this.value)" class="input-mini h-6 text-xs w-12" />
           </div>
-        `;
-        container.appendChild(card);
-      });
+        </div>`).join('');
+      document.getElementById(type+(isInf?'List':'sList')).innerHTML = html;
+    }
+    const setArrVal = (t, i, v) => { (t==='infusion'?infusionLevels:partialCoreShards)[i] = Math.max(1, Math.min(t==='infusion'?75:399, parseInt(v)||1)); saveAndCalc(); };
+    const changeArrCount = (t, d) => { const e=document.getElementById(t+'Count'); e.value = Math.max(0, Math.min(30, (parseInt(e.value)||0)+d)); onArrCountInput(t); };
+    function onArrCountInput(t) {
+      const c = Math.max(0, Math.min(30, parseInt(document.getElementById(t+'Count').value)||0));
+      const arr = t==='infusion'?infusionLevels:partialCoreShards;
+      while(arr.length<c) arr.push(t==='infusion'?75:100); arr.length=c;
+      renderArr(t); saveAndCalc();
     }
 
-    function changeInfusionCount(delta) {
-      const input = document.getElementById('infusionCount');
-      const next = Math.max(0, Math.min(30, (parseInt(input.value) || 0) + delta));
-      input.value = next;
-      onInfusionCountInput();
-    }
-
-    function onInfusionCountInput() {
-      const count = Math.max(0, Math.min(30, parseInt(document.getElementById('infusionCount').value) || 0));
-      while (infusionLevels.length < count) infusionLevels.push(75);
-      if (infusionLevels.length > count) infusionLevels.length = count;
-      renderInfusionInputs();
-      saveAndCalc();
-    }
-
-    function setInfusionLvl(idx, val) {
-      infusionLevels[idx] = val;
-      renderInfusionInputs();
-      saveAndCalc();
-    }
-
-    function updateInfusionLvl(idx, val) {
-      infusionLevels[idx] = Math.max(1, Math.min(75, parseInt(val) || 1));
-      saveAndCalc();
-    }
-
-    // Partial Hero-Specific Cores UI
-    function renderPartialCoreInputs() {
-      const container = document.getElementById('partialCoresList');
-      container.innerHTML = '';
-      partialCoreShards.forEach((shards, idx) => {
-        const card = document.createElement('div');
-        card.className = 'bg-slate-900 border border-slate-800 rounded-lg p-2.5 flex items-center justify-between gap-2';
-        card.innerHTML = `
-          <span class="text-xs font-semibold text-rose-300">Hero #${idx + 1}</span>
-          <div class="flex items-center gap-1">
-            <button type="button" onclick="setPartialCore(${idx}, 100)" class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300" title="1★ Core (100 Shards)">1★(100)</button>
-            <button type="button" onclick="setPartialCore(${idx}, 200)" class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300" title="2★ Core (200 Shards)">2★(200)</button>
-            <button type="button" onclick="setPartialCore(${idx}, 300)" class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300" title="300 Shards">300</button>
-            <input type="number" min="1" max="399" value="${shards}" oninput="updatePartialCore(${idx}, this.value)"
-              class="w-16 bg-slate-850 border border-slate-700 rounded px-2 py-1 text-center font-bold text-white text-xs" />
-          </div>
-        `;
-        container.appendChild(card);
-      });
-    }
-
-    function changePartialCoreCount(delta) {
-      const input = document.getElementById('partialCoreCount');
-      const next = Math.max(0, Math.min(30, (parseInt(input.value) || 0) + delta));
-      input.value = next;
-      onPartialCoreCountInput();
-    }
-
-    function onPartialCoreCountInput() {
-      const count = Math.max(0, Math.min(30, parseInt(document.getElementById('partialCoreCount').value) || 0));
-      while (partialCoreShards.length < count) partialCoreShards.push(100);
-      if (partialCoreShards.length > count) partialCoreShards.length = count;
-      renderPartialCoreInputs();
-      saveAndCalc();
-    }
-
-    function setPartialCore(idx, val) {
-      partialCoreShards[idx] = val;
-      renderPartialCoreInputs();
-      saveAndCalc();
-    }
-
-    function updatePartialCore(idx, val) {
-      partialCoreShards[idx] = Math.max(1, Math.min(399, parseInt(val) || 1));
-      saveAndCalc();
-    }
-
-    function adjustHero(key, delta) {
-      const el = document.getElementById('hero_' + key);
-      const next = Math.max(0, (parseInt(el.value) || 0) + delta);
-      el.value = next;
-      saveAndCalc();
-    }
-
-    function onLevelChange() {
-      const cur = parseInt(document.getElementById('currentLevel').value) || 1;
-      let tgt = parseInt(document.getElementById('targetLevel').value) || 2;
-      if (tgt < cur) {
-        tgt = cur;
-        document.getElementById('targetLevel').value = tgt;
+    // --- Smart Allocator ---
+    function allocateChestType(count, opts, deficits) {
+      let rem = count, picks = { saved: 0 }, added = {};
+      opts.forEach(o => { picks[o.key]=0; added[o.deficitKey]=0; });
+      while(rem > 0) {
+        const act = opts.map(o => ({...o, req: deficits[o.deficitKey]/o.amount})).filter(o => o.req > 1e-9).sort((a,b) => b.req - a.req);
+        if(!act.length) { picks.saved += rem; break; }
+        const step = rem > 2000 ? Math.min(rem, Math.max(1, act.length===1 ? Math.ceil(act[0].req) : Math.floor(act[0].req - act[1].req) || Math.floor(rem/1000))) : 1;
+        picks[act[0].key] += step;
+        added[act[0].deficitKey] += step * act[0].amount;
+        deficits[act[0].deficitKey] = Math.max(0, deficits[act[0].deficitKey] - (step * act[0].amount));
+        rem -= step;
       }
-      saveAndCalc();
-    }
-
-    function populateLevelSelects() {
-      const curSel = document.getElementById('currentLevel');
-      const tgtSel = document.getElementById('targetLevel');
-      curSel.innerHTML = `<option value="0">Level 0 (None yet)</option>`;
-      tgtSel.innerHTML = '';
-
-      TEMPLE_LEVELS.forEach(row => {
-        const reqStr = row.d.map((c, i) => c > 0 ? `${c}× D${i+1}` : null).filter(Boolean).join(', ');
-        curSel.innerHTML += `<option value="${row.level}">Temple Level ${row.label} (${row.heroes} Heroes: ${reqStr})</option>`;
-        tgtSel.innerHTML += `<option value="${row.level}">Temple Level ${row.label} (${row.heroes} Heroes: ${reqStr})</option>`;
-      });
-
-      curSel.value = "1";
-      tgtSel.value = "5";
-    }
-
-    function renderLevelSummary(levelNum, elId) {
-      const el = document.getElementById(elId);
-      if (levelNum <= 0) {
-        el.innerHTML = `<span class="text-slate-500">No Temple Level active</span>`;
-        return;
-      }
-      const row = TEMPLE_LEVELS.find(r => r.level === levelNum);
-      if (!row) return;
-      const pills = row.d.map((c, i) => c > 0 ? `<span class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 font-semibold text-amber-300">${c}× D${i+1}</span>` : '').join('');
-      el.innerHTML = `
-        <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300">Total Heroes: <b>${row.heroes}</b></span>
-        <span class="px-2 py-0.5 rounded bg-slate-800 text-emerald-300">DP Gain: <b>+${row.dp}</b></span>
-        ${pills}
-      `;
-    }
-
-    // Universal Fast Multi-Option Chest Optimizer
-    function allocateChestType(count, options, deficits) {
-      const picks = { saved: 0 };
-      const added = {};
-      options.forEach(o => {
-        picks[o.key] = 0;
-        added[o.deficitKey] = 0;
-      });
-
-      let remaining = Math.max(0, Math.floor(count));
-      if (remaining === 0) return { picks, added };
-
-      while (remaining > 0) {
-        const active = options
-          .map(o => ({ ...o, chestsNeeded: deficits[o.deficitKey] / o.amount }))
-          .filter(o => o.chestsNeeded > 1e-9)
-          .sort((a, b) => b.chestsNeeded - a.chestsNeeded);
-
-        if (active.length === 0) {
-          picks.saved += remaining;
-          break;
-        }
-
-        const best = active[0];
-        let step = 1;
-        if (remaining > 2000) {
-          if (active.length === 1) {
-            step = Math.min(remaining, Math.max(1, Math.ceil(best.chestsNeeded)));
-          } else {
-            const second = active[1];
-            const diffChests = Math.floor(best.chestsNeeded - second.chestsNeeded);
-            step = Math.min(remaining, Math.max(1, diffChests > 0 ? diffChests : Math.floor(remaining / 1000)));
-          }
-        }
-
-        picks[best.key] += step;
-        const gain = step * best.amount;
-        added[best.deficitKey] = (added[best.deficitKey] || 0) + gain;
-        deficits[best.deficitKey] = Math.max(0, deficits[best.deficitKey] - gain);
-        remaining -= step;
-      }
-
       return { picks, added };
     }
+    const expandSubOpts = (amt) => ['Active','P1','P2','P3'].map(k => ({key:k, deficitKey:'sub'+k, amount:amt, c: {Active:'blue',P1:'amber',P2:'violet',P3:'rose'}[k]}));
+    function processChests(id, rawOpts, defs, chestAddedObj) {
+      const count = getNum('chest_' + id);
+      let opts = [];
+      rawOpts.forEach(o => typeof o === 'string' && o.startsWith('SUB_') ? opts.push(...expandSubOpts(parseInt(o.split('_')[1]))) : opts.push(o));
+      const r = allocateChestType(count, opts, defs);
+      Object.keys(r.added).forEach(k => chestAddedObj[k] = (chestAddedObj[k]||0) + r.added[k]);
+      const b = [];
+      opts.forEach(o => {
+        if(r.picks[o.key]>0) {
+          const g = o.deficitKey==='cores' ? fmtDec(r.added[o.deficitKey])+' Cores' : o.deficitKey==='auroraGems' ? fmtDec(r.added[o.deficitKey])+' Gems' : fmtShort(r.added[o.deficitKey]);
+          b.push(`<span class="chest-badge bg-${o.c}-500/20 border-${o.c}-500/30 text-${o.c}-300">${fmt(r.picks[o.key])}× ${o.key} (+${g})</span>`);
+        }
+      });
+      if(r.picks.saved>0) b.push(`<span class="chest-badge bg-slate-800 border-slate-700 text-slate-300">${fmt(r.picks.saved)}× Save</span>`);
+      document.getElementById('plan_'+id).innerHTML = count ? `<div class="badge text-slate-400 px-0 mb-1.5">Picks (${fmt(count)}):</div><div class="flex flex-wrap gap-1.5">${b.join('')}</div>` : `<span class="text-slate-500">Enter chests to see picks.</span>`;
+    }
 
-    function renderPlanBox(elId, totalCount, badges, emptyText) {
-      const el = document.getElementById(elId);
-      if (totalCount <= 0) {
-        el.innerHTML = `<span class="text-slate-500">${emptyText}</span>`;
-        return;
-      }
-      el.innerHTML = `
-        <div class="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-1.5">Recommended Picks (${fmt(totalCount)} Chests):</div>
-        <div class="flex flex-wrap gap-1.5">${badges.join('')}</div>
-      `;
+    // --- Init & Calc ---
+    function onLevelChange() {
+      const cur = parseInt(document.getElementById('currentLevel').value)||1; let tgt = parseInt(document.getElementById('targetLevel').value)||2;
+      if(tgt < cur) document.getElementById('targetLevel').value = cur;
+      saveAndCalc();
+    }
+    
+    function initUI() {
+      // Setup Temple Selects
+      let optsHtml = `<option value="0">Level 0 (None yet)</option>` + TEMPLE_LEVELS.map(r => `<option value="${r.level}">Level ${r.label} (${r.heroes} Heroes: ${r.d.map((c,i)=>c?c+'× D'+(i+1):null).filter(Boolean).join(', ')})</option>`).join('');
+      document.getElementById('currentLevel').innerHTML = optsHtml; document.getElementById('targetLevel').innerHTML = optsHtml;
+      document.getElementById('currentLevel').value = "1"; document.getElementById('targetLevel').value = "5";
+
+      // Setup Hero Grid
+      document.getElementById('heroGrid').innerHTML = HERO_DEFS.map(h => `
+        <div class="box-sm flex flex-col justify-between">
+          <div class="flex items-center justify-between gap-1 mb-1"><span class="badge bg-${h.color}-500/20 text-${h.color}-300 border-${h.color}-500/30">${h.label}</span><span class="text-[11px] text-slate-400 whitespace-nowrap">${h.gems} Gems</span></div>
+          <p class="text-[11px] text-slate-500 mb-2">${h.desc}</p>
+          <div class="flex items-center gap-1"><button onclick="adjustVal('hero_${h.id}', -1)" class="btn-math">-</button><input id="hero_${h.id}" type="number" min="0" value="0" oninput="saveAndCalc()" class="input-mini" /><button onclick="adjustVal('hero_${h.id}', 1)" class="btn-math">+</button></div>
+        </div>`).join('');
+        
+      // Setup Mixed Chests
+      document.getElementById('mixedChestsGrid').innerHTML = MIXED_CHESTS.map(c => `
+        <div class="box flex flex-col justify-between space-y-3 ${c.colSpan||''}">
+          <div class="flex items-start justify-between gap-3">
+            <div><span class="badge bg-${c.badge}-500/20 text-${c.badge}-300 border-${c.badge}-500/30">${c.title}</span><p class="text-xs text-slate-400 mt-1">${c.desc}</p></div>
+            <input id="chest_${c.id}" type="text" value="0" oninput="saveAndCalc()" class="w-20 bg-slate-900 border border-${c.badge}-500/40 rounded-lg px-2.5 py-1.5 text-center font-bold text-${c.badge}-300 text-sm focus:outline-none focus:border-${c.badge}-400" />
+          </div>
+          <div id="plan_${c.id}" class="bg-slate-900/90 border border-slate-800 rounded-lg p-3 text-xs"></div>
+        </div>`).join('');
+        
+      // Load
+      try { const s = JSON.parse(localStorage.getItem('ih_destiny_temple_v6')||'{}'); INPUT_IDS.forEach(id => {if(s[id]!==undefined) document.getElementById(id).value = s[id];}); if(s.infusionLevels) { infusionLevels=s.infusionLevels; document.getElementById('infusionCount').value=infusionLevels.length; renderArr('infusion'); } if(s.partialCoreShards) { partialCoreShards=s.partialCoreShards; document.getElementById('partialCoreCount').value=partialCoreShards.length; renderArr('partialCore'); } } catch(e){}
+      saveAndCalc();
     }
 
     function saveAndCalc() {
-      const curLvl = parseInt(document.getElementById('currentLevel').value) || 0;
-      const tgtLvl = parseInt(document.getElementById('targetLevel').value) || 1;
+      // Save state
+      const state = { infusionLevels, partialCoreShards }; INPUT_IDS.forEach(id => state[id] = document.getElementById(id).value); localStorage.setItem('ih_destiny_temple_v6', JSON.stringify(state));
+      
+      const cLvl = getNum('currentLevel'), tLvl = getNum('targetLevel');
+      const sumHtml = lvl => { const r = TEMPLE_LEVELS.find(x=>x.level===lvl); return r ? `<span class="badge bg-slate-800 text-slate-300">Heroes: <b>${r.heroes}</b></span><span class="badge bg-slate-800 text-emerald-300">DP: <b>+${r.dp}</b></span>`+r.d.map((c,i)=>c?`<span class="badge bg-slate-800 border-slate-700 text-amber-300">${c}× D${i+1}</span>`:'').join('') : '<span class="text-slate-500">None</span>';};
+      document.getElementById('currentLevelSummary').innerHTML = sumHtml(cLvl); document.getElementById('targetLevelSummary').innerHTML = sumHtml(tLvl);
+      
+      const target = TEMPLE_LEVELS.find(r => r.level===tLvl) || TEMPLE_LEVELS[0];
+      document.getElementById('resTargetLvlLabel').textContent = target.label;
 
-      renderLevelSummary(curLvl, 'currentLevelSummary');
-      renderLevelSummary(tgtLvl, 'targetLevelSummary');
-
-      const targetRow = TEMPLE_LEVELS.find(r => r.level === tgtLvl) || TEMPLE_LEVELS[0];
-      document.getElementById('resTargetLvlLabel').textContent = targetRow.label;
-
-      // Read owned heroes
-      const hKeys = ['d1_1', 'd1', 'd2', 'd3', 'd4', 'd5', 'd6'];
-      const owned = {};
-      let totalOwnedDestiny = 0;
-      hKeys.forEach(k => {
-        owned[k] = Math.max(0, parseInt(document.getElementById('hero_' + k).value) || 0);
-        totalOwnedDestiny += owned[k];
+      let invested = { cores:0, subActive:0, subP1:0, subP2:0, subP3:0, essences:0, stellars:0, cot:getNum('hero_extraTrans')*5000000, spiritveins:0, auroraGems:0 }, totHeroes = 0;
+      HERO_DEFS.forEach(h => {
+        const c = getNum('hero_'+h.id); totHeroes += c;
+        invested.cores += c*4; invested.subActive += c*180000; invested.subP1 += c*180000; invested.subP2 += c*180000; invested.subP3 += c*180000; invested.essences += c*1248120; invested.cot += c*5420000;
+        invested.stellars += c*h.costs.stellars; invested.spiritveins += c*h.costs.spiritveins; invested.auroraGems += c*h.costs.auroraGems; invested.cot += c*(h.costs.cotOff||0);
       });
-      const extraTrans = Math.max(0, parseInt(document.getElementById('hero_extraTrans').value) || 0);
-      document.getElementById('ownedTotalHeroes').textContent = totalOwnedDestiny;
+      document.getElementById('ownedTotalHeroes').textContent = totHeroes;
 
-      // Sum resources invested in owned heroes
-      const invested = {
-        cores: 0,
-        subActive: 0, subP1: 0, subP2: 0, subP3: 0,
-        essences: 0, stellars: 0, cot: extraTrans * 5000000, spiritveins: 0, auroraGems: 0
-      };
-
-      hKeys.forEach(k => {
-        const count = owned[k];
-        const cost = HERO_COSTS[k];
-        invested.cores      += count * cost.cores;
-        invested.subActive  += count * cost.subEach;
-        invested.subP1      += count * cost.subEach;
-        invested.subP2      += count * cost.subEach;
-        invested.subP3      += count * cost.subEach;
-        invested.essences   += count * cost.essences;
-        invested.stellars   += count * cost.stellars;
-        invested.cot        += count * cost.cot;
-        invested.spiritveins+= count * cost.spiritveins;
-        invested.auroraGems += count * cost.auroraGems;
-      });
-
-      // Add Infusion refunds
-      const infTotals = { stellars: 0, cot: 0, essences: 0, cores: 0, subActive: 0, subP1: 0, subP2: 0, subP3: 0 };
+      let infTotals = { stellars:0, cot:0, essences:0, cores:0, subActive:0, subP1:0, subP2:0, subP3:0 };
       infusionLevels.forEach(lvl => {
         const r = getSingleInfusionRefund(lvl);
-        infTotals.stellars  += r.stellars;
-        infTotals.cot       += r.cot;
-        infTotals.essences  += r.essences;
-        infTotals.cores     += r.cores;
-        infTotals.subActive += r.subActive;
-        infTotals.subP1     += r.subP1;
-        infTotals.subP2     += r.subP2;
-        infTotals.subP3     += r.subP3;
+        Object.keys(infTotals).forEach(k => infTotals[k] += r[k]);
       });
+      const infEl = document.getElementById('infusionSummary');
+      if(infusionLevels.length) {
+        infEl.classList.remove('hidden'); infEl.innerHTML = `<span class="font-bold text-cyan-300">Infusion Refund:</span> <span>Stellars: <b class="text-sky-300">+${fmtShort(infTotals.stellars)}</b></span> <span>CoT: <b class="text-purple-300">+${fmtShort(infTotals.cot)}</b></span> <span>Essences: <b class="text-amber-300">+${fmtShort(infTotals.essences)}</b></span> <span>Cores: <b class="text-rose-300">+${infTotals.cores}</b></span> <span>Sublis: <b class="text-emerald-300">+${fmtShort(infTotals.subActive+infTotals.subP1+infTotals.subP2+infTotals.subP3)}</b></span>`;
+      } else infEl.classList.add('hidden');
+      Object.keys(infTotals).forEach(k => invested[k] += infTotals[k]);
 
-      const infSummaryEl = document.getElementById('infusionSummary');
-      if (infusionLevels.length > 0) {
-        infSummaryEl.classList.remove('hidden');
-        infSummaryEl.innerHTML = `
-          <span class="font-bold text-cyan-300">Infusion Regression Refund:</span>
-          <span>Stellars: <b class="text-sky-300">+${fmtShort(infTotals.stellars)}</b></span>
-          <span>CoT: <b class="text-purple-300">+${fmtShort(infTotals.cot)}</b></span>
-          <span>Essences: <b class="text-amber-300">+${fmtShort(infTotals.essences)}</b></span>
-          <span>Cores: <b class="text-rose-300">+${infTotals.cores}</b></span>
-          <span>Sublis: <b class="text-emerald-300">+${fmtShort(infTotals.subActive + infTotals.subP1 + infTotals.subP2 + infTotals.subP3)}</b></span>
-        `;
-      } else {
-        infSummaryEl.classList.add('hidden');
+      // Bag Cores Logic
+      const fCores = getNum('bag_fullCores'), c50 = getNum('bag_coreChests50'), cSh = getNum('bag_coreShards');
+      const uniShards = Math.round(c50*50 + cSh);
+      const remHeroSlots = Math.ceil(Math.max(0, target.cores - invested.cores - (fCores*4)) / 4);
+      const parts = partialCoreShards.map((s,i)=>({i:i+1, s})).sort((a,b)=>b.s-a.s);
+      const usableParts = parts.slice(0, remHeroSlots), lockedParts = parts.slice(remHeroSlots);
+      const usableSum = usableParts.reduce((a,p)=>a+p.s,0), lockedSum = lockedParts.reduce((a,p)=>a+p.s,0);
+      const bagCores = (fCores*4) + ((uniShards + usableSum)/100);
+      document.getElementById('bagTotalCoresDisplay').textContent = `${fmtDec(bagCores)} (${fmt(fCores*400 + uniShards + usableSum)} Usable Shards)`;
+      
+      const pPlanEl = document.getElementById('partialCoresPlan');
+      if(partialCoreShards.length) {
+        pPlanEl.classList.remove('hidden');
+        pPlanEl.innerHTML = `<div class="badge text-slate-400 px-0 mb-1">Hero-Specific Status:</div><div>` + usableParts.map(p=>`<span class="badge bg-emerald-500/20 text-emerald-300 mr-2 mb-1 border">✓ Hero #${p.i}: Need +${400-p.s} Uni. Shards to finish</span>`).join('') + lockedParts.map(p=>`<span class="badge bg-rose-500/20 text-rose-300 mr-2 mb-1 border">✗ Hero #${p.i}: Locked</span>`).join('') + `</div>`;
+      } else pPlanEl.classList.add('hidden');
+
+      const bag = { cores: bagCores, subActive: getNum('bag_subActive'), subP1: getNum('bag_subP1'), subP2: getNum('bag_subP2'), subP3: getNum('bag_subP3'), essences: getNum('bag_essences'), stellars: getNum('bag_stellars'), cot: getNum('bag_cot'), spiritveins: getNum('bag_spiritveins'), auroraGems: getNum('bag_auroraGems') + (getNum('bag_auroraShards')/5000) };
+
+      let defs = {}; Object.keys(bag).forEach(k => defs[k] = Math.max(0, (k.startsWith('sub') ? target.heroes*180000 : target[k]) - invested[k] - bag[k]));
+      
+      let added = { cores:0, subActive:0, subP1:0, subP2:0, subP3:0, stellars:0, cot:0, spiritveins:0, auroraGems:0 };
+      
+      // 1. Pure Subs
+      let pSubCount=0, pSubHtmlLines=[];
+      [90000,45000,9000,1800,1].forEach(amt => {
+        const isK = amt>=1000;
+        const label = amt>1 ? (isK ? amt/1000+'k' : amt) : '1-pt';
+        const id = 'sub'+(amt>1 ? (isK ? amt/1000+'k' : amt) : 1);
+        const c = getNum('chest_'+id); pSubCount+=c;
+        if(c > 0) {
+          const r = allocateChestType(c, expandSubOpts(amt), defs);
+          Object.keys(r.added).forEach(k=>added[k]+=r.added[k]);
+          let b = [];
+          ['Active','P1','P2','P3'].forEach(k => {
+            if(r.picks[k]>0) {
+              const col = {Active:'blue',P1:'amber',P2:'violet',P3:'rose'}[k];
+              b.push(`<span class="chest-badge bg-${col}-500/20 text-${col}-300 border-${col}-500/30">${fmt(r.picks[k])}× ${k}</span>`);
+            }
+          });
+          if(r.picks.saved>0) b.push(`<span class="chest-badge bg-slate-800 border-slate-700 text-slate-300">${fmt(r.picks.saved)}× Saved</span>`);
+          pSubHtmlLines.push(`<div class="flex flex-wrap items-center gap-1.5 mt-1.5"><span class="text-xs font-semibold text-emerald-400/70 w-12 text-right mr-1">${label}:</span> ${b.join('')}</div>`);
+        }
+      });
+      document.getElementById('plan_pureSub').innerHTML = pSubCount ? `<div class="badge text-slate-400 px-0 mb-1 border-b border-slate-800 w-full pb-1.5">Recommended Picks Per Chest Type:</div>` + pSubHtmlLines.join('') : `<span class="text-slate-500">Enter chests to see picks.</span>`;
+
+      // 2. Trans Spheres & Chests
+      let trCnt=getNum('chest_transSphere')+getNum('chest_trans1');
+      if(!trCnt) document.getElementById('plan_transChests').innerHTML = `<span class="text-slate-500">Enter chests to see picks.</span>`;
+      else {
+        let trBdg = [], rS = allocateChestType(getNum('chest_transSphere'), [{key:'Stellars',deficitKey:'stellars',amount:250000,c:'sky'},{key:'CoT',deficitKey:'cot',amount:250000,c:'purple'}], defs);
+        Object.keys(rS.added).forEach(k=>added[k]+=rS.added[k]);
+        if(rS.picks.Stellars) trBdg.push(`<span class="chest-badge bg-sky-500/20 border-sky-500/30 text-sky-300">${fmt(rS.picks.Stellars)}× Sph. → Stellars</span>`);
+        if(rS.picks.CoT) trBdg.push(`<span class="chest-badge bg-purple-500/20 border-purple-500/30 text-purple-300">${fmt(rS.picks.CoT)}× Sph. → CoT</span>`);
+        let rT = allocateChestType(getNum('chest_trans1'), [{key:'Stellars',deficitKey:'stellars',amount:1,c:'sky'},{key:'CoT',deficitKey:'cot',amount:1,c:'purple'}], defs);
+        Object.keys(rT.added).forEach(k=>added[k]+=rT.added[k]);
+        if(rT.picks.Stellars) trBdg.push(`<span class="chest-badge bg-sky-500/20 border-sky-500/30 text-sky-300">${fmt(rT.picks.Stellars)}× Ch. → Stellars</span>`);
+        if(rT.picks.CoT) trBdg.push(`<span class="chest-badge bg-purple-500/20 border-purple-500/30 text-purple-300">${fmt(rT.picks.CoT)}× Ch. → CoT</span>`);
+        if(rS.picks.saved+rT.picks.saved>0) trBdg.push(`<span class="chest-badge bg-slate-800 text-slate-300">${fmt(rS.picks.saved+rT.picks.saved)}× Saved</span>`);
+        document.getElementById('plan_transChests').innerHTML = `<div class="badge text-slate-400 px-0 mb-1.5">Picks (${fmt(trCnt)}):</div><div class="flex flex-wrap gap-1.5">${trBdg.join('')}</div>`;
       }
 
-      invested.stellars  += infTotals.stellars;
-      invested.cot       += infTotals.cot;
-      invested.essences  += infTotals.essences;
-      invested.cores     += infTotals.cores;
-      invested.subActive += infTotals.subActive;
-      invested.subP1     += infTotals.subP1;
-      invested.subP2     += infTotals.subP2;
-      invested.subP3     += infTotals.subP3;
+      // 3. Mixed Chests
+      MIXED_CHESTS.forEach(c => processChests(c.id, c.opts, defs, added));
 
-      // HERO-SPECIFIC CORES CALCULATION
-      const fullCoresInBag = Math.max(0, parseInt(document.getElementById('bag_fullCores').value) || 0);
-      const coreChests50   = Math.max(0, parseFloat(document.getElementById('bag_coreChests50').value) || 0);
-      const looseUniShards = Math.max(0, parseFloat(document.getElementById('bag_coreShards').value) || 0);
-      const universalShardsInBag = Math.round(coreChests50 * 50 + looseUniShards);
+      // Subli Cards
+      const bt = target.heroes*180000;
+      document.getElementById('subliCardsGrid').innerHTML = ['Active','P1','P2','P3'].map(k => {
+        const col = {Active:'blue',P1:'amber',P2:'violet',P3:'rose'}[k];
+        const h = invested['sub'+k] + bag['sub'+k] + added['sub'+k], m = Math.max(0, bt-h), d = m===0;
+        return `<div class="box-sm border ${d?'border-emerald-500/30':'border-rose-500/30'}">
+          <div class="flex justify-between mb-1"><span class="text-xs font-bold text-${col}-300">${k}</span><span class="badge ${d?'bg-emerald-500/20 text-emerald-300':'bg-rose-500/20 text-rose-300'}">${d?'Ready':'Need '+fmtShort(m)}</span></div>
+          <div class="text-xs text-slate-400 flex justify-between mt-2"><span>Tar: <b class="text-slate-200">${fmt(bt)}</b></span><span>Have: <b class="text-slate-200">${fmt(h)}</b></span></div>
+          ${added['sub'+k]>0?`<div class="text-[11px] text-emerald-300 mt-1">+${fmt(added['sub'+k])} from Chests</div>`:''}
+        </div>`;
+      }).join('');
 
-      const totalCoresNeeded = targetRow.cores; // 4 per hero
-      const coresAfterReadyFull = Math.max(0, totalCoresNeeded - invested.cores - (fullCoresInBag * 4));
-      const fullHeroSlotsRemaining = Math.ceil(coresAfterReadyFull / 4);
-
-      const indexedPartials = partialCoreShards.map((sh, i) => ({ heroIndex: i + 1, shards: Math.max(1, Math.min(399, sh)) }));
-      indexedPartials.sort((a, b) => b.shards - a.shards);
-
-      const usablePartials = indexedPartials.slice(0, fullHeroSlotsRemaining);
-      const lockedPartials = indexedPartials.slice(fullHeroSlotsRemaining);
-
-      const usablePartialShardsSum = usablePartials.reduce((acc, p) => acc + p.shards, 0);
-      const lockedPartialShardsSum = lockedPartials.reduce((acc, p) => acc + p.shards, 0);
-
-      const bagUsableCores = (fullCoresInBag * 4) + ((universalShardsInBag + usablePartialShardsSum) / 100);
-      document.getElementById('bagTotalCoresDisplay').textContent =
-        `${fmtDec(bagUsableCores, 2)} Cores (${fmt(fullCoresInBag * 400 + universalShardsInBag + usablePartialShardsSum)} Usable Shards)`;
-
-      const partialPlanEl = document.getElementById('partialCoresPlan');
-      if (partialCoreShards.length > 0) {
-        partialPlanEl.classList.remove('hidden');
-        const lines = [];
-        usablePartials.forEach(p => {
-          const needShards = 400 - p.shards;
-          lines.push(`<span class="inline-block mr-2 mb-1 px-2 py-0.5 rounded bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-semibold">✓ Hero #${p.heroIndex} (${p.shards}/400): Use +${needShards} Universal Shards to finish Full Core</span>`);
-        });
-        lockedPartials.forEach(p => {
-          lines.push(`<span class="inline-block mr-2 mb-1 px-2 py-0.5 rounded bg-rose-500/20 border border-rose-500/30 text-rose-300 font-semibold">✗ Hero #${p.heroIndex} (${p.shards}/400): Locked to extra hero (Cannot combine into other heroes!)</span>`);
-        });
-        partialPlanEl.innerHTML = `
-          <div class="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-1">Hero-Specific Core Status:</div>
-          <div>${lines.join('')}</div>
-        `;
-      } else {
-        partialPlanEl.classList.add('hidden');
-      }
-
-      // Read other Bag Inputs
-      const wholeAuroraGems   = Math.max(0, parseNum(document.getElementById('bag_auroraGems').value));
-      const looseAuroraShards = Math.max(0, parseNum(document.getElementById('bag_auroraShards').value));
-      const bagAuroraGemsTotal = wholeAuroraGems + (looseAuroraShards / 5000);
-
-      const bag = {
-        cores: bagUsableCores,
-        subActive: Math.max(0, parseNum(document.getElementById('bag_subActive').value)),
-        subP1:     Math.max(0, parseNum(document.getElementById('bag_subP1').value)),
-        subP2:     Math.max(0, parseNum(document.getElementById('bag_subP2').value)),
-        subP3:     Math.max(0, parseNum(document.getElementById('bag_subP3').value)),
-        essences:  Math.max(0, parseNum(document.getElementById('bag_essences').value)),
-        stellars:  Math.max(0, parseNum(document.getElementById('bag_stellars').value)),
-        cot:       Math.max(0, parseNum(document.getElementById('bag_cot').value)),
-        spiritveins: Math.max(0, parseNum(document.getElementById('bag_spiritveins').value)),
-        auroraGems:  bagAuroraGemsTotal
-      };
-
-      // Running Deficits before Chests
-      const branchTarget = targetRow.heroes * 180000;
-      const deficits = {
-        subActive:   Math.max(0, branchTarget - (invested.subActive + bag.subActive)),
-        subP1:       Math.max(0, branchTarget - (invested.subP1 + bag.subP1)),
-        subP2:       Math.max(0, branchTarget - (invested.subP2 + bag.subP2)),
-        subP3:       Math.max(0, branchTarget - (invested.subP3 + bag.subP3)),
-        cores:       Math.max(0, targetRow.cores - (invested.cores + bag.cores)),
-        stellars:    Math.max(0, targetRow.stellars - (invested.stellars + bag.stellars)),
-        cot:         Math.max(0, targetRow.cot - (invested.cot + bag.cot)),
-        spiritveins: Math.max(0, targetRow.spiritveins - (invested.spiritveins + bag.spiritveins)),
-        auroraGems:  Math.max(0, targetRow.auroraGems - (invested.auroraGems + bag.auroraGems))
-      };
-
-      const chestAdded = {
-        subActive: 0, subP1: 0, subP2: 0, subP3: 0,
-        cores: 0, stellars: 0, cot: 0, spiritveins: 0, auroraGems: 0
-      };
-
-      function mergeAdded(addedObj) {
-        Object.keys(addedObj).forEach(k => {
-          chestAdded[k] = (chestAdded[k] || 0) + addedObj[k];
-        });
-      }
-
-      // 1. Allocate Pure Sublimation Chests (90k -> 45k -> 9k -> 1800 -> 1)
-      const cSub90k  = Math.max(0, parseNum(document.getElementById('chest_sub90k').value));
-      const cSub45k  = Math.max(0, parseNum(document.getElementById('chest_sub45k').value));
-      const cSub9k   = Math.max(0, parseNum(document.getElementById('chest_sub9k').value));
-      const cSub1800 = Math.max(0, parseNum(document.getElementById('chest_sub1800').value));
-      const cSub1    = Math.max(0, parseNum(document.getElementById('chest_sub1').value));
-
-      const makeSubOpts = (amt) => [
-        { key: 'Active', deficitKey: 'subActive', amount: amt },
-        { key: 'P1',     deficitKey: 'subP1',     amount: amt },
-        { key: 'P2',     deficitKey: 'subP2',     amount: amt },
-        { key: 'P3',     deficitKey: 'subP3',     amount: amt }
-      ];
-
-      const rSub90k  = allocateChestType(cSub90k,  makeSubOpts(90000), deficits); mergeAdded(rSub90k.added);
-      const rSub45k  = allocateChestType(cSub45k,  makeSubOpts(45000), deficits); mergeAdded(rSub45k.added);
-      const rSub9k   = allocateChestType(cSub9k,   makeSubOpts(9000),  deficits); mergeAdded(rSub9k.added);
-      const rSub1800 = allocateChestType(cSub1800, makeSubOpts(1800),  deficits); mergeAdded(rSub1800.added);
-      const rSub1    = allocateChestType(cSub1,    makeSubOpts(1),     deficits); mergeAdded(rSub1.added);
-
-      const pureSubTotalChests = cSub90k + cSub45k + cSub9k + cSub1800 + cSub1;
-      const pureSubGain = {
-        Active: (rSub90k.added.subActive||0) + (rSub45k.added.subActive||0) + (rSub9k.added.subActive||0) + (rSub1800.added.subActive||0) + (rSub1.added.subActive||0),
-        P1:     (rSub90k.added.subP1||0)     + (rSub45k.added.subP1||0)     + (rSub9k.added.subP1||0)     + (rSub1800.added.subP1||0)     + (rSub1.added.subP1||0),
-        P2:     (rSub90k.added.subP2||0)     + (rSub45k.added.subP2||0)     + (rSub9k.added.subP2||0)     + (rSub1800.added.subP2||0)     + (rSub1.added.subP2||0),
-        P3:     (rSub90k.added.subP3||0)     + (rSub45k.added.subP3||0)     + (rSub9k.added.subP3||0)     + (rSub1800.added.subP3||0)     + (rSub1.added.subP3||0)
-      };
-      const pureSubBadges = [];
-      if (pureSubGain.Active > 0) pureSubBadges.push(`<span class="px-2 py-1 rounded bg-blue-500/20 border border-blue-500/30 text-blue-300 font-bold">Active: +${fmt(pureSubGain.Active)}</span>`);
-      if (pureSubGain.P1 > 0)     pureSubBadges.push(`<span class="px-2 py-1 rounded bg-amber-500/20 border border-amber-500/30 text-amber-300 font-bold">P1: +${fmt(pureSubGain.P1)}</span>`);
-      if (pureSubGain.P2 > 0)     pureSubBadges.push(`<span class="px-2 py-1 rounded bg-violet-500/20 border border-violet-500/30 text-violet-300 font-bold">P2: +${fmt(pureSubGain.P2)}</span>`);
-      if (pureSubGain.P3 > 0)     pureSubBadges.push(`<span class="px-2 py-1 rounded bg-rose-500/20 border border-rose-500/30 text-rose-300 font-bold">P3: +${fmt(pureSubGain.P3)}</span>`);
-      const pureSubSaved = rSub90k.picks.saved + rSub45k.picks.saved + rSub9k.picks.saved + rSub1800.picks.saved + rSub1.picks.saved;
-      if (pureSubSaved > 0) pureSubBadges.push(`<span class="px-2 py-1 rounded bg-slate-800 border border-slate-700 text-slate-300">${fmt(pureSubSaved)}× Unused (Subli already full!)</span>`);
-      renderPlanBox('plan_pureSub', pureSubTotalChests, pureSubBadges, 'Enter your 90k, 45k, 9k, 1,800, or 1-pt Sublimation chests above.');
-
-      // 2. Allocate Trans Spheres (250k) & Trans Chests (1 pt)
-      const cSphere = Math.max(0, parseNum(document.getElementById('chest_transSphere').value));
-      const cTrans1 = Math.max(0, parseNum(document.getElementById('chest_trans1').value));
-
-      const rSphere = allocateChestType(cSphere, [
-        { key: 'Stellars', deficitKey: 'stellars', amount: 250000 },
-        { key: 'CoT',      deficitKey: 'cot',      amount: 250000 }
-      ], deficits);
-      mergeAdded(rSphere.added);
-
-      const rTrans1 = allocateChestType(cTrans1, [
-        { key: 'Stellars', deficitKey: 'stellars', amount: 1 },
-        { key: 'CoT',      deficitKey: 'cot',      amount: 1 }
-      ], deficits);
-      mergeAdded(rTrans1.added);
-
-      const transBadges = [];
-      if (rSphere.picks.Stellars > 0) transBadges.push(`<span class="px-2 py-1 rounded bg-sky-500/20 border border-sky-500/30 text-sky-300 font-bold">${fmt(rSphere.picks.Stellars)}× Spheres → Stellars (+${fmtShort(rSphere.added.stellars)})</span>`);
-      if (rSphere.picks.CoT > 0)      transBadges.push(`<span class="px-2 py-1 rounded bg-purple-500/20 border border-purple-500/30 text-purple-300 font-bold">${fmt(rSphere.picks.CoT)}× Spheres → CoT (+${fmtShort(rSphere.added.cot)})</span>`);
-      if (rTrans1.picks.Stellars > 0) transBadges.push(`<span class="px-2 py-1 rounded bg-sky-500/20 border border-sky-500/30 text-sky-300 font-bold">${fmt(rTrans1.picks.Stellars)}× Trans Chest → Stellars</span>`);
-      if (rTrans1.picks.CoT > 0)      transBadges.push(`<span class="px-2 py-1 rounded bg-purple-500/20 border border-purple-500/30 text-purple-300 font-bold">${fmt(rTrans1.picks.CoT)}× Trans Chest → CoT</span>`);
-      if (rSphere.picks.saved + rTrans1.picks.saved > 0) transBadges.push(`<span class="px-2 py-1 rounded bg-slate-800 border border-slate-700 text-slate-300">${fmt(rSphere.picks.saved + rTrans1.picks.saved)}× Save</span>`);
-      renderPlanBox('plan_transChests', cSphere + cTrans1, transBadges, 'Enter Trans Spheres (250k) or Trans Chests (1 pt) to see optimal Stellar vs CoT split.');
-
-      // 3. Allocate Relay 1x Destiny Pick Chest (30k Spiritveins vs 3,750 Aurora Gem Shards = 0.75 Gem)
-      const cRelayDestiny = Math.max(0, parseNum(document.getElementById('chest_relayDestiny').value));
-      const rRelayDestiny = allocateChestType(cRelayDestiny, [
-        { key: 'Spiritveins', deficitKey: 'spiritveins', amount: 30000 },
-        { key: 'AuroraGems',  deficitKey: 'auroraGems',  amount: 0.75 }
-      ], deficits);
-      mergeAdded(rRelayDestiny.added);
-      const rdBadges = [];
-      if (rRelayDestiny.picks.Spiritveins > 0) rdBadges.push(`<span class="px-2 py-1 rounded bg-orange-500/20 border border-orange-500/30 text-orange-300 font-bold">${fmt(rRelayDestiny.picks.Spiritveins)}× Spiritveins (+${fmt(rRelayDestiny.added.spiritveins)})</span>`);
-      if (rRelayDestiny.picks.AuroraGems > 0)  rdBadges.push(`<span class="px-2 py-1 rounded bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 font-bold">${fmt(rRelayDestiny.picks.AuroraGems)}× Aurora Shards (+${fmt(rRelayDestiny.picks.AuroraGems * 3750)} Shards = +${fmtDec(rRelayDestiny.added.auroraGems, 2)} Gems)</span>`);
-      if (rRelayDestiny.picks.saved > 0)       rdBadges.push(`<span class="px-2 py-1 rounded bg-slate-800 border border-slate-700 text-slate-300">${fmt(rRelayDestiny.picks.saved)}× Save</span>`);
-      renderPlanBox('plan_relayDestiny', cRelayDestiny, rdBadges, 'Enter Relay Destiny Chests to see Spiritveins vs Aurora Shards picks.');
-
-      // 4. Allocate Relay 1x Sub / Core Chest (9,000 Sub vs 5 Core Shards = 0.05 Core)
-      const cRelaySubCore = Math.max(0, parseNum(document.getElementById('chest_relaySubCore').value));
-      const rRelaySubCore = allocateChestType(cRelaySubCore, [
-        ...makeSubOpts(9000),
-        { key: 'Cores', deficitKey: 'cores', amount: 0.05 }
-      ], deficits);
-      mergeAdded(rRelaySubCore.added);
-      const rscBadges = [];
-      ['Active', 'P1', 'P2', 'P3'].forEach(k => {
-        if (rRelaySubCore.picks[k] > 0) rscBadges.push(`<span class="px-2 py-1 rounded bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-bold">${fmt(rRelaySubCore.picks[k])}× ${k} Subli (+${fmt(rRelaySubCore.picks[k]*9000)})</span>`);
-      });
-      if (rRelaySubCore.picks.Cores > 0) rscBadges.push(`<span class="px-2 py-1 rounded bg-rose-500/20 border border-rose-500/30 text-rose-300 font-bold">${fmt(rRelaySubCore.picks.Cores)}× Core Shards (+${fmt(rRelaySubCore.picks.Cores * 5)} Shards)</span>`);
-      if (rRelaySubCore.picks.saved > 0) rscBadges.push(`<span class="px-2 py-1 rounded bg-slate-800 border border-slate-700 text-slate-300">${fmt(rRelaySubCore.picks.saved)}× Save</span>`);
-      renderPlanBox('plan_relaySubCore', cRelaySubCore, rscBadges, 'Enter Relay Sub/Core Chests to see recommended picks.');
-
-      // 5. Allocate Monthly F2P Chest (2,500 Stellar OR 2,500 CoT OR 180 Sub)
-      const cMonthly = Math.max(0, parseNum(document.getElementById('chest_monthlyF2p').value));
-      const rMonthly = allocateChestType(cMonthly, [
-        { key: 'Stellars', deficitKey: 'stellars', amount: 2500 },
-        { key: 'CoT',      deficitKey: 'cot',      amount: 2500 },
-        ...makeSubOpts(180)
-      ], deficits);
-      mergeAdded(rMonthly.added);
-      const mBadges = [];
-      if (rMonthly.picks.Stellars > 0) mBadges.push(`<span class="px-2 py-1 rounded bg-sky-500/20 border border-sky-500/30 text-sky-300 font-bold">${fmt(rMonthly.picks.Stellars)}× Stellars (+${fmt(rMonthly.added.stellars)})</span>`);
-      if (rMonthly.picks.CoT > 0)      mBadges.push(`<span class="px-2 py-1 rounded bg-purple-500/20 border border-purple-500/30 text-purple-300 font-bold">${fmt(rMonthly.picks.CoT)}× CoT (+${fmt(rMonthly.added.cot)})</span>`);
-      ['Active', 'P1', 'P2', 'P3'].forEach(k => {
-        if (rMonthly.picks[k] > 0) mBadges.push(`<span class="px-2 py-1 rounded bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-bold">${fmt(rMonthly.picks[k])}× ${k} Subli (+${fmt(rMonthly.picks[k]*180)})</span>`);
-      });
-      if (rMonthly.picks.saved > 0) mBadges.push(`<span class="px-2 py-1 rounded bg-slate-800 border border-slate-700 text-slate-300">${fmt(rMonthly.picks.saved)}× Save</span>`);
-      renderPlanBox('plan_monthlyF2p', cMonthly, mBadges, 'Enter Monthly F2P Chests to see recommended picks.');
-
-      // 6. Allocate Star Expedition Chest (25k Stellar, 25k CoT, 1800 Sub, 1 Core Shard=0.01 Core, 5000 Spiritveins, 625 Aurora Shards=0.125 Gem)
-      const cStarExp = Math.max(0, parseNum(document.getElementById('chest_starExp').value));
-      const rStarExp = allocateChestType(cStarExp, [
-        { key: 'Stellars',    deficitKey: 'stellars',    amount: 25000 },
-        { key: 'CoT',         deficitKey: 'cot',         amount: 25000 },
-        ...makeSubOpts(1800),
-        { key: 'Cores',       deficitKey: 'cores',       amount: 0.01 },
-        { key: 'Spiritveins', deficitKey: 'spiritveins', amount: 5000 },
-        { key: 'AuroraGems',  deficitKey: 'auroraGems',  amount: 0.125 }
-      ], deficits);
-      mergeAdded(rStarExp.added);
-      const seBadges = [];
-      if (rStarExp.picks.Stellars > 0)    seBadges.push(`<span class="px-2 py-1 rounded bg-sky-500/20 border border-sky-500/30 text-sky-300 font-bold">${fmt(rStarExp.picks.Stellars)}× Stellars (+${fmt(rStarExp.added.stellars)})</span>`);
-      if (rStarExp.picks.CoT > 0)         seBadges.push(`<span class="px-2 py-1 rounded bg-purple-500/20 border border-purple-500/30 text-purple-300 font-bold">${fmt(rStarExp.picks.CoT)}× CoT (+${fmt(rStarExp.added.cot)})</span>`);
-      ['Active', 'P1', 'P2', 'P3'].forEach(k => {
-        if (rStarExp.picks[k] > 0) seBadges.push(`<span class="px-2 py-1 rounded bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-bold">${fmt(rStarExp.picks[k])}× ${k} Subli (+${fmt(rStarExp.picks[k]*1800)})</span>`);
-      });
-      if (rStarExp.picks.Cores > 0)       seBadges.push(`<span class="px-2 py-1 rounded bg-rose-500/20 border border-rose-500/30 text-rose-300 font-bold">${fmt(rStarExp.picks.Cores)}× Core Shards (+${fmt(rStarExp.picks.Cores)} Shards)</span>`);
-      if (rStarExp.picks.Spiritveins > 0) seBadges.push(`<span class="px-2 py-1 rounded bg-orange-500/20 border border-orange-500/30 text-orange-300 font-bold">${fmt(rStarExp.picks.Spiritveins)}× Spiritveins (+${fmt(rStarExp.added.spiritveins)})</span>`);
-      if (rStarExp.picks.AuroraGems > 0)  seBadges.push(`<span class="px-2 py-1 rounded bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 font-bold">${fmt(rStarExp.picks.AuroraGems)}× Aurora Shards (+${fmt(rStarExp.picks.AuroraGems*625)} Shards)</span>`);
-      if (rStarExp.picks.saved > 0)       seBadges.push(`<span class="px-2 py-1 rounded bg-slate-800 border border-slate-700 text-slate-300">${fmt(rStarExp.picks.saved)}× Save</span>`);
-      renderPlanBox('plan_starExp', cStarExp, seBadges, 'Enter Star Expedition Chests to see recommended picks.');
-
-      // 7. Allocate Imp's Chest (62k Stellar, 62k CoT, 4500 Sub, 3 Core Shards=0.03 Core, 12000 Spiritveins, 1500 Aurora Shards=0.3 Gem)
-      const cImps = Math.max(0, parseNum(document.getElementById('chest_imps').value));
-      const rImps = allocateChestType(cImps, [
-        { key: 'Stellars',    deficitKey: 'stellars',    amount: 62000 },
-        { key: 'CoT',         deficitKey: 'cot',         amount: 62000 },
-        ...makeSubOpts(4500),
-        { key: 'Cores',       deficitKey: 'cores',       amount: 0.03 },
-        { key: 'Spiritveins', deficitKey: 'spiritveins', amount: 12000 },
-        { key: 'AuroraGems',  deficitKey: 'auroraGems',  amount: 0.3 }
-      ], deficits);
-      mergeAdded(rImps.added);
-      const impBadges = [];
-      if (rImps.picks.Stellars > 0)    impBadges.push(`<span class="px-2 py-1 rounded bg-sky-500/20 border border-sky-500/30 text-sky-300 font-bold">${fmt(rImps.picks.Stellars)}× Stellars (+${fmt(rImps.added.stellars)})</span>`);
-      if (rImps.picks.CoT > 0)         impBadges.push(`<span class="px-2 py-1 rounded bg-purple-500/20 border border-purple-500/30 text-purple-300 font-bold">${fmt(rImps.picks.CoT)}× CoT (+${fmt(rImps.added.cot)})</span>`);
-      ['Active', 'P1', 'P2', 'P3'].forEach(k => {
-        if (rImps.picks[k] > 0) impBadges.push(`<span class="px-2 py-1 rounded bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-bold">${fmt(rImps.picks[k])}× ${k} Subli (+${fmt(rImps.picks[k]*4500)})</span>`);
-      });
-      if (rImps.picks.Cores > 0)       impBadges.push(`<span class="px-2 py-1 rounded bg-rose-500/20 border border-rose-500/30 text-rose-300 font-bold">${fmt(rImps.picks.Cores)}× Core Shards (+${fmt(rImps.picks.Cores*3)} Shards)</span>`);
-      if (rImps.picks.Spiritveins > 0) impBadges.push(`<span class="px-2 py-1 rounded bg-orange-500/20 border border-orange-500/30 text-orange-300 font-bold">${fmt(rImps.picks.Spiritveins)}× Spiritveins (+${fmt(rImps.added.spiritveins)})</span>`);
-      if (rImps.picks.AuroraGems > 0)  impBadges.push(`<span class="px-2 py-1 rounded bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 font-bold">${fmt(rImps.picks.AuroraGems)}× Aurora Shards (+${fmt(rImps.picks.AuroraGems*1500)} Shards)</span>`);
-      if (rImps.picks.saved > 0)       impBadges.push(`<span class="px-2 py-1 rounded bg-slate-800 border border-slate-700 text-slate-300">${fmt(rImps.picks.saved)}× Save</span>`);
-      renderPlanBox('plan_imps', cImps, impBadges, "Enter Imp's Chests to see recommended picks.");
-
-      // Render Sublimation Branch Cards
-      const branches = [
-        { key: 'Active', label: 'Active Sublimation', color: 'text-blue-300', have: invested.subActive + bag.subActive + chestAdded.subActive, fromChest: chestAdded.subActive },
-        { key: 'P1',     label: 'Passive 1 (P1)',     color: 'text-amber-300', have: invested.subP1 + bag.subP1 + chestAdded.subP1,         fromChest: chestAdded.subP1 },
-        { key: 'P2',     label: 'Passive 2 (P2)',     color: 'text-violet-300', have: invested.subP2 + bag.subP2 + chestAdded.subP2,       fromChest: chestAdded.subP2 },
-        { key: 'P3',     label: 'Passive 3 / P4',     color: 'text-rose-300', have: invested.subP3 + bag.subP3 + chestAdded.subP3,         fromChest: chestAdded.subP3 }
-      ];
-
-      let totalSubMissing = 0;
-      const subGrid = document.getElementById('subliCardsGrid');
-      subGrid.innerHTML = '';
-
-      branches.forEach(b => {
-        const deficit = Math.max(0, branchTarget - b.have);
-        totalSubMissing += deficit;
-        const isDone = deficit === 0;
-
-        subGrid.innerHTML += `
-          <div class="bg-slate-850 border ${isDone ? 'border-emerald-500/30' : 'border-rose-500/30'} rounded-xl p-3">
-            <div class="flex items-center justify-between mb-1">
-              <span class="text-xs font-bold ${b.color}">${b.label}</span>
-              <span class="text-[11px] font-bold px-2 py-0.5 rounded ${isDone ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}">
-                ${isDone ? 'Ready' : 'Need ' + fmtShort(deficit)}
-              </span>
-            </div>
-            <div class="text-xs text-slate-400 flex justify-between mt-2">
-              <span>Target: <b class="text-slate-200">${fmt(branchTarget)}</b></span>
-              <span>Have: <b class="text-slate-200">${fmt(b.have)}</b></span>
-            </div>
-            ${b.fromChest > 0 ? `<div class="text-[11px] text-emerald-300 mt-1">+${fmt(b.fromChest)} from Chests</div>` : ''}
-          </div>
-        `;
-      });
-
-      // Totals in Bag + Chest Picks
-      const totalBagPlusChestCores    = bag.cores + chestAdded.cores;
-      const totalBagPlusChestSub      = bag.subActive + bag.subP1 + bag.subP2 + bag.subP3 +
-                                        chestAdded.subActive + chestAdded.subP1 + chestAdded.subP2 + chestAdded.subP3;
-      const totalBagPlusChestStellars = bag.stellars + chestAdded.stellars;
-      const totalBagPlusChestCot      = bag.cot + chestAdded.cot;
-      const totalBagPlusChestVeins    = bag.spiritveins + chestAdded.spiritveins;
-      const totalBagPlusChestGems     = bag.auroraGems + chestAdded.auroraGems;
-
+      // Rows
+      let anyMiss = false;
       const rows = [
-        {
-          name: lockedPartialShardsSum > 0
-            ? `Cores of Origin (${lockedPartialShardsSum} Locked Shards Excluded)`
-            : 'Cores of Origin',
-          color: 'text-rose-300',
-          target: targetRow.cores,
-          inHeroes: invested.cores,
-          inBag: totalBagPlusChestCores,
-          missing: Math.max(0, targetRow.cores - (invested.cores + totalBagPlusChestCores)),
-          fmtVal: (v) => `${fmtDec(v, 2)} (${fmt(Math.round(v * 100))} Shards)`,
-          extraMissingText: (m) => `${fmtDec(m, 2)} Cores (${fmt(Math.round(m * 100))} Universal Shards)`
-        },
-        {
-          name: 'Sublimation (All 4 Branches)',
-          color: 'text-emerald-300',
-          target: targetRow.sublis,
-          inHeroes: invested.subActive + invested.subP1 + invested.subP2 + invested.subP3,
-          inBag: totalBagPlusChestSub,
-          missing: totalSubMissing,
-          extraMissingText: (m) => `${fmt(m)} (${Math.ceil(m / 45000)}× 45k Chests)`
-        },
-        {
-          name: 'Spiritual Essences',
-          color: 'text-amber-300',
-          target: targetRow.essences,
-          inHeroes: invested.essences,
-          inBag: bag.essences,
-          missing: Math.max(0, targetRow.essences - (invested.essences + bag.essences))
-        },
-        {
-          name: 'Stellar Shards',
-          color: 'text-sky-300',
-          target: targetRow.stellars,
-          inHeroes: invested.stellars,
-          inBag: totalBagPlusChestStellars,
-          missing: Math.max(0, targetRow.stellars - (invested.stellars + totalBagPlusChestStellars))
-        },
-        {
-          name: 'CoT (Includes 5M per Trans Hero)',
-          color: 'text-purple-300',
-          target: targetRow.cot,
-          inHeroes: invested.cot,
-          inBag: totalBagPlusChestCot,
-          missing: Math.max(0, targetRow.cot - (invested.cot + totalBagPlusChestCot))
-        },
-        {
-          name: 'Spiritveins',
-          color: 'text-orange-300',
-          target: targetRow.spiritveins,
-          inHeroes: invested.spiritveins,
-          inBag: totalBagPlusChestVeins,
-          missing: Math.max(0, targetRow.spiritveins - (invested.spiritveins + totalBagPlusChestVeins))
-        },
-        {
-          name: 'Aurora Gems',
-          color: 'text-cyan-300',
-          target: targetRow.auroraGems,
-          inHeroes: invested.auroraGems,
-          inBag: totalBagPlusChestGems,
-          missing: Math.max(0, targetRow.auroraGems - (invested.auroraGems + totalBagPlusChestGems)),
-          fmtVal: (v) => `${fmtDec(v, 2)} (${fmt(Math.round(v * 5000))} Shards)`,
-          extraMissingText: (m) => `${fmtDec(m, 2)} Gems (${fmt(Math.round(m * 5000))} Shards)`
-        }
+        { n: lockedSum>0?`Cores (${lockedSum} Locked Excluded)`:'Cores', col: 'text-rose-300', tar: target.cores, her: invested.cores, bag: bag.cores+added.cores,
+          fmtVal: v=>`${fmtDec(v)} (${fmt(Math.round(v*100))} Sh.)`, exTxt: m=>`${fmtDec(m)} Cores (${fmt(Math.round(m*100))} Uni. Shards)` },
+        { n: 'Sublimation (All 4)', col: 'text-emerald-300', tar: target.sublis, her: invested.subActive+invested.subP1+invested.subP2+invested.subP3, bag: bag.subActive+bag.subP1+bag.subP2+bag.subP3+added.subActive+added.subP1+added.subP2+added.subP3,
+          miss: defs.subActive+defs.subP1+defs.subP2+defs.subP3, exTxt: m=>`${fmt(m)} (${Math.ceil(m/45000)}× 45k Chests)` },
+        { n: 'Essences', col: 'text-amber-300', tar: target.essences, her: invested.essences, bag: bag.essences, miss: defs.essences },
+        { n: 'Stellars', col: 'text-sky-300', tar: target.stellars, her: invested.stellars, bag: bag.stellars+added.stellars, miss: defs.stellars },
+        { n: 'CoT (w/ Trans credit)', col: 'text-purple-300', tar: target.cot, her: invested.cot, bag: bag.cot+added.cot, miss: defs.cot },
+        { n: 'Spiritveins', col: 'text-orange-300', tar: target.spiritveins, her: invested.spiritveins, bag: bag.spiritveins+added.spiritveins, miss: defs.spiritveins },
+        { n: 'Aurora Gems', col: 'text-cyan-300', tar: target.auroraGems, her: invested.auroraGems, bag: bag.auroraGems+added.auroraGems, miss: defs.auroraGems,
+          fmtVal: v=>`${fmtDec(v)} (${fmt(Math.round(v*5000))} Sh.)`, exTxt: m=>`${fmtDec(m)} Gems (${fmt(Math.round(m*5000))} Sh.)` }
       ];
-
-      const tbody = document.getElementById('resultsTableBody');
-      tbody.innerHTML = '';
-      let anyMissing = false;
-
-      rows.forEach(r => {
-        if (r.missing > 1e-6) anyMissing = true;
-        const formatCell = r.fmtVal ? r.fmtVal : fmt;
-        const missingDisplay = r.missing <= 1e-6
-          ? `<span class="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 font-bold text-xs">✓ Enough (+${fmtShort((r.inHeroes + r.inBag) - r.target)})</span>`
-          : `<span class="text-rose-400 font-bold">${r.extraMissingText ? r.extraMissingText(r.missing) : fmt(r.missing) + ' (' + fmtShort(r.missing) + ')'}</span>`;
-
-        tbody.innerHTML += `
-          <tr class="hover:bg-slate-850/60">
-            <td class="py-3 px-4 font-semibold ${r.color}">${r.name}</td>
-            <td class="py-3 px-4 text-right font-mono text-slate-200">${fmt(r.target)}</td>
-            <td class="py-3 px-4 text-right font-mono text-slate-300">${fmt(r.inHeroes)}</td>
-            <td class="py-3 px-4 text-right font-mono text-slate-300">${formatCell(r.inBag)}</td>
-            <td class="py-3 px-4 text-right">${missingDisplay}</td>
-          </tr>
-        `;
-      });
-
-      const heroDiff = Math.max(0, targetRow.heroes - totalOwnedDestiny);
-      document.getElementById('resHeroStatusText').textContent =
-        heroDiff === 0
-          ? `You have ${totalOwnedDestiny} / ${targetRow.heroes} required Destiny Heroes.`
-          : `You have ${totalOwnedDestiny} / ${targetRow.heroes} required Destiny Heroes (Need ${heroDiff} more Destiny Heroes).`;
-
-      const badge = document.getElementById('overallBadge');
-      if (!anyMissing) {
-        badge.className = 'px-3.5 py-1.5 rounded-xl font-bold text-xs bg-emerald-500/20 border border-emerald-500/40 text-emerald-300';
-        badge.textContent = '✓ All Resources Ready for Level ' + targetRow.label;
-      } else {
-        badge.className = 'px-3.5 py-1.5 rounded-xl font-bold text-xs bg-amber-500/20 border border-amber-500/40 text-amber-300';
-        badge.textContent = 'Still Missing Resources for Level ' + targetRow.label;
-      }
-
-      saveToStorage();
+      document.getElementById('resultsTableBody').innerHTML = rows.map(r => {
+        let m = r.miss!==undefined ? r.miss : Math.max(0, r.tar-(r.her+r.bag)); if(m>1e-6) anyMiss=true;
+        return `<tr class="hover:bg-slate-850/60"><td class="py-3 px-4 font-semibold ${r.col}">${r.n}</td><td class="py-3 px-4 text-right font-mono text-slate-200">${fmt(r.tar)}</td><td class="py-3 px-4 text-right font-mono text-slate-300">${fmt(r.her)}</td><td class="py-3 px-4 text-right font-mono text-slate-300">${r.fmtVal?r.fmtVal(r.bag):fmt(r.bag)}</td><td class="py-3 px-4 text-right">${m<=1e-6?`<span class="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 font-bold text-xs">✓ Enough</span>`:`<span class="text-rose-400 font-bold">${r.exTxt?r.exTxt(m):fmt(m)+' ('+fmtShort(m)+')'}</span>`}</td></tr>`;
+      }).join('');
+      
+      const hd = Math.max(0, target.heroes - totHeroes);
+      document.getElementById('resHeroStatusText').textContent = hd===0 ? `You have ${totHeroes} / ${target.heroes} required Destiny Heroes.` : `You have ${totHeroes} / ${target.heroes} Destiny Heroes (Need ${hd} more).`;
+      document.getElementById('overallBadge').className = anyMiss ? 'px-3.5 py-1.5 rounded-xl font-bold text-xs bg-amber-500/20 border border-amber-500/40 text-amber-300' : 'px-3.5 py-1.5 rounded-xl font-bold text-xs bg-emerald-500/20 border border-emerald-500/40 text-emerald-300';
+      document.getElementById('overallBadge').textContent = anyMiss ? 'Still Missing Resources' : '✓ All Resources Ready!';
     }
-
-    function saveToStorage() {
-      const state = {
-        currentLevel: document.getElementById('currentLevel').value,
-        targetLevel: document.getElementById('targetLevel').value,
-        heroes: {
-          d1_1: document.getElementById('hero_d1_1').value,
-          d1: document.getElementById('hero_d1').value,
-          d2: document.getElementById('hero_d2').value,
-          d3: document.getElementById('hero_d3').value,
-          d4: document.getElementById('hero_d4').value,
-          d5: document.getElementById('hero_d5').value,
-          d6: document.getElementById('hero_d6').value,
-          extraTrans: document.getElementById('hero_extraTrans').value,
-        },
-        infusionLevels,
-        partialCoreShards,
-        bag: {
-          fullCores: document.getElementById('bag_fullCores').value,
-          coreChests50: document.getElementById('bag_coreChests50').value,
-          coreShards: document.getElementById('bag_coreShards').value,
-          subActive: document.getElementById('bag_subActive').value,
-          subP1: document.getElementById('bag_subP1').value,
-          subP2: document.getElementById('bag_subP2').value,
-          subP3: document.getElementById('bag_subP3').value,
-          essences: document.getElementById('bag_essences').value,
-          stellars: document.getElementById('bag_stellars').value,
-          cot: document.getElementById('bag_cot').value,
-          spiritveins: document.getElementById('bag_spiritveins').value,
-          auroraGems: document.getElementById('bag_auroraGems').value,
-          auroraShards: document.getElementById('bag_auroraShards').value,
-        },
-        chests: {
-          sub90k: document.getElementById('chest_sub90k').value,
-          sub45k: document.getElementById('chest_sub45k').value,
-          sub9k: document.getElementById('chest_sub9k').value,
-          sub1800: document.getElementById('chest_sub1800').value,
-          sub1: document.getElementById('chest_sub1').value,
-          transSphere: document.getElementById('chest_transSphere').value,
-          trans1: document.getElementById('chest_trans1').value,
-          monthlyF2p: document.getElementById('chest_monthlyF2p').value,
-          relaySubCore: document.getElementById('chest_relaySubCore').value,
-          relayDestiny: document.getElementById('chest_relayDestiny').value,
-          starExp: document.getElementById('chest_starExp').value,
-          imps: document.getElementById('chest_imps').value,
-        }
-      };
-      localStorage.setItem('ih_destiny_temple_v5', JSON.stringify(state));
-    }
-
-    function loadFromStorage() {
-      try {
-        const raw = localStorage.getItem('ih_destiny_temple_v5');
-        if (!raw) return;
-        const s = JSON.parse(raw);
-        if (s.currentLevel !== undefined) document.getElementById('currentLevel').value = s.currentLevel;
-        if (s.targetLevel !== undefined) document.getElementById('targetLevel').value = s.targetLevel;
-        if (s.heroes) {
-          Object.keys(s.heroes).forEach(k => {
-            const el = document.getElementById('hero_' + k);
-            if (el) el.value = s.heroes[k];
-          });
-        }
-        if (Array.isArray(s.infusionLevels)) {
-          infusionLevels = s.infusionLevels;
-          document.getElementById('infusionCount').value = infusionLevels.length;
-          renderInfusionInputs();
-        }
-        if (Array.isArray(s.partialCoreShards)) {
-          partialCoreShards = s.partialCoreShards;
-          document.getElementById('partialCoreCount').value = partialCoreShards.length;
-          renderPartialCoreInputs();
-        }
-        if (s.bag) {
-          Object.keys(s.bag).forEach(k => {
-            const el = document.getElementById('bag_' + k);
-            if (el) el.value = s.bag[k];
-          });
-        }
-        if (s.chests) {
-          Object.keys(s.chests).forEach(k => {
-            const el = document.getElementById('chest_' + k);
-            if (el) el.value = s.chests[k];
-          });
-        }
-      } catch (e) {}
-    }
-
-    function resetAll() {
-      localStorage.removeItem('ih_destiny_temple_v5');
-      location.reload();
-    }
-
-    window.addEventListener('DOMContentLoaded', () => {
-      populateLevelSelects();
-      loadFromStorage();
-      saveAndCalc();
-    });
+    const resetAll = () => { localStorage.removeItem('ih_destiny_temple_v6'); location.reload(); };
+    window.addEventListener('DOMContentLoaded', initUI);
   </script>
 </body>
 </html>
