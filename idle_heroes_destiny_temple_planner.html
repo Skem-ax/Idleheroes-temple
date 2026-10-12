@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Idle Heroes — Simple Destiny Temple Calculator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #0b0f19;
+      color: #f1f5f9;
+    }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .step-card {
+      background: #131b2e;
+      border: 1px solid #1e293b;
+      border-radius: 1rem;
+    }
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased pb-16">
+
+  <!-- Simple Header -->
+  <header class="border-b border-slate-800 bg-slate-950/80 sticky top-0 z-20 backdrop-blur">
+    <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-400 font-bold">
+          ★
+        </div>
+        <div>
+          <h1 class="text-base sm:text-lg font-bold text-white">Idle Heroes — Destiny Temple Calculator</h1>
+          <p class="text-xs text-slate-400">Simple 4-step calculator to see what you need for your next Temple Level</p>
+        </div>
+      </div>
+      <button onclick="resetAll()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-rose-500/20 text-slate-300 hover:text-rose-300 border border-slate-700 transition">
+        Reset All
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Vertical 4-Step Container -->
+  <main class="max-w-4xl mx-auto px-4 mt-6 space-y-6">
+
+    <!-- ==================== STEP 1: TEMPLE LEVEL ==================== -->
+    <section class="step-card p-5 sm:p-6">
+      <div class="flex items-center gap-2.5 mb-4">
+        <span class="w-7 h-7 rounded-full bg-amber-500 text-slate-950 font-bold text-sm flex items-center justify-center">1</span>
+        <h2 class="text-base sm:text-lg font-bold text-white">Select Your Temple Level</h2>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- Current Level -->
+        <div>
+          <label for="current-level" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+            Current Temple Level
+          </label>
+          <select id="current-level" onchange="onLevelChange()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm sm:text-base font-semibold text-white focus:outline-none focus:border-amber-400">
+            <!-- Populated by JS -->
+          </select>
+        </div>
+
+        <!-- Target Level -->
+        <div>
+          <label for="target-level" class="block text-xs font-semibold uppercase tracking-wider text-amber-400 mb-1.5">
+            Target Temple Level
+          </label>
+          <select id="target-level" onchange="onLevelChange()" class="w-full bg-slate-950 border border-amber-500/50 rounded-xl px-4 py-3 text-sm sm:text-base font-bold text-amber-300 focus:outline-none focus:border-amber-400">
+            <!-- Populated by JS -->
+          </select>
+        </div>
+      </div>
+
+      <!-- Clean Target Level Summary Box -->
+      <div id="target-summary-box" class="mt-4 p-4 rounded-xl bg-slate-950/90 border border-slate-800 space-y-3">
+        <!-- Populated by JS -->
+      </div>
+    </section>
+
+    <!-- ==================== STEP 2: YOUR DESTINY HEROES ==================== -->
+    <section class="step-card p-5 sm:p-6">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+        <div class="flex items-center gap-2.5">
+          <span class="w-7 h-7 rounded-full bg-amber-500 text-slate-950 font-bold text-sm flex items-center justify-center">2</span>
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-white">How Many Destiny & Trans Heroes Do You Have?</h2>
+            <p class="text-xs text-slate-400">Each Destiny hero automatically includes 5M Trans CoT, 1 Full Core (4 cores), and 180k×4 Sublimations</p>
+          </div>
+        </div>
+        <span id="owned-total-badge" class="px-3 py-1 rounded-lg bg-purple-500/15 border border-purple-500/30 text-purple-300 font-mono text-xs font-bold">
+          Total Destiny: 0
+        </span>
+      </div>
+
+      <!-- 6 Simple Inputs for D1 to D6 -->
+      <div id="hero-inputs-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+        <!-- Populated by JS -->
+      </div>
+
+      <!-- Extra Non-Destiny Transcendence Heroes (5M CoT each) + D1 Lvl 1 toggle -->
+      <div class="mt-4 pt-4 border-t border-slate-800/80 grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+        <!-- Extra Trans Heroes -->
+        <div class="p-3 rounded-xl bg-slate-950 border border-fuchsia-500/30 flex items-center justify-between gap-3">
+          <div>
+            <div class="text-xs sm:text-sm font-bold text-fuchsia-300">Other Trans Heroes (Not Destiny yet)</div>
+            <div class="text-[11px] text-slate-400">Counts <strong class="text-slate-200">5,000,000 CoT</strong> per hero already made</div>
+          </div>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <button onclick="changeExtraTrans(-1)" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-bold text-base flex items-center justify-center">-</button>
+            <input
+              id="extra-trans-input"
+              type="number"
+              min="0"
+              max="60"
+              value="0"
+              onchange="setExtraTrans(this.value)"
+              class="w-12 h-8 text-center bg-slate-900 border border-slate-700 rounded-lg font-mono font-bold text-fuchsia-300 text-sm focus:outline-none focus:border-fuchsia-400"
+            />
+            <button onclick="changeExtraTrans(1)" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-bold text-base flex items-center justify-center">+</button>
+          </div>
+        </div>
+
+        <!-- Optional D1 Lvl 1 toggle -->
+        <div class="text-xs text-slate-400 flex items-center md:justify-end">
+          <label class="inline-flex items-center gap-2 cursor-pointer select-none bg-slate-950/70 px-3 py-2.5 rounded-xl border border-slate-800">
+            <input type="checkbox" id="d1-lvl1-toggle" onchange="calculateAndRender()" class="rounded bg-slate-900 border-slate-700 text-amber-500 focus:ring-0 w-4 h-4 cursor-pointer" />
+            <span>My D1 heroes are <strong>Level 1</strong> (0 Spiritveins used)</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 2B: INFUSION HEROES (TEMPORARY REGRESSION FOR TEMPLE PUSH) -->
+      <div class="mt-5 pt-5 border-t border-slate-800">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-sm sm:text-base font-bold text-cyan-300">Infusion Heroes (Regress for Temple Push)</h3>
+              <span class="px-2 py-0.5 rounded-md bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-[10px] font-bold uppercase tracking-wider">New</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-0.5">
+              Infusions aren't needed for Temple level! Enter how many infused heroes you have and their level (1–75) to add their regressed materials.
+            </p>
+          </div>
+
+          <!-- How many Infusion Heroes counter -->
+          <div class="flex items-center gap-2 bg-slate-950 px-3 py-2 rounded-xl border border-cyan-500/30">
+            <span class="text-xs font-bold text-slate-300">Infusion Heroes:</span>
+            <button onclick="changeInfusionCount(-1)" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm flex items-center justify-center">-</button>
+            <input
+              id="infusion-count-input"
+              type="number"
+              min="0"
+              max="30"
+              value="0"
+              onchange="setInfusionCount(this.value)"
+              class="w-11 h-7 text-center bg-slate-900 border border-slate-700 rounded-lg font-mono font-bold text-cyan-300 text-xs focus:outline-none focus:border-cyan-400"
+            />
+            <button onclick="changeInfusionCount(1)" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm flex items-center justify-center">+</button>
+          </div>
+        </div>
+
+        <!-- Infusion Rules & 38k/lvl Toggle Bar -->
+        <div class="mb-3 p-2.5 rounded-xl bg-slate-950/70 border border-slate-800/90 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-400">
+          <div>
+            <strong class="text-slate-300">Refund Rules:</strong>
+            <span class="text-slate-500">Lv.1–15:</span> 9★/10★ only •
+            <span class="text-cyan-300">Lv.16–40:</span> 300k Stellar + 300k CoT/lvl •
+            <span class="text-yellow-300">Lv.41–75:</span> 300k Stellar + 38k/lvl + 4 Cores + 180k×4 Sublis (by Lv.70)
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span>Lv.41–75 (38k/lvl) counts as:</span>
+            <button id="inf-type-spiritveins" onclick="setInfusionResourceType('spiritveins')" class="px-2 py-0.5 rounded font-bold transition text-[11px]">
+              Spiritveins
+            </button>
+            <button id="inf-type-essences" onclick="setInfusionResourceType('essences')" class="px-2 py-0.5 rounded font-bold transition text-[11px]">
+              Essences
+            </button>
+          </div>
+        </div>
+
+        <!-- Per-Hero Infusion Level List -->
+        <div id="infusion-heroes-list" class="space-y-2">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Total Recovered from Infusions Summary Pill -->
+        <div id="infusion-total-summary" class="mt-3">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== STEP 3: RESOURCES IN YOUR BAG ==================== -->
+    <section class="step-card p-5 sm:p-6 space-y-5">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2.5">
+          <span class="w-7 h-7 rounded-full bg-amber-500 text-slate-950 font-bold text-sm flex items-center justify-center">3</span>
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-white">Resources in Your Bag ( & Extra Heroes )</h2>
+            <p class="text-xs text-slate-400">Include unused bag items or Cores/Sublis sitting on non-Destiny heroes. Type <code class="text-amber-300 font-mono">180k</code>, <code class="text-amber-300 font-mono">15M</code>, or full numbers.</p>
+          </div>
+        </div>
+        <button onclick="clearBag()" class="text-xs text-slate-400 hover:text-rose-300 underline">
+          Clear All Bag Inputs
+        </button>
+      </div>
+
+      <!-- 3A: CORES OF ORIGIN -->
+      <div class="p-4 rounded-xl bg-slate-950/90 border border-rose-500/25">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div>
+            <h3 class="text-sm font-bold text-rose-300">Cores of Origin</h3>
+            <p class="text-[11px] text-slate-400">1 Destiny Hero = <strong class="text-slate-200">1 Full Core</strong> = <strong class="text-slate-200">4 Single Cores</strong> = <strong class="text-slate-200">8 Core Chests (50 shards each)</strong></p>
+          </div>
+          <span id="bag-cores-summary" class="px-2.5 py-1 rounded-lg bg-rose-500/15 border border-rose-500/30 text-rose-300 font-mono text-xs font-bold">
+            Bag Total: 0 Cores (0 Full)
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="p-3 rounded-lg bg-slate-900/90 border border-slate-800">
+            <div class="flex justify-between items-center mb-1">
+              <label for="core-full" class="text-xs font-bold text-rose-300">Full Cores (Noble)</label>
+              <span class="text-[11px] font-mono text-slate-400">= 4 Cores ea</span>
+            </div>
+            <input id="core-full" type="number" min="0" placeholder="0" onfocus="this.select()" onchange="setCoreInput('fullCores', this.value)"
+              class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono text-white focus:outline-none focus:border-rose-400" />
+          </div>
+
+          <div class="p-3 rounded-lg bg-slate-900/90 border border-slate-800">
+            <div class="flex justify-between items-center mb-1">
+              <label for="core-single" class="text-xs font-bold text-rose-200">Single Cores (1★)</label>
+              <span class="text-[11px] font-mono text-slate-400">= 1 Core ea</span>
+            </div>
+            <input id="core-single" type="number" min="0" placeholder="0" onfocus="this.select()" onchange="setCoreInput('singleCores', this.value)"
+              class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono text-white focus:outline-none focus:border-rose-400" />
+          </div>
+
+          <div class="p-3 rounded-lg bg-slate-900/90 border border-slate-800">
+            <div class="flex justify-between items-center mb-1">
+              <label for="core-chests" class="text-xs font-bold text-amber-300">Core Chests (Half / 50 Shards)</label>
+              <span class="text-[11px] font-mono text-slate-400">= 0.5 Core ea</span>
+            </div>
+            <input id="core-chests" type="number" min="0" placeholder="0" onfocus="this.select()" onchange="setCoreInput('coreChests', this.value)"
+              class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono text-white focus:outline-none focus:border-amber-400" />
+          </div>
+        </div>
+      </div>
+
+      <!-- 3B: 4 SUBLIMATION BRANCHES -->
+      <div class="p-4 rounded-xl bg-slate-950/90 border border-orange-500/25">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div>
+            <h3 class="text-sm font-bold text-orange-300">Sublimation Essence (4 Branches)</h3>
+            <p class="text-[11px] text-slate-400">Each Destiny Hero needs <strong class="text-slate-200">180,000 of each branch</strong> (Active, P1, P2, P3 = 720k total per hero)</p>
+          </div>
+          <span id="bag-subli-summary" class="px-2.5 py-1 rounded-lg bg-orange-500/15 border border-orange-500/30 text-orange-300 font-mono text-xs font-bold">
+            Bag Total: 0
+          </span>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+          <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800">
+            <label for="subli-active" class="block text-xs font-bold text-rose-300 mb-1">Active Subli</label>
+            <input id="subli-active" type="text" placeholder="0 (e.g. 180k)" onfocus="this.select()" onchange="setSubliInput('active', this.value)"
+              class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm font-mono text-white focus:outline-none focus:border-orange-400" />
+          </div>
+
+          <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800">
+            <label for="subli-p1" class="block text-xs font-bold text-sky-300 mb-1">P1 Subli (Passive 1)</label>
+            <input id="subli-p1" type="text" placeholder="0 (e.g. 180k)" onfocus="this.select()" onchange="setSubliInput('p1', this.value)"
+              class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm font-mono text-white focus:outline-none focus:border-orange-400" />
+          </div>
+
+          <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800">
+            <label for="subli-p2" class="block text-xs font-bold text-emerald-300 mb-1">P2 Subli (Passive 2)</label>
+            <input id="subli-p2" type="text" placeholder="0 (e.g. 180k)" onfocus="this.select()" onchange="setSubliInput('p2', this.value)"
+              class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm font-mono text-white focus:outline-none focus:border-orange-400" />
+          </div>
+
+          <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800">
+            <label for="subli-p3" class="block text-xs font-bold text-purple-300 mb-1">P3 / P4 Subli (Passive 3)</label>
+            <input id="subli-p3" type="text" placeholder="0 (e.g. 180k)" onfocus="this.select()" onchange="setSubliInput('p3', this.value)"
+              class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm font-mono text-white focus:outline-none focus:border-orange-400" />
+          </div>
+
+          <div class="p-2.5 rounded-lg bg-slate-900/90 border border-amber-500/30 col-span-2 sm:col-span-1">
+            <label for="subli-any" class="block text-xs font-bold text-amber-300 mb-1">Any / Chest Subli</label>
+            <input id="subli-any" type="text" placeholder="0 (Wildcard)" onfocus="this.select()" onchange="setSubliInput('any', this.value)"
+              class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm font-mono text-amber-200 focus:outline-none focus:border-amber-400" />
+          </div>
+        </div>
+      </div>
+
+      <!-- 3C: OTHER 5 BAG RESOURCES -->
+      <div>
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2.5">Other Bag Resources</h3>
+        <div id="bag-inputs-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== STEP 4: RESULTS (WHAT YOU NEED) ==================== -->
+    <section class="step-card p-5 sm:p-6 border-amber-500/30">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+        <div class="flex items-center gap-2.5">
+          <span class="w-7 h-7 rounded-full bg-emerald-500 text-slate-950 font-bold text-sm flex items-center justify-center">4</span>
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-white">Results — What You Need for <span id="result-target-title" class="text-amber-400">Temple Level 5</span></h2>
+            <p class="text-xs text-slate-400">Automatically combines your owned Destiny Heroes + your Bag Resources</p>
+          </div>
+        </div>
+        <div id="overall-status-badge"></div>
+      </div>
+
+      <!-- Hero Count & Tier Check Banner -->
+      <div id="hero-check-banner" class="mb-5 p-4 rounded-xl bg-slate-950 border border-slate-800">
+        <!-- Populated by JS -->
+      </div>
+
+      <!-- 4-Sublimation Branch Mini Status Cards -->
+      <div id="subli-branch-cards" class="mb-5 grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+        <!-- Populated by JS -->
+      </div>
+
+      <!-- Clean Resource Breakdown Table -->
+      <div class="overflow-x-auto rounded-xl border border-slate-800">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-950 text-slate-400 text-[11px] uppercase tracking-wider border-b border-slate-800">
+              <th class="py-3 px-4">Resource</th>
+              <th class="py-3 px-3 text-right">Target Needs</th>
+              <th class="py-3 px-3 text-right">In Heroes + Infusions</th>
+              <th class="py-3 px-3 text-right">In Your Bag</th>
+              <th class="py-3 px-4 text-right">Still Needed (Missing)</th>
+            </tr>
+          </thead>
+          <tbody id="results-tbody" class="divide-y divide-slate-800/80 text-xs sm:text-sm font-mono">
+            <!-- Populated by JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // 1. Per-Hero Cumulative Costs (from Regress Chart)
+    const HERO_COSTS = {
+      d1_lvl1:  { cores: 4, sublis: 720000, stellars: 14929100, essences: 1248120, auroraGems: 5,  templeCot: 420000,  totalCot: 5420000,  spiritveins: 0 },
+      d1:       { cores: 4, sublis: 720000, stellars: 15750640, essences: 1248120, auroraGems: 5,  templeCot: 420000,  totalCot: 5420000,  spiritveins: 197236 },
+      d2:       { cores: 4, sublis: 720000, stellars: 16893670, essences: 1248120, auroraGems: 12, templeCot: 1010000, totalCot: 6010000,  spiritveins: 474436 },
+      d3:       { cores: 4, sublis: 720000, stellars: 18390640, essences: 1248120, auroraGems: 21, templeCot: 1760000, totalCot: 6760000,  spiritveins: 830836 },
+      d4:       { cores: 4, sublis: 720000, stellars: 20205640, essences: 1248120, auroraGems: 32, templeCot: 2680000, totalCot: 7680000,  spiritveins: 1266436 },
+      d5:       { cores: 4, sublis: 720000, stellars: 22350640, essences: 1248120, auroraGems: 45, templeCot: 3780000, totalCot: 8780000,  spiritveins: 1781236 },
+      d6:       { cores: 4, sublis: 720000, stellars: 24929590, essences: 1248120, auroraGems: 60, templeCot: 5030000, totalCot: 10030000, spiritveins: 2400536 }
+    };
+
+    // 2. Temple Levels 1 to 30 (from Main Chart)
+    const TEMPLE_LEVELS = [
+      { level: 1,  dp: 0,  max: [3,2,1,0,0,0],       req: [1,0,0,0,0,0],    heroes: 1,  cores: 4,   sublis: 720000,   essences: 1248120,  stellars: 14929100,   cot: 5420000,   spiritveins: 0,         auroraGems: 5 },
+      { level: 2,  dp: 0,  max: [4,3,2,0,0,0],       req: [3,0,0,0,0,0],    heroes: 3,  cores: 12,  sublis: 2160000,  essences: 3744360,  stellars: 47251920,   cot: 16260000,  spiritveins: 591708,    auroraGems: 15 },
+      { level: 3,  dp: 1,  max: [5,4,3,0,0,0],       req: [2,2,0,0,0,0],    heroes: 4,  cores: 16,  sublis: 2880000,  essences: 4992480,  stellars: 65312560,   cot: 22860000,  spiritveins: 1343344,   auroraGems: 34 },
+      { level: 4,  dp: 2,  max: [6,5,4,1,0,0],       req: [0,1,2,0,0,0],    heroes: 3,  cores: 12,  sublis: 2160000,  essences: 3744360,  stellars: 53686920,   cot: 19530000,  spiritveins: 2136108,   auroraGems: 54 },
+      { level: 5,  dp: 3,  max: [7,6,5,2,0,0],       req: [2,1,1,1,0,0],    heroes: 5,  cores: 20,  sublis: 3600000,  essences: 6240600,  stellars: 87003200,   cot: 31290000,  spiritveins: 2966180,   auroraGems: 75 },
+      { level: 6,  dp: 4,  max: [8,7,6,3,0,0],       req: [0,2,2,1,0,0],    heroes: 5,  cores: 20,  sublis: 3600000,  essences: 6240600,  stellars: 90798200,   cot: 33220000,  spiritveins: 3876980,   auroraGems: 98 },
+      { level: 7,  dp: 4,  max: [9,8,7,4,1,0],       req: [1,1,2,2,0,0],    heroes: 6,  cores: 24,  sublis: 4320000,  essences: 7488720,  stellars: 109848840,  cot: 40310000,  spiritveins: 4866216,   auroraGems: 123 },
+      { level: 8,  dp: 5,  max: [10,9,8,5,2,0],      req: [0,0,2,2,1,0],    heroes: 5,  cores: 20,  sublis: 3600000,  essences: 6240600,  stellars: 99543200,   cot: 37660000,  spiritveins: 5975780,   auroraGems: 151 },
+      { level: 9,  dp: 5,  max: [11,10,9,6,3,0],     req: [0,0,2,3,1,0],    heroes: 6,  cores: 24,  sublis: 4320000,  essences: 7488720,  stellars: 119748840,  cot: 45340000,  spiritveins: 7242216,   auroraGems: 183 },
+      { level: 10, dp: 6,  max: [12,11,10,7,4,1],    req: [0,0,3,2,2,0],    heroes: 7,  cores: 28,  sublis: 5040000,  essences: 8736840,  stellars: 140284480,  cot: 53200000,  spiritveins: 8587852,   auroraGems: 217 },
+      { level: 11, dp: 6,  max: [12,12,11,8,5,2],    req: [0,0,2,2,2,1],    heroes: 7,  cores: 28,  sublis: 5040000,  essences: 8736840,  stellars: 146823430,  cot: 56470000,  spiritveins: 10157552,  auroraGems: 256 },
+      { level: 12, dp: 7,  max: [12,12,12,9,6,3],    req: [0,0,1,3,3,1],    heroes: 8,  cores: 32,  sublis: 5760000,  essences: 9984960,  stellars: 170989070,  cot: 66170000,  spiritveins: 12374388,  auroraGems: 312 },
+      { level: 13, dp: 7,  max: [12,12,12,10,7,4],   req: [0,0,1,3,3,2],    heroes: 9,  cores: 36,  sublis: 6480000,  essences: 11233080, stellars: 195918660,  cot: 76200000,  spiritveins: 14774924,  auroraGems: 372 },
+      { level: 14, dp: 8,  max: [12,12,12,11,8,5],   req: [0,0,0,4,3,3],    heroes: 10, cores: 40,  sublis: 7200000,  essences: 12481200, stellars: 222663250,  cot: 87150000,  spiritveins: 17611060,  auroraGems: 443 },
+      { level: 15, dp: 8,  max: [12,12,12,12,9,6],   req: [0,0,0,5,4,3],    heroes: 12, cores: 48,  sublis: 8640000,  essences: 14977440, stellars: 265219530,  cot: 103610000, spiritveins: 20658732,  auroraGems: 520 },
+      { level: 16, dp: 9,  max: [12,12,12,12,10,8],  req: [0,0,0,6,4,4],    heroes: 14, cores: 56,  sublis: 10080000, essences: 17473680, stellars: 310354760,  cot: 121320000, spiritveins: 24325704,  auroraGems: 612 },
+      { level: 17, dp: 9,  max: [16,12,12,12,11,8],  req: [0,0,0,8,6,4],    heroes: 18, cores: 72,  sublis: 12960000, essences: 22466160, stellars: 395467320,  cot: 154240000, spiritveins: 30421048,  auroraGems: 766 },
+      { level: 18, dp: 9,  max: [16,16,12,12,12,8],  req: [0,0,0,10,6,5],   heroes: 21, cores: 84,  sublis: 15120000, essences: 26210520, stellars: 460808190,  cot: 179630000, spiritveins: 35354456,  auroraGems: 890 },
+      { level: 19, dp: 10, max: [16,16,16,12,12,10], req: [0,0,0,12,8,5],   heroes: 25, cores: 100, sublis: 18000000, essences: 31203000, stellars: 545920750,  cot: 212550000, spiritveins: 41449800,  auroraGems: 1044 },
+      { level: 20, dp: 10, max: [16,16,16,16,12,10], req: [0,0,0,12,8,6],   heroes: 26, cores: 104, sublis: 18720000, essences: 32451120, stellars: 570850340,  cot: 222580000, spiritveins: 43850336,  auroraGems: 1104 },
+      { level: 21, dp: 10, max: [16,16,16,16,14,12], req: [0,0,0,14,10,6],  heroes: 30, cores: 120, sublis: 21600000, essences: 37443600, stellars: 655962900,  cot: 255500000, spiritveins: 49945680,  auroraGems: 1258 },
+      { level: 22, dp: 10, max: [16,16,16,16,16,12], req: [0,0,0,16,12,8],  heroes: 36, cores: 144, sublis: 25920000, essences: 44932320, stellars: 790934640,  cot: 308480000, spiritveins: 60842096,  auroraGems: 1532 },
+      { level: 23, dp: 11, max: [18,18,18,16,16,12], req: [0,0,0,16,14,8],  heroes: 38, cores: 152, sublis: 27360000, essences: 47428560, stellars: 835635920,  cot: 326040000, spiritveins: 64404568,  auroraGems: 1622 },
+      { level: 24, dp: 11, max: [18,18,18,18,16,14], req: [0,0,0,16,16,10], heroes: 42, cores: 168, sublis: 30240000, essences: 52421040, stellars: 930196380,  cot: 363660000, spiritveins: 72768112,  auroraGems: 1832 },
+      { level: 25, dp: 12, max: [20,20,20,18,18,14], req: [0,0,0,18,16,12], heroes: 46, cores: 184, sublis: 33120000, essences: 57413520, stellars: 1020466840, cot: 399080000, spiritveins: 80102056,  auroraGems: 2016 },
+      { level: 26, dp: 12, max: [20,20,20,20,18,14], req: [0,0,0,18,18,12], heroes: 48, cores: 192, sublis: 34560000, essences: 59909760, stellars: 1065168120, cot: 416640000, spiritveins: 83664528,  auroraGems: 2106 },
+      { level: 27, dp: 13, max: [22,22,22,20,20,16], req: [0,0,0,20,18,14], heroes: 52, cores: 208, sublis: 37440000, essences: 64902240, stellars: 1155438580, cot: 452060000, spiritveins: 90998472,  auroraGems: 2290 },
+      { level: 28, dp: 13, max: [22,22,22,22,20,16], req: [0,0,0,20,20,14], heroes: 54, cores: 216, sublis: 38880000, essences: 67398480, stellars: 1200139860, cot: 469620000, spiritveins: 94560944,  auroraGems: 2380 },
+      { level: 29, dp: 14, max: [24,24,24,22,22,16], req: [0,0,0,22,20,16], heroes: 58, cores: 232, sublis: 41760000, essences: 72390960, stellars: 1290410320, cot: 505040000, spiritveins: 101894888, auroraGems: 2564 },
+      { level: 30, dp: 15, max: [24,24,24,24,24,18], req: [0,0,0,22,22,16], heroes: 60, cores: 240, sublis: 43200000, essences: 74887200, stellars: 1335111600, cot: 522600000, spiritveins: 105457360, auroraGems: 2654 }
+    ];
+
+    const OTHER_BAG_RESOURCES = [
+      { key: 'essences',    label: 'Essences',     sub: 'Spiritual Essence',         color: 'text-amber-300' },
+      { key: 'stellars',    label: 'Stellars',     sub: 'Stellar Shards',            color: 'text-cyan-300' },
+      { key: 'cot',         label: 'CoT (In Bag)', sub: 'Crystals of Transcendence', color: 'text-fuchsia-300' },
+      { key: 'spiritveins', label: 'Spiritveins',  sub: 'Spiritvein Shards',         color: 'text-yellow-300' },
+      { key: 'auroraGems',  label: 'Aurora Gems',  sub: 'Aurora Gems',               color: 'text-purple-300' }
+    ];
+
+    const TIER_COLORS = [
+      'border-pink-500/40 text-pink-300',
+      'border-sky-500/40 text-sky-300',
+      'border-emerald-500/40 text-emerald-300',
+      'border-orange-500/40 text-orange-300',
+      'border-purple-500/40 text-purple-300',
+      'border-amber-400/50 text-amber-300'
+    ];
+
+    const STORAGE_KEY = 'ih_simple_temple_calc_v4';
+
+    let state = {
+      currentLevel: 1,
+      targetLevel: 5,
+      heroes: [0, 0, 0, 0, 0, 0], // D1, D2, D3, D4, D5, D6
+      extraTransHeroes: 0,        // Non-Destiny Trans heroes (5M CoT each)
+      d1IsLevel1: false,
+      infusionLevels: [],         // Array of Infusion Levels (1..75) for each Infusion Hero
+      infusion41Type: 'spiritveins', // 'spiritveins' (default per user) or 'essences'
+      coreBag: {
+        fullCores: 0,    // 1 Full = 4 single cores
+        singleCores: 0,  // 1 Single = 1 core
+        coreChests: 0    // 1 Chest = 0.5 core
+      },
+      subliBag: {
+        active: 0,
+        p1: 0,
+        p2: 0,
+        p3: 0,
+        any: 0 // Wildcard Sublimation from selection chests
+      },
+      bag: {
+        essences: 0,
+        stellars: 0,
+        cot: 0,
+        spiritveins: 0,
+        auroraGems: 0
+      }
+    };
+
+    /**
+     * Calculates exact materials refunded by regressing 1 Infusion Hero at level `lvl` (1 to 75):
+     * - Levels 1-15: 9* and 10* food only (0 Temple resources)
+     * - Levels 16-40 (25 lvls): 300,000 Stellars + 300,000 CoT per level (Max at 40: 7.5M Stellar, 7.5M CoT)
+     * - Levels 41-75 (35 lvls): 300,000 Stellars + 38,000 Spiritveins (or Essences) per level
+     * - Cores of Origin (Lv 41-75): 4 Single Cores (1 Full Core) scattered at levels 45, 55, 65, 75
+     * - Sublimations (Lv 41-70): 180,000 of each of the 4 branches (Active, P1, P2, P3/P4),
+     *   stepped at ~25,800 per upgrade (6 steps of 25,800 + final step of 25,200 = 180,000 per branch):
+     *   * Active: levels 42..48 -> 180,000
+     *   * P1:     levels 49..55 -> 180,000
+     *   * P2:     levels 56..62 -> 180,000
+     *   * P3/P4:  levels 64..70 -> 180,000 (completes all 4 branches at end of level 70)
+     */
+    function getSingleInfusionRefund(rawLevel) {
+      const lvl = Math.max(1, Math.min(75, parseInt(rawLevel, 10) || 1));
+
+      const lvls16to40 = Math.max(0, Math.min(lvl, 40) - 15);
+      const lvls41to75 = Math.max(0, lvl - 40);
+
+      const stellars = (lvls16to40 + lvls41to75) * 300000;
+      const cot = lvls16to40 * 300000;
+      const veinOrEssence = lvls41to75 * 38000;
+
+      // 4 Single Cores scattered during 41-75 leveling (at 45, 55, 65, 75)
+      let cores = 0;
+      if (lvl >= 45) cores += 1;
+      if (lvl >= 55) cores += 1;
+      if (lvl >= 65) cores += 1;
+      if (lvl >= 75) cores += 1;
+
+      // Helper for 7-step branch sublimation (~25,800 per level, totaling exactly 180,000 after 7 steps)
+      function calcBranchSubli(startLvl) {
+        if (lvl < startLvl) return 0;
+        const steps = Math.min(7, lvl - startLvl + 1);
+        if (steps >= 7) return 180000;
+        return steps * 25800;
+      }
+
+      const active = calcBranchSubli(42); // Lv 42-48
+      const p1     = calcBranchSubli(49); // Lv 49-55
+      const p2     = calcBranchSubli(56); // Lv 56-62
+      const p3     = calcBranchSubli(64); // Lv 64-70 (finishes at 70)
+
+      return {
+        lvl,
+        stellars,
+        cot,
+        veinOrEssence,
+        cores,
+        active,
+        p1,
+        p2,
+        p3,
+        totalSubli: active + p1 + p2 + p3
+      };
+    }
+
+    function formatNum(n) {
+      if (Number.isInteger(n)) {
+        return Math.round(n || 0).toLocaleString('en-US').replace(/,/g, ' ');
+      }
+      return (n || 0).toLocaleString('en-US', { maximumFractionDigits: 1 }).replace(/,/g, ' ');
+    }
+
+    function formatCompact(n) {
+      if (!n) return '0';
+      if (n >= 1e6) return (n / 1e6).toFixed(n % 1e6 === 0 ? 0 : 2) + 'M';
+      if (n >= 1e3) return (n / 1e3).toFixed(n % 1e3 === 0 ? 0 : 1) + 'k';
+      return String(n);
+    }
+
+    // Allows typing "15M", "180k", "1 200 000", etc.
+    function parseInputAmount(raw) {
+      if (!raw) return 0;
+      let s = String(raw).trim().replace(/,/g, '').replace(/\s+/g, '').toLowerCase();
+      let mult = 1;
+      if (s.endsWith('b')) { mult = 1e9; s = s.slice(0, -1); }
+      else if (s.endsWith('m')) { mult = 1e6; s = s.slice(0, -1); }
+      else if (s.endsWith('k')) { mult = 1e3; s = s.slice(0, -1); }
+      const num = parseFloat(s);
+      return isNaN(num) || num < 0 ? 0 : Math.round(num * mult);
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {}
+    }
+
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          state = {
+            ...state,
+            ...parsed,
+            heroes: Array.isArray(parsed.heroes) && parsed.heroes.length === 6 ? parsed.heroes : [0,0,0,0,0,0],
+            infusionLevels: Array.isArray(parsed.infusionLevels) ? parsed.infusionLevels : [],
+            infusion41Type: parsed.infusion41Type === 'essences' ? 'essences' : 'spiritveins',
+            coreBag: { ...state.coreBag, ...(parsed.coreBag || {}) },
+            subliBag: { ...state.subliBag, ...(parsed.subliBag || {}) },
+            bag: { ...state.bag, ...(parsed.bag || {}) }
+          };
+        }
+      } catch (e) {}
+    }
+
+    function renderInfusionHeroes() {
+      const countInput = document.getElementById('infusion-count-input');
+      if (countInput) countInput.value = state.infusionLevels.length;
+
+      // Update toggle buttons for 38k/lvl resource type
+      const btnVeins = document.getElementById('inf-type-spiritveins');
+      const btnEss   = document.getElementById('inf-type-essences');
+      if (btnVeins && btnEss) {
+        if (state.infusion41Type === 'spiritveins') {
+          btnVeins.className = 'px-2 py-0.5 rounded font-bold transition text-[11px] bg-yellow-500/20 text-yellow-300 border border-yellow-500/40';
+          btnEss.className   = 'px-2 py-0.5 rounded font-bold transition text-[11px] bg-slate-900 text-slate-400 border border-slate-800 hover:text-slate-200';
+        } else {
+          btnEss.className   = 'px-2 py-0.5 rounded font-bold transition text-[11px] bg-amber-500/20 text-amber-300 border border-amber-500/40';
+          btnVeins.className = 'px-2 py-0.5 rounded font-bold transition text-[11px] bg-slate-900 text-slate-400 border border-slate-800 hover:text-slate-200';
+        }
+      }
+
+      const listEl = document.getElementById('infusion-heroes-list');
+      if (!listEl) return;
+
+      if (state.infusionLevels.length === 0) {
+        listEl.innerHTML = `
+          <div class="p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 text-xs text-slate-400 flex items-center justify-between">
+            <span>No Infusion Heroes added. Click <strong class="text-cyan-300">+</strong> above if you have infused heroes you can temporarily regress.</span>
+            <button onclick="changeInfusionCount(1)" class="px-3 py-1 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 font-bold text-xs shrink-0 transition">
+              + Add Infusion Hero
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      const typeLabel = state.infusion41Type === 'spiritveins' ? 'Veins' : 'Essence';
+      const presets = [15, 40, 70, 75];
+
+      listEl.innerHTML = state.infusionLevels.map((lvl, idx) => {
+        const ref = getSingleInfusionRefund(lvl);
+        const presetBtns = presets.map(p => `
+          <button onclick="setSingleInfusionLevel(${idx}, ${p})"
+            class="px-2 py-1 rounded text-[11px] font-mono font-bold transition ${lvl === p ? 'bg-cyan-500 text-slate-950' : 'bg-slate-800 hover:bg-slate-700 text-slate-300'}">
+            Lv.${p}
+          </button>
+        `).join('');
+
+        return `
+          <div class="p-3 rounded-xl bg-slate-950 border border-cyan-500/25 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5 flex-wrap">
+              <span class="px-2.5 py-1 rounded-lg bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 font-mono text-xs font-bold">
+                Hero #${idx + 1}
+              </span>
+              <div class="flex items-center gap-1.5">
+                <span class="text-xs text-slate-400">Infusion Lvl:</span>
+                <input
+                  type="number"
+                  min="1"
+                  max="75"
+                  value="${lvl}"
+                  onchange="setSingleInfusionLevel(${idx}, this.value)"
+                  class="w-14 h-8 text-center bg-slate-900 border border-cyan-500/40 rounded-lg font-mono font-bold text-white text-sm focus:outline-none focus:border-cyan-400"
+                />
+              </div>
+              <div class="flex items-center gap-1">
+                ${presetBtns}
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between sm:justify-end gap-2 flex-wrap text-[11px] font-mono">
+              ${ref.stellars > 0 ? `<span class="px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">+${formatCompact(ref.stellars)} Stellar</span>` : ''}
+              ${ref.cot > 0 ? `<span class="px-2 py-0.5 rounded bg-fuchsia-500/10 text-fuchsia-300 border border-fuchsia-500/20">+${formatCompact(ref.cot)} CoT</span>` : ''}
+              ${ref.veinOrEssence > 0 ? `<span class="px-2 py-0.5 rounded bg-yellow-500/10 text-yellow-300 border border-yellow-500/20">+${formatCompact(ref.veinOrEssence)} ${typeLabel}</span>` : ''}
+              ${ref.cores > 0 ? `<span class="px-2 py-0.5 rounded bg-rose-500/10 text-rose-300 border border-rose-500/20">+${ref.cores} Cores</span>` : ''}
+              ${ref.totalSubli > 0 ? `<span class="px-2 py-0.5 rounded bg-orange-500/10 text-orange-300 border border-orange-500/20">+${formatCompact(ref.totalSubli)} Subli</span>` : ''}
+              ${ref.lvl <= 15 ? `<span class="text-slate-500">Lv.1–15 (9★/10★ puppets only)</span>` : ''}
+              <button onclick="removeInfusionHero(${idx})" title="Remove hero" class="ml-1 w-6 h-6 rounded bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-300 flex items-center justify-center font-sans font-bold">×</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function initDropdowns() {
+      const curSel = document.getElementById('current-level');
+      const tarSel = document.getElementById('target-level');
+
+      let curHtml = `<option value="0" ${state.currentLevel === 0 ? 'selected' : ''}>Level 0 (Not unlocked yet)</option>`;
+      let tarHtml = '';
+
+      TEMPLE_LEVELS.forEach(t => {
+        const star = t.level >= 24 ? '*' : '';
+        curHtml += `<option value="${t.level}" ${state.currentLevel === t.level ? 'selected' : ''}>Temple Level ${t.level}${star} (+${t.dp} DP)</option>`;
+        tarHtml += `<option value="${t.level}" ${state.targetLevel === t.level ? 'selected' : ''}>Temple Level ${t.level}${star} (+${t.dp} DP • ${t.heroes} Heroes)</option>`;
+      });
+
+      curSel.innerHTML = curHtml;
+      tarSel.innerHTML = tarHtml;
+
+      document.getElementById('d1-lvl1-toggle').checked = !!state.d1IsLevel1;
+      document.getElementById('extra-trans-input').value = state.extraTransHeroes || 0;
+    }
+
+    function renderHeroInputs() {
+      const grid = document.getElementById('hero-inputs-grid');
+      grid.innerHTML = [1, 2, 3, 4, 5, 6].map((tier, idx) => {
+        const count = state.heroes[idx] || 0;
+        return `
+          <div class="p-3 rounded-xl bg-slate-950 border ${count > 0 ? TIER_COLORS[idx] : 'border-slate-800'} flex flex-col items-center">
+            <div class="text-sm font-extrabold mb-2">Destiny ${tier} (D${tier})</div>
+            <div class="flex items-center gap-1.5 w-full justify-center">
+              <button onclick="changeHero(${idx}, -1)" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-bold text-base flex items-center justify-center">-</button>
+              <input
+                type="number"
+                min="0"
+                max="60"
+                value="${count}"
+                onchange="setHero(${idx}, this.value)"
+                class="w-12 h-8 text-center bg-slate-900 border border-slate-700 rounded-lg font-mono font-bold text-white text-sm focus:outline-none focus:border-amber-400"
+              />
+              <button onclick="changeHero(${idx}, 1)" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-bold text-base flex items-center justify-center">+</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+      document.getElementById('extra-trans-input').value = state.extraTransHeroes || 0;
+    }
+
+    function renderBagInputs() {
+      // Populate Core inputs
+      document.getElementById('core-full').value = state.coreBag.fullCores > 0 ? state.coreBag.fullCores : '';
+      document.getElementById('core-single').value = state.coreBag.singleCores > 0 ? state.coreBag.singleCores : '';
+      document.getElementById('core-chests').value = state.coreBag.coreChests > 0 ? state.coreBag.coreChests : '';
+
+      // Populate 4 Subli + Wildcard inputs
+      ['active', 'p1', 'p2', 'p3', 'any'].forEach(k => {
+        const el = document.getElementById(`subli-${k}`);
+        if (el) el.value = state.subliBag[k] > 0 ? formatNum(state.subliBag[k]) : '';
+      });
+
+      // Populate other 5 resources
+      const grid = document.getElementById('bag-inputs-grid');
+      grid.innerHTML = OTHER_BAG_RESOURCES.map(res => {
+        const val = state.bag[res.key] || 0;
+        return `
+          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+            <div class="flex items-center justify-between mb-1.5">
+              <label for="bag-${res.key}" class="text-xs sm:text-sm font-bold ${res.color}">${res.label}</label>
+              <span class="text-[11px] text-slate-500">${res.sub}</span>
+            </div>
+            <input
+              id="bag-${res.key}"
+              type="text"
+              value="${val > 0 ? formatNum(val) : ''}"
+              placeholder="0"
+              onfocus="this.select()"
+              onchange="setBag('${res.key}', this.value)"
+              class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono text-white placeholder-slate-600 focus:outline-none focus:border-amber-400"
+            />
+          </div>
+        `;
+      }).join('');
+    }
+
+    function calculateAndRender() {
+      state.d1IsLevel1 = document.getElementById('d1-lvl1-toggle').checked;
+      saveState();
+
+      const targetObj = TEMPLE_LEVELS.find(t => t.level === state.targetLevel) || TEMPLE_LEVELS[0];
+      const star = targetObj.level >= 24 ? '*' : '';
+
+      // 1. Render Step 1 Target Level Summary Box
+      const reqParts = [];
+      targetObj.req.forEach((cnt, idx) => {
+        if (cnt > 0) reqParts.push(`<span class="px-2.5 py-1 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-300 font-mono text-xs font-bold">D${idx + 1}: ${cnt}</span>`);
+      });
+
+      const capParts = targetObj.max.map((cap, idx) =>
+        `<span class="text-xs font-mono text-slate-400">D${idx + 1}: <strong class="text-slate-200">${cap}</strong></span>`
+      ).join(' <span class="text-slate-700">•</span> ');
+
+      document.getElementById('target-summary-box').innerHTML = `
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Level ${targetObj.level}${star} Requirements:</span>
+            <span class="px-2.5 py-1 rounded-lg bg-slate-800 text-white font-mono text-xs font-bold">${targetObj.heroes} Total Heroes</span>
+            ${reqParts.join('')}
+          </div>
+          <span class="px-2.5 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 font-mono text-xs font-bold">
+            +${targetObj.dp} DP Gain
+          </span>
+        </div>
+        <div class="pt-2 border-t border-slate-800/80 flex flex-wrap items-center gap-2">
+          <span class="text-xs text-slate-400">Max Heroes Cap at Lv.${targetObj.level}:</span>
+          <div class="flex flex-wrap items-center gap-2">${capParts}</div>
+        </div>
+      `;
+
+      // 2. Sum Resources Already Invested in Owned Destiny Heroes + Extra Trans Heroes
+      const keys = ['d1', 'd2', 'd3', 'd4', 'd5', 'd6'];
+      const invested = {
+        heroes: 0,
+        cores: 0,
+        subliEach: 0, // Each Destiny hero has 180k in Active, P1, P2, P3
+        sublis: 0,
+        essences: 0,
+        stellars: 0,
+        cot: 0,
+        spiritveins: 0,
+        auroraGems: 0
+      };
+
+      state.heroes.forEach((count, idx) => {
+        if (count > 0) {
+          invested.heroes += count;
+          const costKey = (idx === 0 && (state.d1IsLevel1 || targetObj.level === 1)) ? 'd1_lvl1' : keys[idx];
+          const c = HERO_COSTS[costKey];
+          invested.cores += count * c.cores;
+          invested.subliEach += count * 180000;
+          invested.sublis += count * c.sublis;
+          invested.essences += count * c.essences;
+          invested.stellars += count * c.stellars;
+          invested.cot += count * c.totalCot; // Includes 5,000,000 base Trans CoT + Destiny CoT
+          invested.spiritveins += count * c.spiritveins;
+          invested.auroraGems += count * c.auroraGems;
+        }
+      });
+
+      // Add 5M CoT for each extra non-Destiny Transcendence hero the player already has
+      const extraTransCount = state.extraTransHeroes || 0;
+      const missingDestinyHeroes = Math.max(0, targetObj.heroes - invested.heroes);
+      const usableExtraTrans = Math.min(extraTransCount, missingDestinyHeroes);
+      const extraTransCotCredit = usableExtraTrans * 5000000;
+      invested.cot += extraTransCotCredit;
+
+      // 2B. Sum Materials Recovered from Regressing Infusion Heroes
+      const infusionRefund = {
+        cores: 0,
+        active: 0,
+        p1: 0,
+        p2: 0,
+        p3: 0,
+        sublis: 0,
+        stellars: 0,
+        cot: 0,
+        spiritveins: 0,
+        essences: 0
+      };
+
+      state.infusionLevels.forEach(lvl => {
+        const ref = getSingleInfusionRefund(lvl);
+        infusionRefund.cores += ref.cores;
+        infusionRefund.active += ref.active;
+        infusionRefund.p1 += ref.p1;
+        infusionRefund.p2 += ref.p2;
+        infusionRefund.p3 += ref.p3;
+        infusionRefund.sublis += ref.totalSubli;
+        infusionRefund.stellars += ref.stellars;
+        infusionRefund.cot += ref.cot;
+        if (state.infusion41Type === 'spiritveins') {
+          infusionRefund.spiritveins += ref.veinOrEssence;
+        } else {
+          infusionRefund.essences += ref.veinOrEssence;
+        }
+      });
+
+      // Render Infusion Total Summary Banner in Step 2
+      const infSummaryEl = document.getElementById('infusion-total-summary');
+      if (infSummaryEl) {
+        if (state.infusionLevels.length > 0) {
+          const extraLabel = state.infusion41Type === 'spiritveins'
+            ? `Spiritveins: <strong class="text-yellow-300">+${formatNum(infusionRefund.spiritveins)}</strong>`
+            : `Essences: <strong class="text-amber-300">+${formatNum(infusionRefund.essences)}</strong>`;
+
+          infSummaryEl.innerHTML = `
+            <div class="p-3 rounded-xl bg-cyan-950/30 border border-cyan-500/30 flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
+              <span class="font-sans font-bold text-cyan-300">Total Recovered from ${state.infusionLevels.length} Infusion Hero(es):</span>
+              <div class="flex flex-wrap items-center gap-3 text-slate-300">
+                <span>Stellars: <strong class="text-cyan-300">+${formatNum(infusionRefund.stellars)}</strong></span>
+                <span>CoT: <strong class="text-fuchsia-300">+${formatNum(infusionRefund.cot)}</strong></span>
+                <span>${extraLabel}</span>
+                <span>Cores: <strong class="text-rose-300">+${infusionRefund.cores} (${infusionRefund.cores / 4} Full)</strong></span>
+                <span>Sublis: <strong class="text-orange-300">+${formatNum(infusionRefund.sublis)}</strong></span>
+              </div>
+            </div>
+          `;
+        } else {
+          infSummaryEl.innerHTML = '';
+        }
+      }
+
+      document.getElementById('owned-total-badge').textContent = `Total Destiny: ${invested.heroes}`;
+      document.getElementById('result-target-title').textContent = `Temple Level ${targetObj.level}${star}`;
+
+      // 3. Calculate Bag Cores (Full = 4, Single = 1, Chest = 0.5)
+      const bagCoresTotal =
+        (state.coreBag.fullCores || 0) * 4 +
+        (state.coreBag.singleCores || 0) * 1 +
+        (state.coreBag.coreChests || 0) * 0.5;
+
+      document.getElementById('bag-cores-summary').textContent =
+        `Bag Total: ${formatNum(bagCoresTotal)} Cores (${formatNum(bagCoresTotal / 4)} Full)`;
+
+      // 4. Calculate 4 Sublimation Branches (180k per hero per branch)
+      const reqSubliPerBranch = targetObj.heroes * 180000;
+      const branches = [
+        { key: 'active', label: 'Active Subli',   color: 'text-rose-300',    border: 'border-rose-500/30' },
+        { key: 'p1',     label: 'P1 Subli',       color: 'text-sky-300',     border: 'border-sky-500/30' },
+        { key: 'p2',     label: 'P2 Subli',       color: 'text-emerald-300', border: 'border-emerald-500/30' },
+        { key: 'p3',     label: 'P3 / P4 Subli',  color: 'text-purple-300',  border: 'border-purple-500/30' }
+      ];
+
+      let remainingWildcardSubli = state.subliBag.any || 0;
+      const branchResults = branches.map(b => {
+        const inHeroesBranch = invested.subliEach + (infusionRefund[b.key] || 0);
+        const inBagBranch = state.subliBag[b.key] || 0;
+        const rawDeficit = Math.max(0, reqSubliPerBranch - (inHeroesBranch + inBagBranch));
+        const usedWildcard = Math.min(remainingWildcardSubli, rawDeficit);
+        remainingWildcardSubli -= usedWildcard;
+        const finalMissing = rawDeficit - usedWildcard;
+        const surplus = Math.max(0, (inHeroesBranch + inBagBranch + usedWildcard) - reqSubliPerBranch);
+        return {
+          ...b,
+          req: reqSubliPerBranch,
+          inHeroes: inHeroesBranch,
+          inBag: inBagBranch + usedWildcard,
+          usedWildcard,
+          missing: finalMissing,
+          surplus
+        };
+      });
+
+      const totalSubliBag =
+        (state.subliBag.active || 0) +
+        (state.subliBag.p1 || 0) +
+        (state.subliBag.p2 || 0) +
+        (state.subliBag.p3 || 0) +
+        (state.subliBag.any || 0);
+      document.getElementById('bag-subli-summary').textContent = `Bag Total: ${formatNum(totalSubliBag)}`;
+
+      // Render 4 Sublimation Mini Cards in Step 4
+      document.getElementById('subli-branch-cards').innerHTML = branchResults.map(b => `
+        <div class="p-3 rounded-xl bg-slate-950 border ${b.missing === 0 ? 'border-emerald-500/30' : b.border}">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-xs font-bold ${b.color}">${b.label}</span>
+            <span class="text-[10px] font-mono text-slate-400">180k × ${targetObj.heroes}</span>
+          </div>
+          <div class="text-xs font-mono text-slate-300">
+            Need: <strong>${formatNum(b.req)}</strong>
+          </div>
+          <div class="text-[11px] font-mono text-slate-400 mt-0.5">
+            Have: ${formatNum(b.inHeroes + b.inBag)}
+          </div>
+          <div class="mt-2 pt-1.5 border-t border-slate-800/80 text-xs font-mono font-bold ${b.missing === 0 ? 'text-emerald-400' : 'text-rose-300'}">
+            ${b.missing === 0 ? `✓ Ready` : `Missing ${formatNum(b.missing)}`}
+          </div>
+        </div>
+      `).join('');
+
+      // 5. Hero Count & Tier Check Banner
+      const tierComparisonPills = [0, 1, 2, 3, 4, 5].map(idx => {
+        const reqCnt = targetObj.req[idx];
+        const ownCnt = state.heroes[idx];
+        if (reqCnt === 0 && ownCnt === 0) return '';
+        const ok = ownCnt >= reqCnt;
+        return `
+          <div class="px-3 py-1.5 rounded-lg border text-xs font-mono ${ok ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-amber-500/10 border-amber-500/30 text-amber-300'}">
+            <strong>D${idx + 1}:</strong> Have ${ownCnt} / Need ${reqCnt}
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('hero-check-banner').innerHTML = `
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div class="text-sm">
+            <span class="text-slate-400">Total Destiny Heroes:</span>
+            <strong class="ml-1 font-mono text-white">${invested.heroes} Owned</strong>
+            <span class="text-slate-500 mx-1">/</span>
+            <strong class="font-mono text-amber-300">${targetObj.heroes} Needed</strong>
+            ${usableExtraTrans > 0 ? `<span class="ml-2 text-xs text-fuchsia-300 font-mono">(+${usableExtraTrans} Trans Hero = ${formatNum(extraTransCotCredit)} CoT credited)</span>` : ''}
+          </div>
+          <div class="text-xs font-mono font-bold ${missingDestinyHeroes === 0 ? 'text-emerald-400' : 'text-amber-300'}">
+            ${missingDestinyHeroes === 0 ? '✓ You have enough total Destiny Heroes' : `Need ${missingDestinyHeroes} more Destiny Hero(es)`}
+          </div>
+        </div>
+        ${tierComparisonPills ? `<div class="flex flex-wrap gap-2 mt-3 pt-3 border-t border-slate-800/80">${tierComparisonPills}</div>` : ''}
+      `;
+
+      // 6. Build All Rows for the Main Results Table (Combining Owned Heroes + Regressed Infusions + Bag)
+      const totalSubliMissing = branchResults.reduce((acc, b) => acc + b.missing, 0);
+      const totalSubliInHeroesAndInf = invested.sublis + infusionRefund.sublis;
+
+      const totalCoresInHeroesAndInf = invested.cores + infusionRefund.cores;
+      const coresMissing = Math.max(0, targetObj.cores - (totalCoresInHeroesAndInf + bagCoresTotal));
+      const coresSurplus = Math.max(0, (totalCoresInHeroesAndInf + bagCoresTotal) - targetObj.cores);
+
+      const tableRowsData = [
+        {
+          label: 'Cores of Origin',
+          sub: `${targetObj.cores / 4} Full Cores (${targetObj.cores} Single / ${targetObj.cores * 2} Chests)`,
+          color: 'text-rose-300',
+          reqDisplay: `${formatNum(targetObj.cores)} (${targetObj.cores / 4} Full)`,
+          heroesDisplay: `${formatNum(totalCoresInHeroesAndInf)} (${formatNum(totalCoresInHeroesAndInf / 4)} Full)`,
+          bagDisplay: `${formatNum(bagCoresTotal)} (${formatNum(bagCoresTotal / 4)} Full)`,
+          missing: coresMissing,
+          missingDisplay: coresMissing > 0
+            ? `Need ${formatNum(coresMissing)} (${formatNum(coresMissing / 4)} Full / ${formatNum(coresMissing * 2)} Chests)`
+            : `✓ Ready (+${formatNum(coresSurplus)})`
+        },
+        {
+          label: 'Sublis (All 4 Branches)',
+          sub: `180k each of Active, P1, P2, P3/P4 per hero`,
+          color: 'text-orange-300',
+          reqDisplay: formatNum(targetObj.sublis),
+          heroesDisplay: formatNum(totalSubliInHeroesAndInf),
+          bagDisplay: formatNum(totalSubliBag),
+          missing: totalSubliMissing,
+          missingDisplay: totalSubliMissing > 0
+            ? `Need ${formatNum(totalSubliMissing)}`
+            : `✓ All 4 Branches Ready`
+        }
+      ];
+
+      OTHER_BAG_RESOURCES.forEach(res => {
+        const req = targetObj[res.key];
+        const inHeroes = (invested[res.key] || 0) + (infusionRefund[res.key] || 0);
+        const inBag = state.bag[res.key] || 0;
+        const missing = Math.max(0, req - (inHeroes + inBag));
+        const surplus = Math.max(0, (inHeroes + inBag) - req);
+
+        let subText = res.sub;
+        if (res.key === 'cot') {
+          subText = `Includes ${targetObj.heroes}× 5M Trans CoT + Destiny CoT + Infusions`;
+        }
+
+        tableRowsData.push({
+          label: res.label.replace(' (In Bag)', ''),
+          sub: subText,
+          color: res.color,
+          reqDisplay: formatNum(req),
+          heroesDisplay: formatNum(inHeroes),
+          bagDisplay: formatNum(inBag),
+          missing,
+          missingDisplay: missing > 0 ? `Need ${formatNum(missing)}` : `✓ Ready (+${formatNum(surplus)})`
+        });
+      });
+
+      let allResourcesReady = true;
+      const rowsHtml = tableRowsData.map(row => {
+        if (row.missing > 0) allResourcesReady = false;
+        return `
+          <tr class="hover:bg-slate-900/60">
+            <td class="py-3.5 px-4 font-sans">
+              <div class="font-bold ${row.color}">${row.label}</div>
+              <div class="text-[11px] text-slate-500">${row.sub}</div>
+            </td>
+            <td class="py-3.5 px-3 text-right text-slate-200 font-semibold">${row.reqDisplay}</td>
+            <td class="py-3.5 px-3 text-right text-purple-300">${row.heroesDisplay}</td>
+            <td class="py-3.5 px-3 text-right text-cyan-300">${row.bagDisplay}</td>
+            <td class="py-3.5 px-4 text-right font-bold">
+              ${row.missing <= 0
+                ? `<span class="inline-block px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                     ${row.missingDisplay}
+                   </span>`
+                : `<span class="inline-block px-2.5 py-1 rounded-lg bg-rose-500/15 text-rose-300 border border-rose-500/30">
+                     ${row.missingDisplay}
+                   </span>`
+              }
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      document.getElementById('results-tbody').innerHTML = rowsHtml;
+
+      const statusBadge = document.getElementById('overall-status-badge');
+      if (allResourcesReady) {
+        statusBadge.innerHTML = `<span class="px-3 py-1 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-bold">✓ All Resources Ready!</span>`;
+      } else {
+        statusBadge.innerHTML = `<span class="px-3 py-1 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-bold">In Progress</span>`;
+      }
+    }
+
+    function changeInfusionCount(delta) {
+      const targetLen = Math.max(0, Math.min(30, state.infusionLevels.length + delta));
+      while (state.infusionLevels.length < targetLen) {
+        state.infusionLevels.push(75); // Default new Infusion hero to 75 for convenience
+      }
+      while (state.infusionLevels.length > targetLen) {
+        state.infusionLevels.pop();
+      }
+      renderInfusionHeroes();
+      calculateAndRender();
+    }
+
+    function setInfusionCount(rawVal) {
+      const n = parseInt(rawVal, 10);
+      const targetLen = isNaN(n) ? 0 : Math.max(0, Math.min(30, n));
+      while (state.infusionLevels.length < targetLen) {
+        state.infusionLevels.push(75);
+      }
+      while (state.infusionLevels.length > targetLen) {
+        state.infusionLevels.pop();
+      }
+      renderInfusionHeroes();
+      calculateAndRender();
+    }
+
+    function setSingleInfusionLevel(idx, rawVal) {
+      const n = parseInt(rawVal, 10);
+      state.infusionLevels[idx] = isNaN(n) ? 1 : Math.max(1, Math.min(75, n));
+      renderInfusionHeroes();
+      calculateAndRender();
+    }
+
+    function removeInfusionHero(idx) {
+      state.infusionLevels.splice(idx, 1);
+      renderInfusionHeroes();
+      calculateAndRender();
+    }
+
+    function setInfusionResourceType(type) {
+      state.infusion41Type = type === 'essences' ? 'essences' : 'spiritveins';
+      renderInfusionHeroes();
+      calculateAndRender();
+    }
+
+    function onLevelChange() {
+      const cur = parseInt(document.getElementById('current-level').value, 10);
+      const tar = parseInt(document.getElementById('target-level').value, 10);
+      state.currentLevel = cur;
+      state.targetLevel = tar;
+      calculateAndRender();
+    }
+
+    function changeHero(idx, delta) {
+      state.heroes[idx] = Math.max(0, Math.min(60, (state.heroes[idx] || 0) + delta));
+      renderHeroInputs();
+      calculateAndRender();
+    }
+
+    function setHero(idx, val) {
+      const n = parseInt(val, 10);
+      state.heroes[idx] = isNaN(n) ? 0 : Math.max(0, Math.min(60, n));
+      renderHeroInputs();
+      calculateAndRender();
+    }
+
+    function changeExtraTrans(delta) {
+      state.extraTransHeroes = Math.max(0, Math.min(60, (state.extraTransHeroes || 0) + delta));
+      renderHeroInputs();
+      calculateAndRender();
+    }
+
+    function setExtraTrans(val) {
+      const n = parseInt(val, 10);
+      state.extraTransHeroes = isNaN(n) ? 0 : Math.max(0, Math.min(60, n));
+      renderHeroInputs();
+      calculateAndRender();
+    }
+
+    function setCoreInput(key, rawVal) {
+      const n = parseFloat(rawVal);
+      state.coreBag[key] = isNaN(n) || n < 0 ? 0 : Math.floor(n);
+      renderBagInputs();
+      calculateAndRender();
+    }
+
+    function setSubliInput(key, rawVal) {
+      state.subliBag[key] = parseInputAmount(rawVal);
+      renderBagInputs();
+      calculateAndRender();
+    }
+
+    function setBag(key, rawVal) {
+      const parsed = parseInputAmount(rawVal);
+      state.bag[key] = parsed;
+      const input = document.getElementById(`bag-${key}`);
+      if (input) input.value = parsed > 0 ? formatNum(parsed) : '';
+      calculateAndRender();
+    }
+
+    function clearBag() {
+      state.coreBag = { fullCores: 0, singleCores: 0, coreChests: 0 };
+      state.subliBag = { active: 0, p1: 0, p2: 0, p3: 0, any: 0 };
+      Object.keys(state.bag).forEach(k => state.bag[k] = 0);
+      renderBagInputs();
+      calculateAndRender();
+    }
+
+    function resetAll() {
+      state = {
+        currentLevel: 1,
+        targetLevel: 5,
+        heroes: [0, 0, 0, 0, 0, 0],
+        extraTransHeroes: 0,
+        d1IsLevel1: false,
+        infusionLevels: [],
+        infusion41Type: 'spiritveins',
+        coreBag: { fullCores: 0, singleCores: 0, coreChests: 0 },
+        subliBag: { active: 0, p1: 0, p2: 0, p3: 0, any: 0 },
+        bag: { essences: 0, stellars: 0, cot: 0, spiritveins: 0, auroraGems: 0 }
+      };
+      initDropdowns();
+      renderHeroInputs();
+      renderInfusionHeroes();
+      renderBagInputs();
+      calculateAndRender();
+    }
+
+    window.onload = function () {
+      loadState();
+      initDropdowns();
+      renderHeroInputs();
+      renderInfusionHeroes();
+      renderBagInputs();
+      calculateAndRender();
+    };
+  </script>
+</body>
+</html>
