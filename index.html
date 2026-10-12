@@ -40,7 +40,7 @@
         <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-amber-300 via-yellow-400 to-orange-400 bg-clip-text text-transparent">
           Idle Heroes • Destiny Temple Calculator
         </h1>
-        <p class="text-xs text-slate-400">Simple planner for Temple Levels 1–30* with Smart Chest Optimizer</p>
+        <p class="text-xs text-slate-400">Planner for Temple Levels 1–30* with Smart Chest Optimizer & Hero-Specific Cores</p>
       </div>
       <button onclick="resetAll()" class="text-xs px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-rose-950/60 hover:text-rose-300 border border-slate-700 transition">
         Reset All Data
@@ -228,12 +228,8 @@
           </div>
         </div>
 
-        <!-- Dynamic list of each Infusion Hero level -->
         <div id="infusionList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5"></div>
-
-        <!-- Infusion Refund Summary -->
-        <div id="infusionSummary" class="hidden pt-2 border-t border-slate-800 text-xs text-slate-300 flex flex-wrap items-center gap-x-4 gap-y-1">
-        </div>
+        <div id="infusionSummary" class="hidden pt-2 border-t border-slate-800 text-xs text-slate-300 flex flex-wrap items-center gap-x-4 gap-y-1"></div>
       </div>
     </section>
 
@@ -249,39 +245,63 @@
         </div>
       </div>
 
-      <!-- Cores of Origin Box -->
-      <div class="bg-slate-850 border border-slate-800 rounded-xl p-4">
-        <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+      <!-- Cores of Origin Box (HERO-SPECIFIC CORE TRACKER) -->
+      <div class="bg-slate-850 border border-rose-500/30 rounded-xl p-4 space-y-4">
+        <div class="flex items-center justify-between flex-wrap gap-2">
           <div>
-            <h3 class="text-sm font-bold text-rose-300">Cores of Origin in Bag</h3>
-            <p class="text-xs text-slate-400">1 Full Core = 4 Single Cores (400 Shards) • 1 Single Core = 100 Core Shards</p>
+            <div class="flex items-center gap-2">
+              <h3 class="text-sm font-bold text-rose-300">Cores of Origin (Hero-Specific Aware)</h3>
+              <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30">400 Shards = 1 Full Hero Core</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-0.5">
+              Since cores are locked to specific heroes, two half-built heroes cannot be combined into one Full Core. Add any partially built hero cores below!
+            </p>
           </div>
-          <div class="text-xs bg-slate-900 border border-slate-700 px-3 py-1 rounded-lg">
-            Bag Total: <span id="bagTotalCoresDisplay" class="font-bold text-rose-300">0</span> Cores
+          <div class="text-xs bg-slate-900 border border-slate-700 px-3 py-1.5 rounded-lg">
+            Usable Bag Cores: <span id="bagTotalCoresDisplay" class="font-bold text-rose-300">0</span>
           </div>
         </div>
+
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
-            <label class="block text-xs text-slate-400 mb-1">Full Cores (1 Full = 4 Cores / 400 Shards)</label>
+            <label class="block text-xs text-slate-300 font-medium mb-1">Ready Full Cores (3★ = 400/400 on 1 Hero)</label>
             <input id="bag_fullCores" type="number" min="0" step="1" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-rose-400" />
           </div>
           <div>
-            <label class="block text-xs text-slate-400 mb-1">Single Cores (1 Core = 100 Shards)</label>
-            <input id="bag_singleCores" type="number" min="0" step="1" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-rose-400" />
+            <label class="block text-xs text-slate-300 font-medium mb-1">50-Shard Core Chests (Universal = 0.5 Core)</label>
+            <input id="bag_coreChests50" type="number" min="0" step="1" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-rose-400" />
           </div>
           <div>
-            <label class="block text-xs text-slate-400 mb-1">Loose Core Shards (100 Shards = 1 Core)</label>
+            <label class="block text-xs text-slate-300 font-medium mb-1">Universal Core Shards (100 Shards = 1 Core)</label>
             <input id="bag_coreShards" type="number" min="0" step="5" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-rose-400" />
           </div>
         </div>
+
+        <!-- Partial Hero-Specific Cores -->
+        <div class="pt-3 border-t border-slate-800 space-y-2.5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <span class="text-xs font-bold text-white">Heroes with Partial Cores (Locked to Specific Heroes)</span>
+              <p class="text-[11px] text-slate-400">Have 1★ (100 shards), 2★ (200 shards), or 300 shards already opened on specific heroes? Add them here so we calculate how many Universal Shards are needed to finish each one.</p>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <button onclick="changePartialCoreCount(-1)" class="w-7 h-7 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300 text-xs">-</button>
+              <input id="partialCoreCount" type="number" min="0" max="30" value="0" oninput="onPartialCoreCountInput()" class="w-14 bg-slate-900 border border-rose-500/40 rounded h-7 text-center font-bold text-rose-300 text-xs" />
+              <button onclick="changePartialCoreCount(1)" class="w-7 h-7 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300 text-xs">+</button>
+            </div>
+          </div>
+
+          <div id="partialCoresList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5"></div>
+          <div id="partialCoresPlan" class="hidden bg-slate-900/90 border border-slate-800 rounded-lg p-3 text-xs space-y-1"></div>
+        </div>
       </div>
 
-      <!-- 4 Sublimation Branches Box (Sub chests removed from here) -->
+      <!-- 4 Sublimation Branches Box -->
       <div class="bg-slate-850 border border-slate-800 rounded-xl p-4">
         <div class="flex items-center justify-between mb-3">
           <div>
             <h3 class="text-sm font-bold text-emerald-300">Sublimation in Bag (4 Branches • 180k each per Hero)</h3>
-            <p class="text-xs text-slate-400">Enter your already-opened Sublimation for each branch. Put unopened chests in Step 4 below!</p>
+            <p class="text-xs text-slate-400">Enter your already-assigned/opened Sublimation for each branch. Put unopened Sublimation chests in Step 4!</p>
           </div>
         </div>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -339,53 +359,135 @@
         <div class="flex items-center gap-2.5">
           <span class="w-7 h-7 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 font-bold text-sm flex items-center justify-center">4</span>
           <div>
-            <h2 class="text-lg font-bold text-white">Selection Chests & What to Pick</h2>
-            <p class="text-xs text-slate-400">Enter how many chests you have. The calculator automatically splits your chests across the exact options you need most.</p>
+            <h2 class="text-lg font-bold text-white">Selection Chests & Smart Pick Optimizer</h2>
+            <p class="text-xs text-slate-400">
+              Single-purpose chests (Sublimation & Spheres) are allocated first so your versatile chests (Star Expedition, Imp's, Relay) are saved for your hardest bottlenecks!
+            </p>
           </div>
         </div>
       </div>
 
+      <!-- Group A: Sublimation Chests (90k, 45k, 1800, 1) -->
+      <div class="bg-slate-850 border border-slate-800 rounded-xl p-4 space-y-3">
+        <div>
+          <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Sublimation Selection Chests</span>
+          <p class="text-xs text-slate-400 mt-1">Choose Active, P1, P2, or P3. Supports shorthand like <code class="text-emerald-300">90k</code> for the 1-Sub chest.</p>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div>
+            <label class="block text-xs text-slate-300 font-semibold mb-1">90k Sub Chests</label>
+            <input id="chest_sub90k" type="text" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-emerald-300 font-bold text-sm focus:outline-none focus:border-emerald-400" />
+          </div>
+          <div>
+            <label class="block text-xs text-slate-300 font-semibold mb-1">45k Sub Chests</label>
+            <input id="chest_sub45k" type="text" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-emerald-300 font-bold text-sm focus:outline-none focus:border-emerald-400" />
+          </div>
+          <div>
+            <label class="block text-xs text-slate-300 font-semibold mb-1">1,800 Sub Chests</label>
+            <input id="chest_sub1800" type="text" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-emerald-300 font-bold text-sm focus:outline-none focus:border-emerald-400" />
+          </div>
+          <div>
+            <label class="block text-xs text-slate-300 font-semibold mb-1">1 Sub Chests (1 pt)</label>
+            <input id="chest_sub1" type="text" value="0" oninput="saveAndCalc()" placeholder="e.g. 45k" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-emerald-300 font-bold text-sm focus:outline-none focus:border-emerald-400" />
+          </div>
+        </div>
+        <div id="plan_pureSub" class="bg-slate-900/90 border border-slate-800 rounded-lg p-3 text-xs"></div>
+      </div>
+
+      <!-- Group B: Transcendence Spheres & 1-Resource Trans Chests -->
+      <div class="bg-slate-850 border border-slate-800 rounded-xl p-4 space-y-3">
+        <div>
+          <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30">Transcendence Spheres & Trans Chests</span>
+          <p class="text-xs text-slate-400 mt-1">Choose between <span class="text-sky-300 font-semibold">Stellar Shards</span> or <span class="text-purple-300 font-semibold">CoT</span>.</p>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs text-slate-300 font-semibold mb-1">Transcendence Spheres (250k Stellar or 250k CoT)</label>
+            <input id="chest_transSphere" type="text" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sky-300 font-bold text-sm focus:outline-none focus:border-sky-400" />
+          </div>
+          <div>
+            <label class="block text-xs text-slate-300 font-semibold mb-1">Trans Chests (1 Stellar or 1 CoT each • e.g. 2.5M)</label>
+            <input id="chest_trans1" type="text" value="0" oninput="saveAndCalc()" placeholder="e.g. 1.5M" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sky-300 font-bold text-sm focus:outline-none focus:border-sky-400" />
+          </div>
+        </div>
+        <div id="plan_transChests" class="bg-slate-900/90 border border-slate-800 rounded-lg p-3 text-xs"></div>
+      </div>
+
+      <!-- Group C: Multi-Option Event & Mode Chests -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- Chest 1: Relay 1x Sub / Core Chest -->
-        <div class="bg-slate-850 border border-slate-800 rounded-xl p-4 flex flex-col justify-between space-y-4">
+        <!-- Monthly F2P Chest -->
+        <div class="bg-slate-850 border border-slate-800 rounded-xl p-4 flex flex-col justify-between space-y-3">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">Monthly F2P Chest</span>
+              <h3 class="text-sm font-bold text-white mt-1.5">Monthly F2P Chest</h3>
+              <p class="text-xs text-slate-400 mt-0.5">
+                Choose 1: <span class="text-sky-300">2,500 Stellar</span> OR <span class="text-purple-300">2,500 CoT</span> OR <span class="text-emerald-300">180 Subli</span> (Active/P1/P2/P3).
+              </p>
+            </div>
+            <input id="chest_monthlyF2p" type="text" value="0" oninput="saveAndCalc()" class="w-20 bg-slate-900 border border-amber-500/40 rounded-lg px-2.5 py-1.5 text-center font-bold text-amber-300 text-sm" />
+          </div>
+          <div id="plan_monthlyF2p" class="bg-slate-900/90 border border-slate-800 rounded-lg p-3 text-xs"></div>
+        </div>
+
+        <!-- Relay 1x Sub / Core Chest -->
+        <div class="bg-slate-850 border border-slate-800 rounded-xl p-4 flex flex-col justify-between space-y-3">
           <div class="flex items-start justify-between gap-3">
             <div>
               <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Relay Chest #1</span>
-              <h3 class="text-base font-bold text-white mt-1.5">Relay 1× Sub / Core Chest</h3>
+              <h3 class="text-sm font-bold text-white mt-1.5">Relay 1× Sub / Core Chest</h3>
               <p class="text-xs text-slate-400 mt-0.5">
-                Choose 1 per chest: <span class="text-emerald-300 font-semibold">9,000 Sublimation</span> (Active, P1, P2, or P3) OR <span class="text-rose-300 font-semibold">5/100 Core Shards</span> (0.05 Core).
+                Choose 1: <span class="text-emerald-300">9,000 Subli</span> (Active/P1/P2/P3) OR <span class="text-rose-300">5 Core Shards</span> (0.05 Core).
               </p>
             </div>
-            <div class="flex items-center gap-1 shrink-0">
-              <button onclick="adjustChest('relaySubCore', -1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">-</button>
-              <input id="chest_relaySubCore" type="number" min="0" value="0" oninput="saveAndCalc()" class="w-16 bg-slate-900 border border-emerald-500/40 rounded h-8 text-center font-bold text-emerald-300 text-sm" />
-              <button onclick="adjustChest('relaySubCore', 1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">+</button>
-            </div>
+            <input id="chest_relaySubCore" type="text" value="0" oninput="saveAndCalc()" class="w-20 bg-slate-900 border border-emerald-500/40 rounded-lg px-2.5 py-1.5 text-center font-bold text-emerald-300 text-sm" />
           </div>
-
-          <div id="plan_relaySubCore" class="bg-slate-900/90 border border-slate-800 rounded-lg p-3 text-xs">
-          </div>
+          <div id="plan_relaySubCore" class="bg-slate-900/90 border border-slate-800 rounded-lg p-3 text-xs"></div>
         </div>
 
-        <!-- Chest 2: Relay 1x Destiny Pick Chest -->
-        <div class="bg-slate-850 border border-slate-800 rounded-xl p-4 flex flex-col justify-between space-y-4">
+        <!-- Relay 1x Destiny Pick Chest -->
+        <div class="bg-slate-850 border border-slate-800 rounded-xl p-4 flex flex-col justify-between space-y-3">
           <div class="flex items-start justify-between gap-3">
             <div>
               <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">Relay Chest #2</span>
-              <h3 class="text-base font-bold text-white mt-1.5">Relay 1× Destiny Pick Chest</h3>
+              <h3 class="text-sm font-bold text-white mt-1.5">Relay 1× Destiny Pick Chest</h3>
               <p class="text-xs text-slate-400 mt-0.5">
-                Choose 1 per chest: <span class="text-orange-300 font-semibold">30,000 Spiritveins</span> OR <span class="text-cyan-300 font-semibold">3,750 Aurora Gem Shards</span> (0.75 Gem; 5,000 shards = 1 Gem).
+                Choose 1: <span class="text-orange-300">30,000 Spiritveins</span> OR <span class="text-cyan-300">3,750 Aurora Shards</span> (0.75 Gem).
               </p>
             </div>
-            <div class="flex items-center gap-1 shrink-0">
-              <button onclick="adjustChest('relayDestiny', -1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">-</button>
-              <input id="chest_relayDestiny" type="number" min="0" value="0" oninput="saveAndCalc()" class="w-16 bg-slate-900 border border-cyan-500/40 rounded h-8 text-center font-bold text-cyan-300 text-sm" />
-              <button onclick="adjustChest('relayDestiny', 1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">+</button>
-            </div>
+            <input id="chest_relayDestiny" type="text" value="0" oninput="saveAndCalc()" class="w-20 bg-slate-900 border border-cyan-500/40 rounded-lg px-2.5 py-1.5 text-center font-bold text-cyan-300 text-sm" />
           </div>
+          <div id="plan_relayDestiny" class="bg-slate-900/90 border border-slate-800 rounded-lg p-3 text-xs"></div>
+        </div>
 
-          <div id="plan_relayDestiny" class="bg-slate-900/90 border border-slate-800 rounded-lg p-3 text-xs">
+        <!-- Star Expedition Chest -->
+        <div class="bg-slate-850 border border-slate-800 rounded-xl p-4 flex flex-col justify-between space-y-3">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-violet-500/20 text-violet-300 border border-violet-500/30">Star Expedition</span>
+              <h3 class="text-sm font-bold text-white mt-1.5">Star Expedition Chest</h3>
+              <p class="text-xs text-slate-400 mt-0.5">
+                Choose 1: <span class="text-sky-300">25k Stellar</span>, <span class="text-purple-300">25k CoT</span>, <span class="text-emerald-300">1,800 Subli</span>, <span class="text-rose-300">1 Core Shard</span>, <span class="text-orange-300">5,000 Spiritveins</span>, or <span class="text-cyan-300">625 Aurora Shards</span>.
+              </p>
+            </div>
+            <input id="chest_starExp" type="text" value="0" oninput="saveAndCalc()" class="w-20 bg-slate-900 border border-violet-500/40 rounded-lg px-2.5 py-1.5 text-center font-bold text-violet-300 text-sm" />
           </div>
+          <div id="plan_starExp" class="bg-slate-900/90 border border-slate-800 rounded-lg p-3 text-xs"></div>
+        </div>
+
+        <!-- Imp's Adventure Chest -->
+        <div class="bg-slate-850 border border-slate-800 rounded-xl p-4 flex flex-col justify-between space-y-3 md:col-span-2">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30">Imp's Adventure</span>
+              <h3 class="text-sm font-bold text-white mt-1.5">Imp's Chest</h3>
+              <p class="text-xs text-slate-400 mt-0.5">
+                Choose 1: <span class="text-sky-300">62k Stellar</span>, <span class="text-purple-300">62k CoT</span>, <span class="text-emerald-300">4,500 Subli</span> (Active/P1/P2/P3), <span class="text-rose-300">3 Core Shards</span>, <span class="text-orange-300">12,000 Spiritveins</span>, or <span class="text-cyan-300">1,500 Aurora Shards</span>.
+              </p>
+            </div>
+            <input id="chest_imps" type="text" value="0" oninput="saveAndCalc()" class="w-24 bg-slate-900 border border-rose-500/40 rounded-lg px-2.5 py-1.5 text-center font-bold text-rose-300 text-sm" />
+          </div>
+          <div id="plan_imps" class="bg-slate-900/90 border border-slate-800 rounded-lg p-3 text-xs"></div>
         </div>
       </div>
     </section>
@@ -475,6 +577,7 @@
     };
 
     let infusionLevels = [];
+    let partialCoreShards = []; // Shards (1-399) locked on specific heroes
 
     function parseNum(val) {
       if (val === undefined || val === null) return 0;
@@ -510,6 +613,7 @@
       return fmtDec(n, 2);
     }
 
+    // Infusion Hero Refund
     function getSingleInfusionRefund(lvl) {
       const L = Math.max(1, Math.min(75, parseInt(lvl) || 1));
       const lvls16to40 = Math.max(0, Math.min(L, 40) - 15);
@@ -586,15 +690,55 @@
       saveAndCalc();
     }
 
-    function adjustHero(key, delta) {
-      const el = document.getElementById('hero_' + key);
-      const next = Math.max(0, (parseInt(el.value) || 0) + delta);
-      el.value = next;
+    // Partial Hero-Specific Cores UI
+    function renderPartialCoreInputs() {
+      const container = document.getElementById('partialCoresList');
+      container.innerHTML = '';
+      partialCoreShards.forEach((shards, idx) => {
+        const card = document.createElement('div');
+        card.className = 'bg-slate-900 border border-slate-800 rounded-lg p-2.5 flex items-center justify-between gap-2';
+        card.innerHTML = `
+          <span class="text-xs font-semibold text-rose-300">Hero #${idx + 1}</span>
+          <div class="flex items-center gap-1">
+            <button type="button" onclick="setPartialCore(${idx}, 100)" class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300" title="1★ Core (100 Shards)">1★(100)</button>
+            <button type="button" onclick="setPartialCore(${idx}, 200)" class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300" title="2★ Core (200 Shards)">2★(200)</button>
+            <button type="button" onclick="setPartialCore(${idx}, 300)" class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300" title="300 Shards">300</button>
+            <input type="number" min="1" max="399" value="${shards}" oninput="updatePartialCore(${idx}, this.value)"
+              class="w-16 bg-slate-850 border border-slate-700 rounded px-2 py-1 text-center font-bold text-white text-xs" />
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function changePartialCoreCount(delta) {
+      const input = document.getElementById('partialCoreCount');
+      const next = Math.max(0, Math.min(30, (parseInt(input.value) || 0) + delta));
+      input.value = next;
+      onPartialCoreCountInput();
+    }
+
+    function onPartialCoreCountInput() {
+      const count = Math.max(0, Math.min(30, parseInt(document.getElementById('partialCoreCount').value) || 0));
+      while (partialCoreShards.length < count) partialCoreShards.push(100);
+      if (partialCoreShards.length > count) partialCoreShards.length = count;
+      renderPartialCoreInputs();
       saveAndCalc();
     }
 
-    function adjustChest(key, delta) {
-      const el = document.getElementById('chest_' + key);
+    function setPartialCore(idx, val) {
+      partialCoreShards[idx] = val;
+      renderPartialCoreInputs();
+      saveAndCalc();
+    }
+
+    function updatePartialCore(idx, val) {
+      partialCoreShards[idx] = Math.max(1, Math.min(399, parseInt(val) || 1));
+      saveAndCalc();
+    }
+
+    function adjustHero(key, delta) {
+      const el = document.getElementById('hero_' + key);
       const next = Math.max(0, (parseInt(el.value) || 0) + delta);
       el.value = next;
       saveAndCalc();
@@ -642,139 +786,62 @@
       `;
     }
 
-    // Smart Optimizer for Relay 1x Sub / Core Chest
-    // Each chest gives EITHER 9,000 Subli (Active/P1/P2/P3) OR 5 Core Shards (0.05 Core)
-    function optimizeRelaySubCoreChests(count, deficits) {
-      const picks = { Active: 0, P1: 0, P2: 0, P3: 0, Cores: 0, saved: 0 };
-      let rem = {
-        Active: Math.max(0, deficits.Active),
-        P1:     Math.max(0, deficits.P1),
-        P2:     Math.max(0, deficits.P2),
-        P3:     Math.max(0, deficits.P3),
-        Cores:  Math.max(0, deficits.Cores) // in single cores (0.05 per chest)
-      };
+    // Universal Fast Multi-Option Chest Optimizer
+    // Handles both small counts (1..500) and huge counts (e.g. 5,000,000) in <1ms
+    function allocateChestType(count, options, deficits) {
+      const picks = { saved: 0 };
+      const added = {};
+      options.forEach(o => {
+        picks[o.key] = 0;
+        added[o.deficitKey] = 0;
+      });
 
-      for (let i = 0; i < count; i++) {
-        // Measure how many chests each option still needs to reach 0 deficit
-        const candidates = [
-          { key: 'Active', chestsNeeded: rem.Active / 9000 },
-          { key: 'P1',     chestsNeeded: rem.P1 / 9000 },
-          { key: 'P2',     chestsNeeded: rem.P2 / 9000 },
-          { key: 'P3',     chestsNeeded: rem.P3 / 9000 },
-          { key: 'Cores',  chestsNeeded: rem.Cores / 0.05 }
-        ].filter(c => c.chestsNeeded > 1e-6);
+      let remaining = Math.max(0, Math.floor(count));
+      if (remaining === 0) return { picks, added };
 
-        if (candidates.length === 0) {
-          picks.saved++;
-          continue;
+      // Fast batching for very large chest counts (like 1-pt chests)
+      while (remaining > 0) {
+        const active = options
+          .map(o => ({ ...o, chestsNeeded: deficits[o.deficitKey] / o.amount }))
+          .filter(o => o.chestsNeeded > 1e-9)
+          .sort((a, b) => b.chestsNeeded - a.chestsNeeded);
+
+        if (active.length === 0) {
+          picks.saved += remaining;
+          break;
         }
 
-        // Pick the option that requires the most chests to finish (balances deficits & avoids waste)
-        candidates.sort((a, b) => b.chestsNeeded - a.chestsNeeded);
-        const best = candidates[0].key;
-        picks[best]++;
-
-        if (best === 'Cores') {
-          rem.Cores = Math.max(0, rem.Cores - 0.05);
-        } else {
-          rem[best] = Math.max(0, rem[best] - 9000);
+        const best = active[0];
+        let step = 1;
+        if (remaining > 2000) {
+          if (active.length === 1) {
+            step = Math.min(remaining, Math.max(1, Math.ceil(best.chestsNeeded)));
+          } else {
+            const second = active[1];
+            const diffChests = Math.floor(best.chestsNeeded - second.chestsNeeded);
+            step = Math.min(remaining, Math.max(1, diffChests > 0 ? diffChests : Math.floor(remaining / 1000)));
+          }
         }
+
+        picks[best.key] += step;
+        const gain = step * best.amount;
+        added[best.deficitKey] = (added[best.deficitKey] || 0) + gain;
+        deficits[best.deficitKey] = Math.max(0, deficits[best.deficitKey] - gain);
+        remaining -= step;
       }
 
-      return {
-        picks,
-        added: {
-          subActive: picks.Active * 9000,
-          subP1:     picks.P1 * 9000,
-          subP2:     picks.P2 * 9000,
-          subP3:     picks.P3 * 9000,
-          cores:     picks.Cores * 0.05,
-          coreShards: picks.Cores * 5
-        }
-      };
+      return { picks, added };
     }
 
-    // Smart Optimizer for Relay 1x Destiny Pick Chest
-    // Each chest gives EITHER 30,000 Spiritveins OR 3,750 Aurora Gem Shards (0.75 Aurora Gem)
-    function optimizeRelayDestinyChests(count, deficits) {
-      const picks = { Spiritveins: 0, AuroraGems: 0, saved: 0 };
-      let remVeins = Math.max(0, deficits.spiritveins);
-      let remGems  = Math.max(0, deficits.auroraGems); // in Gems (0.75 per chest)
-
-      for (let i = 0; i < count; i++) {
-        const candidates = [
-          { key: 'Spiritveins', chestsNeeded: remVeins / 30000 },
-          { key: 'AuroraGems',  chestsNeeded: remGems / 0.75 }
-        ].filter(c => c.chestsNeeded > 1e-6);
-
-        if (candidates.length === 0) {
-          picks.saved++;
-          continue;
-        }
-
-        candidates.sort((a, b) => b.chestsNeeded - a.chestsNeeded);
-        const best = candidates[0].key;
-        picks[best]++;
-
-        if (best === 'Spiritveins') {
-          remVeins = Math.max(0, remVeins - 30000);
-        } else {
-          remGems = Math.max(0, remGems - 0.75);
-        }
-      }
-
-      return {
-        picks,
-        added: {
-          spiritveins: picks.Spiritveins * 30000,
-          auroraGems:  picks.AuroraGems * 0.75,
-          auroraShards: picks.AuroraGems * 3750
-        }
-      };
-    }
-
-    function renderChestPlanSubCore(count, opt) {
-      const el = document.getElementById('plan_relaySubCore');
-      if (count <= 0) {
-        el.innerHTML = `<span class="text-slate-500">Enter how many Relay Sub / Core Chests you have to see exact picks.</span>`;
+    function renderPlanBox(elId, totalCount, badges, emptyText) {
+      const el = document.getElementById(elId);
+      if (totalCount <= 0) {
+        el.innerHTML = `<span class="text-slate-500">${emptyText}</span>`;
         return;
       }
-
-      const items = [];
-      if (opt.picks.Active > 0) items.push(`<span class="px-2 py-1 rounded bg-blue-500/20 border border-blue-500/30 text-blue-300 font-bold">${opt.picks.Active}× Active Subli (+${fmt(opt.added.subActive)})</span>`);
-      if (opt.picks.P1 > 0)     items.push(`<span class="px-2 py-1 rounded bg-amber-500/20 border border-amber-500/30 text-amber-300 font-bold">${opt.picks.P1}× P1 Subli (+${fmt(opt.added.subP1)})</span>`);
-      if (opt.picks.P2 > 0)     items.push(`<span class="px-2 py-1 rounded bg-violet-500/20 border border-violet-500/30 text-violet-300 font-bold">${opt.picks.P2}× P2 Subli (+${fmt(opt.added.subP2)})</span>`);
-      if (opt.picks.P3 > 0)     items.push(`<span class="px-2 py-1 rounded bg-rose-500/20 border border-rose-500/30 text-rose-300 font-bold">${opt.picks.P3}× P3 Subli (+${fmt(opt.added.subP3)})</span>`);
-      if (opt.picks.Cores > 0)  items.push(`<span class="px-2 py-1 rounded bg-rose-500/20 border border-rose-500/30 text-rose-200 font-bold">${opt.picks.Cores}× Core Shards (+${opt.added.coreShards}/100 = +${fmtDec(opt.added.cores, 2)} Core)</span>`);
-      if (opt.picks.saved > 0)  items.push(`<span class="px-2 py-1 rounded bg-slate-800 border border-slate-700 text-slate-300 font-semibold">${opt.picks.saved}× Save (Target already met!)</span>`);
-
       el.innerHTML = `
-        <div class="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-2">Recommended Picks (${count} Chests):</div>
-        <div class="flex flex-wrap gap-1.5">${items.join('')}</div>
-      `;
-    }
-
-    function renderChestPlanDestiny(count, opt) {
-      const el = document.getElementById('plan_relayDestiny');
-      if (count <= 0) {
-        el.innerHTML = `<span class="text-slate-500">Enter how many Relay Destiny Chests you have to see exact picks.</span>`;
-        return;
-      }
-
-      const items = [];
-      if (opt.picks.Spiritveins > 0) {
-        items.push(`<span class="px-2 py-1 rounded bg-orange-500/20 border border-orange-500/30 text-orange-300 font-bold">${opt.picks.Spiritveins}× Spiritveins (+${fmt(opt.added.spiritveins)})</span>`);
-      }
-      if (opt.picks.AuroraGems > 0) {
-        items.push(`<span class="px-2 py-1 rounded bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 font-bold">${opt.picks.AuroraGems}× Aurora Gem Shards (+${fmt(opt.added.auroraShards)} Shards = +${fmtDec(opt.added.auroraGems, 2)} Gems)</span>`);
-      }
-      if (opt.picks.saved > 0) {
-        items.push(`<span class="px-2 py-1 rounded bg-slate-800 border border-slate-700 text-slate-300 font-semibold">${opt.picks.saved}× Save (Target already met!)</span>`);
-      }
-
-      el.innerHTML = `
-        <div class="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-2">Recommended Picks (${count} Chests):</div>
-        <div class="flex flex-wrap gap-1.5">${items.join('')}</div>
+        <div class="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-1.5">Recommended Picks (${fmt(totalCount)} Chests):</div>
+        <div class="flex flex-wrap gap-1.5">${badges.join('')}</div>
       `;
     }
 
@@ -859,20 +926,58 @@
       invested.subP2     += infTotals.subP2;
       invested.subP3     += infTotals.subP3;
 
-      // Read Bag Inputs (Exact Core Shards & Aurora Gem Shards)
-      const fullCores   = Math.max(0, parseFloat(document.getElementById('bag_fullCores').value) || 0);
-      const singleCores = Math.max(0, parseFloat(document.getElementById('bag_singleCores').value) || 0);
-      const coreShards  = Math.max(0, parseFloat(document.getElementById('bag_coreShards').value) || 0);
-      const bagCores = fullCores * 4 + singleCores + (coreShards / 100);
-      const totalBagCoreShards = Math.round(bagCores * 100);
-      document.getElementById('bagTotalCoresDisplay').textContent = `${fmtDec(bagCores, 2)} (${fmt(totalBagCoreShards)} Shards)`;
+      // HERO-SPECIFIC CORES CALCULATION
+      // Each Destiny Hero needs 1 Full Core (4 Single Cores = 400 Shards on that same hero).
+      const fullCoresInBag = Math.max(0, parseInt(document.getElementById('bag_fullCores').value) || 0);
+      const coreChests50   = Math.max(0, parseFloat(document.getElementById('bag_coreChests50').value) || 0);
+      const looseUniShards = Math.max(0, parseFloat(document.getElementById('bag_coreShards').value) || 0);
+      const universalShardsInBag = Math.round(coreChests50 * 50 + looseUniShards);
 
-      const wholeAuroraGems = Math.max(0, parseNum(document.getElementById('bag_auroraGems').value));
+      // How many more Full Cores (4-core sets) do we still need to build after Owned Heroes + Infusion Cores + Ready Full Cores?
+      const totalCoresNeeded = targetRow.cores; // 4 per hero
+      const coresAfterReadyFull = Math.max(0, totalCoresNeeded - invested.cores - (fullCoresInBag * 4));
+      const fullHeroSlotsRemaining = Math.ceil(coresAfterReadyFull / 4);
+
+      // Sort partial hero cores highest first; only up to `fullHeroSlotsRemaining` partial heroes can be used!
+      const indexedPartials = partialCoreShards.map((sh, i) => ({ heroIndex: i + 1, shards: Math.max(1, Math.min(399, sh)) }));
+      indexedPartials.sort((a, b) => b.shards - a.shards);
+
+      const usablePartials = indexedPartials.slice(0, fullHeroSlotsRemaining);
+      const lockedPartials = indexedPartials.slice(fullHeroSlotsRemaining);
+
+      const usablePartialShardsSum = usablePartials.reduce((acc, p) => acc + p.shards, 0);
+      const lockedPartialShardsSum = lockedPartials.reduce((acc, p) => acc + p.shards, 0);
+
+      const bagUsableCores = (fullCoresInBag * 4) + ((universalShardsInBag + usablePartialShardsSum) / 100);
+      document.getElementById('bagTotalCoresDisplay').textContent =
+        `${fmtDec(bagUsableCores, 2)} Cores (${fmt(fullCoresInBag * 400 + universalShardsInBag + usablePartialShardsSum)} Usable Shards)`;
+
+      const partialPlanEl = document.getElementById('partialCoresPlan');
+      if (partialCoreShards.length > 0) {
+        partialPlanEl.classList.remove('hidden');
+        const lines = [];
+        usablePartials.forEach(p => {
+          const needShards = 400 - p.shards;
+          lines.push(`<span class="inline-block mr-2 mb-1 px-2 py-0.5 rounded bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-semibold">✓ Hero #${p.heroIndex} (${p.shards}/400): Use +${needShards} Universal Shards to finish Full Core</span>`);
+        });
+        lockedPartials.forEach(p => {
+          lines.push(`<span class="inline-block mr-2 mb-1 px-2 py-0.5 rounded bg-rose-500/20 border border-rose-500/30 text-rose-300 font-semibold">✗ Hero #${p.heroIndex} (${p.shards}/400): Locked to extra hero (Cannot combine into other heroes!)</span>`);
+        });
+        partialPlanEl.innerHTML = `
+          <div class="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-1">Hero-Specific Core Status:</div>
+          <div>${lines.join('')}</div>
+        `;
+      } else {
+        partialPlanEl.classList.add('hidden');
+      }
+
+      // Read other Bag Inputs
+      const wholeAuroraGems   = Math.max(0, parseNum(document.getElementById('bag_auroraGems').value));
       const looseAuroraShards = Math.max(0, parseNum(document.getElementById('bag_auroraShards').value));
       const bagAuroraGemsTotal = wholeAuroraGems + (looseAuroraShards / 5000);
 
       const bag = {
-        cores: bagCores,
+        cores: bagUsableCores,
         subActive: Math.max(0, parseNum(document.getElementById('bag_subActive').value)),
         subP1:     Math.max(0, parseNum(document.getElementById('bag_subP1').value)),
         subP2:     Math.max(0, parseNum(document.getElementById('bag_subP2').value)),
@@ -884,37 +989,186 @@
         auroraGems:  bagAuroraGemsTotal
       };
 
-      // Calculate Deficits BEFORE Chests
+      // Running Deficits before Chests
       const branchTarget = targetRow.heroes * 180000;
-      const preDeficitsSubCore = {
-        Active: Math.max(0, branchTarget - (invested.subActive + bag.subActive)),
-        P1:     Math.max(0, branchTarget - (invested.subP1 + bag.subP1)),
-        P2:     Math.max(0, branchTarget - (invested.subP2 + bag.subP2)),
-        P3:     Math.max(0, branchTarget - (invested.subP3 + bag.subP3)),
-        Cores:  Math.max(0, targetRow.cores - (invested.cores + bag.cores))
-      };
-
-      const preDeficitsDestiny = {
+      const deficits = {
+        subActive:   Math.max(0, branchTarget - (invested.subActive + bag.subActive)),
+        subP1:       Math.max(0, branchTarget - (invested.subP1 + bag.subP1)),
+        subP2:       Math.max(0, branchTarget - (invested.subP2 + bag.subP2)),
+        subP3:       Math.max(0, branchTarget - (invested.subP3 + bag.subP3)),
+        cores:       Math.max(0, targetRow.cores - (invested.cores + bag.cores)),
+        stellars:    Math.max(0, targetRow.stellars - (invested.stellars + bag.stellars)),
+        cot:         Math.max(0, targetRow.cot - (invested.cot + bag.cot)),
         spiritveins: Math.max(0, targetRow.spiritveins - (invested.spiritveins + bag.spiritveins)),
         auroraGems:  Math.max(0, targetRow.auroraGems - (invested.auroraGems + bag.auroraGems))
       };
 
-      // Read Chest Counts & Run Smart Optimizers
-      const relaySubCoreCount = Math.max(0, parseInt(document.getElementById('chest_relaySubCore').value) || 0);
-      const relayDestinyCount = Math.max(0, parseInt(document.getElementById('chest_relayDestiny').value) || 0);
+      const chestAdded = {
+        subActive: 0, subP1: 0, subP2: 0, subP3: 0,
+        cores: 0, stellars: 0, cot: 0, spiritveins: 0, auroraGems: 0
+      };
 
-      const optSubCore = optimizeRelaySubCoreChests(relaySubCoreCount, preDeficitsSubCore);
-      const optDestiny = optimizeRelayDestinyChests(relayDestinyCount, preDeficitsDestiny);
+      function mergeAdded(addedObj) {
+        Object.keys(addedObj).forEach(k => {
+          chestAdded[k] = (chestAdded[k] || 0) + addedObj[k];
+        });
+      }
 
-      renderChestPlanSubCore(relaySubCoreCount, optSubCore);
-      renderChestPlanDestiny(relayDestinyCount, optDestiny);
+      // 1. Allocate Pure Sublimation Chests (90k -> 45k -> 1800 -> 1)
+      const cSub90k  = Math.max(0, parseNum(document.getElementById('chest_sub90k').value));
+      const cSub45k  = Math.max(0, parseNum(document.getElementById('chest_sub45k').value));
+      const cSub1800 = Math.max(0, parseNum(document.getElementById('chest_sub1800').value));
+      const cSub1    = Math.max(0, parseNum(document.getElementById('chest_sub1').value));
 
-      // Sublimation Branch Allocation (including recommended chest picks)
+      const makeSubOpts = (amt) => [
+        { key: 'Active', deficitKey: 'subActive', amount: amt },
+        { key: 'P1',     deficitKey: 'subP1',     amount: amt },
+        { key: 'P2',     deficitKey: 'subP2',     amount: amt },
+        { key: 'P3',     deficitKey: 'subP3',     amount: amt }
+      ];
+
+      const rSub90k  = allocateChestType(cSub90k,  makeSubOpts(90000), deficits); mergeAdded(rSub90k.added);
+      const rSub45k  = allocateChestType(cSub45k,  makeSubOpts(45000), deficits); mergeAdded(rSub45k.added);
+      const rSub1800 = allocateChestType(cSub1800, makeSubOpts(1800),  deficits); mergeAdded(rSub1800.added);
+      const rSub1    = allocateChestType(cSub1,    makeSubOpts(1),     deficits); mergeAdded(rSub1.added);
+
+      const pureSubTotalChests = cSub90k + cSub45k + cSub1800 + cSub1;
+      const pureSubGain = {
+        Active: (rSub90k.added.subActive||0) + (rSub45k.added.subActive||0) + (rSub1800.added.subActive||0) + (rSub1.added.subActive||0),
+        P1:     (rSub90k.added.subP1||0)     + (rSub45k.added.subP1||0)     + (rSub1800.added.subP1||0)     + (rSub1.added.subP1||0),
+        P2:     (rSub90k.added.subP2||0)     + (rSub45k.added.subP2||0)     + (rSub1800.added.subP2||0)     + (rSub1.added.subP2||0),
+        P3:     (rSub90k.added.subP3||0)     + (rSub45k.added.subP3||0)     + (rSub1800.added.subP3||0)     + (rSub1.added.subP3||0)
+      };
+      const pureSubBadges = [];
+      if (pureSubGain.Active > 0) pureSubBadges.push(`<span class="px-2 py-1 rounded bg-blue-500/20 border border-blue-500/30 text-blue-300 font-bold">Active: +${fmt(pureSubGain.Active)}</span>`);
+      if (pureSubGain.P1 > 0)     pureSubBadges.push(`<span class="px-2 py-1 rounded bg-amber-500/20 border border-amber-500/30 text-amber-300 font-bold">P1: +${fmt(pureSubGain.P1)}</span>`);
+      if (pureSubGain.P2 > 0)     pureSubBadges.push(`<span class="px-2 py-1 rounded bg-violet-500/20 border border-violet-500/30 text-violet-300 font-bold">P2: +${fmt(pureSubGain.P2)}</span>`);
+      if (pureSubGain.P3 > 0)     pureSubBadges.push(`<span class="px-2 py-1 rounded bg-rose-500/20 border border-rose-500/30 text-rose-300 font-bold">P3: +${fmt(pureSubGain.P3)}</span>`);
+      const pureSubSaved = rSub90k.picks.saved + rSub45k.picks.saved + rSub1800.picks.saved + rSub1.picks.saved;
+      if (pureSubSaved > 0) pureSubBadges.push(`<span class="px-2 py-1 rounded bg-slate-800 border border-slate-700 text-slate-300">${fmt(pureSubSaved)}× Unused (Subli already full!)</span>`);
+      renderPlanBox('plan_pureSub', pureSubTotalChests, pureSubBadges, 'Enter your 90k, 45k, 1,800, or 1-pt Sublimation chests above.');
+
+      // 2. Allocate Trans Spheres (250k) & Trans Chests (1 pt)
+      const cSphere = Math.max(0, parseNum(document.getElementById('chest_transSphere').value));
+      const cTrans1 = Math.max(0, parseNum(document.getElementById('chest_trans1').value));
+
+      const rSphere = allocateChestType(cSphere, [
+        { key: 'Stellars', deficitKey: 'stellars', amount: 250000 },
+        { key: 'CoT',      deficitKey: 'cot',      amount: 250000 }
+      ], deficits);
+      mergeAdded(rSphere.added);
+
+      const rTrans1 = allocateChestType(cTrans1, [
+        { key: 'Stellars', deficitKey: 'stellars', amount: 1 },
+        { key: 'CoT',      deficitKey: 'cot',      amount: 1 }
+      ], deficits);
+      mergeAdded(rTrans1.added);
+
+      const transBadges = [];
+      if (rSphere.picks.Stellars > 0) transBadges.push(`<span class="px-2 py-1 rounded bg-sky-500/20 border border-sky-500/30 text-sky-300 font-bold">${fmt(rSphere.picks.Stellars)}× Spheres → Stellars (+${fmtShort(rSphere.added.stellars)})</span>`);
+      if (rSphere.picks.CoT > 0)      transBadges.push(`<span class="px-2 py-1 rounded bg-purple-500/20 border border-purple-500/30 text-purple-300 font-bold">${fmt(rSphere.picks.CoT)}× Spheres → CoT (+${fmtShort(rSphere.added.cot)})</span>`);
+      if (rTrans1.picks.Stellars > 0) transBadges.push(`<span class="px-2 py-1 rounded bg-sky-500/20 border border-sky-500/30 text-sky-300 font-bold">${fmt(rTrans1.picks.Stellars)}× Trans Chest → Stellars</span>`);
+      if (rTrans1.picks.CoT > 0)      transBadges.push(`<span class="px-2 py-1 rounded bg-purple-500/20 border border-purple-500/30 text-purple-300 font-bold">${fmt(rTrans1.picks.CoT)}× Trans Chest → CoT</span>`);
+      if (rSphere.picks.saved + rTrans1.picks.saved > 0) transBadges.push(`<span class="px-2 py-1 rounded bg-slate-800 border border-slate-700 text-slate-300">${fmt(rSphere.picks.saved + rTrans1.picks.saved)}× Save</span>`);
+      renderPlanBox('plan_transChests', cSphere + cTrans1, transBadges, 'Enter Trans Spheres (250k) or Trans Chests (1 pt) to see optimal Stellar vs CoT split.');
+
+      // 3. Allocate Relay 1x Destiny Pick Chest (30k Spiritveins vs 3,750 Aurora Gem Shards = 0.75 Gem)
+      const cRelayDestiny = Math.max(0, parseNum(document.getElementById('chest_relayDestiny').value));
+      const rRelayDestiny = allocateChestType(cRelayDestiny, [
+        { key: 'Spiritveins', deficitKey: 'spiritveins', amount: 30000 },
+        { key: 'AuroraGems',  deficitKey: 'auroraGems',  amount: 0.75 }
+      ], deficits);
+      mergeAdded(rRelayDestiny.added);
+      const rdBadges = [];
+      if (rRelayDestiny.picks.Spiritveins > 0) rdBadges.push(`<span class="px-2 py-1 rounded bg-orange-500/20 border border-orange-500/30 text-orange-300 font-bold">${fmt(rRelayDestiny.picks.Spiritveins)}× Spiritveins (+${fmt(rRelayDestiny.added.spiritveins)})</span>`);
+      if (rRelayDestiny.picks.AuroraGems > 0)  rdBadges.push(`<span class="px-2 py-1 rounded bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 font-bold">${fmt(rRelayDestiny.picks.AuroraGems)}× Aurora Shards (+${fmt(rRelayDestiny.picks.AuroraGems * 3750)} Shards = +${fmtDec(rRelayDestiny.added.auroraGems, 2)} Gems)</span>`);
+      if (rRelayDestiny.picks.saved > 0)       rdBadges.push(`<span class="px-2 py-1 rounded bg-slate-800 border border-slate-700 text-slate-300">${fmt(rRelayDestiny.picks.saved)}× Save</span>`);
+      renderPlanBox('plan_relayDestiny', cRelayDestiny, rdBadges, 'Enter Relay Destiny Chests to see Spiritveins vs Aurora Shards picks.');
+
+      // 4. Allocate Relay 1x Sub / Core Chest (9,000 Sub vs 5 Core Shards = 0.05 Core)
+      const cRelaySubCore = Math.max(0, parseNum(document.getElementById('chest_relaySubCore').value));
+      const rRelaySubCore = allocateChestType(cRelaySubCore, [
+        ...makeSubOpts(9000),
+        { key: 'Cores', deficitKey: 'cores', amount: 0.05 }
+      ], deficits);
+      mergeAdded(rRelaySubCore.added);
+      const rscBadges = [];
+      ['Active', 'P1', 'P2', 'P3'].forEach(k => {
+        if (rRelaySubCore.picks[k] > 0) rscBadges.push(`<span class="px-2 py-1 rounded bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-bold">${fmt(rRelaySubCore.picks[k])}× ${k} Subli (+${fmt(rRelaySubCore.picks[k]*9000)})</span>`);
+      });
+      if (rRelaySubCore.picks.Cores > 0) rscBadges.push(`<span class="px-2 py-1 rounded bg-rose-500/20 border border-rose-500/30 text-rose-300 font-bold">${fmt(rRelaySubCore.picks.Cores)}× Core Shards (+${fmt(rRelaySubCore.picks.Cores * 5)} Shards)</span>`);
+      if (rRelaySubCore.picks.saved > 0) rscBadges.push(`<span class="px-2 py-1 rounded bg-slate-800 border border-slate-700 text-slate-300">${fmt(rRelaySubCore.picks.saved)}× Save</span>`);
+      renderPlanBox('plan_relaySubCore', cRelaySubCore, rscBadges, 'Enter Relay Sub/Core Chests to see recommended picks.');
+
+      // 5. Allocate Monthly F2P Chest (2,500 Stellar OR 2,500 CoT OR 180 Sub)
+      const cMonthly = Math.max(0, parseNum(document.getElementById('chest_monthlyF2p').value));
+      const rMonthly = allocateChestType(cMonthly, [
+        { key: 'Stellars', deficitKey: 'stellars', amount: 2500 },
+        { key: 'CoT',      deficitKey: 'cot',      amount: 2500 },
+        ...makeSubOpts(180)
+      ], deficits);
+      mergeAdded(rMonthly.added);
+      const mBadges = [];
+      if (rMonthly.picks.Stellars > 0) mBadges.push(`<span class="px-2 py-1 rounded bg-sky-500/20 border border-sky-500/30 text-sky-300 font-bold">${fmt(rMonthly.picks.Stellars)}× Stellars (+${fmt(rMonthly.added.stellars)})</span>`);
+      if (rMonthly.picks.CoT > 0)      mBadges.push(`<span class="px-2 py-1 rounded bg-purple-500/20 border border-purple-500/30 text-purple-300 font-bold">${fmt(rMonthly.picks.CoT)}× CoT (+${fmt(rMonthly.added.cot)})</span>`);
+      ['Active', 'P1', 'P2', 'P3'].forEach(k => {
+        if (rMonthly.picks[k] > 0) mBadges.push(`<span class="px-2 py-1 rounded bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-bold">${fmt(rMonthly.picks[k])}× ${k} Subli (+${fmt(rMonthly.picks[k]*180)})</span>`);
+      });
+      if (rMonthly.picks.saved > 0) mBadges.push(`<span class="px-2 py-1 rounded bg-slate-800 border border-slate-700 text-slate-300">${fmt(rMonthly.picks.saved)}× Save</span>`);
+      renderPlanBox('plan_monthlyF2p', cMonthly, mBadges, 'Enter Monthly F2P Chests to see recommended picks.');
+
+      // 6. Allocate Star Expedition Chest (25k Stellar, 25k CoT, 1800 Sub, 1 Core Shard=0.01 Core, 5000 Spiritveins, 625 Aurora Shards=0.125 Gem)
+      const cStarExp = Math.max(0, parseNum(document.getElementById('chest_starExp').value));
+      const rStarExp = allocateChestType(cStarExp, [
+        { key: 'Stellars',    deficitKey: 'stellars',    amount: 25000 },
+        { key: 'CoT',         deficitKey: 'cot',         amount: 25000 },
+        ...makeSubOpts(1800),
+        { key: 'Cores',       deficitKey: 'cores',       amount: 0.01 },
+        { key: 'Spiritveins', deficitKey: 'spiritveins', amount: 5000 },
+        { key: 'AuroraGems',  deficitKey: 'auroraGems',  amount: 0.125 }
+      ], deficits);
+      mergeAdded(rStarExp.added);
+      const seBadges = [];
+      if (rStarExp.picks.Stellars > 0)    seBadges.push(`<span class="px-2 py-1 rounded bg-sky-500/20 border border-sky-500/30 text-sky-300 font-bold">${fmt(rStarExp.picks.Stellars)}× Stellars (+${fmt(rStarExp.added.stellars)})</span>`);
+      if (rStarExp.picks.CoT > 0)         seBadges.push(`<span class="px-2 py-1 rounded bg-purple-500/20 border border-purple-500/30 text-purple-300 font-bold">${fmt(rStarExp.picks.CoT)}× CoT (+${fmt(rStarExp.added.cot)})</span>`);
+      ['Active', 'P1', 'P2', 'P3'].forEach(k => {
+        if (rStarExp.picks[k] > 0) seBadges.push(`<span class="px-2 py-1 rounded bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-bold">${fmt(rStarExp.picks[k])}× ${k} Subli (+${fmt(rStarExp.picks[k]*1800)})</span>`);
+      });
+      if (rStarExp.picks.Cores > 0)       seBadges.push(`<span class="px-2 py-1 rounded bg-rose-500/20 border border-rose-500/30 text-rose-300 font-bold">${fmt(rStarExp.picks.Cores)}× Core Shards (+${fmt(rStarExp.picks.Cores)} Shards)</span>`);
+      if (rStarExp.picks.Spiritveins > 0) seBadges.push(`<span class="px-2 py-1 rounded bg-orange-500/20 border border-orange-500/30 text-orange-300 font-bold">${fmt(rStarExp.picks.Spiritveins)}× Spiritveins (+${fmt(rStarExp.added.spiritveins)})</span>`);
+      if (rStarExp.picks.AuroraGems > 0)  seBadges.push(`<span class="px-2 py-1 rounded bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 font-bold">${fmt(rStarExp.picks.AuroraGems)}× Aurora Shards (+${fmt(rStarExp.picks.AuroraGems*625)} Shards)</span>`);
+      if (rStarExp.picks.saved > 0)       seBadges.push(`<span class="px-2 py-1 rounded bg-slate-800 border border-slate-700 text-slate-300">${fmt(rStarExp.picks.saved)}× Save</span>`);
+      renderPlanBox('plan_starExp', cStarExp, seBadges, 'Enter Star Expedition Chests to see recommended picks.');
+
+      // 7. Allocate Imp's Chest (62k Stellar, 62k CoT, 4500 Sub, 3 Core Shards=0.03 Core, 12000 Spiritveins, 1500 Aurora Shards=0.3 Gem)
+      const cImps = Math.max(0, parseNum(document.getElementById('chest_imps').value));
+      const rImps = allocateChestType(cImps, [
+        { key: 'Stellars',    deficitKey: 'stellars',    amount: 62000 },
+        { key: 'CoT',         deficitKey: 'cot',         amount: 62000 },
+        ...makeSubOpts(4500),
+        { key: 'Cores',       deficitKey: 'cores',       amount: 0.03 },
+        { key: 'Spiritveins', deficitKey: 'spiritveins', amount: 12000 },
+        { key: 'AuroraGems',  deficitKey: 'auroraGems',  amount: 0.3 }
+      ], deficits);
+      mergeAdded(rImps.added);
+      const impBadges = [];
+      if (rImps.picks.Stellars > 0)    impBadges.push(`<span class="px-2 py-1 rounded bg-sky-500/20 border border-sky-500/30 text-sky-300 font-bold">${fmt(rImps.picks.Stellars)}× Stellars (+${fmt(rImps.added.stellars)})</span>`);
+      if (rImps.picks.CoT > 0)         impBadges.push(`<span class="px-2 py-1 rounded bg-purple-500/20 border border-purple-500/30 text-purple-300 font-bold">${fmt(rImps.picks.CoT)}× CoT (+${fmt(rImps.added.cot)})</span>`);
+      ['Active', 'P1', 'P2', 'P3'].forEach(k => {
+        if (rImps.picks[k] > 0) impBadges.push(`<span class="px-2 py-1 rounded bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-bold">${fmt(rImps.picks[k])}× ${k} Subli (+${fmt(rImps.picks[k]*4500)})</span>`);
+      });
+      if (rImps.picks.Cores > 0)       impBadges.push(`<span class="px-2 py-1 rounded bg-rose-500/20 border border-rose-500/30 text-rose-300 font-bold">${fmt(rImps.picks.Cores)}× Core Shards (+${fmt(rImps.picks.Cores*3)} Shards)</span>`);
+      if (rImps.picks.Spiritveins > 0) impBadges.push(`<span class="px-2 py-1 rounded bg-orange-500/20 border border-orange-500/30 text-orange-300 font-bold">${fmt(rImps.picks.Spiritveins)}× Spiritveins (+${fmt(rImps.added.spiritveins)})</span>`);
+      if (rImps.picks.AuroraGems > 0)  impBadges.push(`<span class="px-2 py-1 rounded bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 font-bold">${fmt(rImps.picks.AuroraGems)}× Aurora Shards (+${fmt(rImps.picks.AuroraGems*1500)} Shards)</span>`);
+      if (rImps.picks.saved > 0)       impBadges.push(`<span class="px-2 py-1 rounded bg-slate-800 border border-slate-700 text-slate-300">${fmt(rImps.picks.saved)}× Save</span>`);
+      renderPlanBox('plan_imps', cImps, impBadges, "Enter Imp's Chests to see recommended picks.");
+
+      // Render Sublimation Branch Cards
       const branches = [
-        { key: 'Active', label: 'Active Sublimation', color: 'text-blue-300', have: invested.subActive + bag.subActive + optSubCore.added.subActive, fromChest: optSubCore.added.subActive },
-        { key: 'P1',     label: 'Passive 1 (P1)',     color: 'text-amber-300', have: invested.subP1 + bag.subP1 + optSubCore.added.subP1,         fromChest: optSubCore.added.subP1 },
-        { key: 'P2',     label: 'Passive 2 (P2)',     color: 'text-violet-300', have: invested.subP2 + bag.subP2 + optSubCore.added.subP2,       fromChest: optSubCore.added.subP2 },
-        { key: 'P3',     label: 'Passive 3 / P4',     color: 'text-rose-300', have: invested.subP3 + bag.subP3 + optSubCore.added.subP3,         fromChest: optSubCore.added.subP3 }
+        { key: 'Active', label: 'Active Sublimation', color: 'text-blue-300', have: invested.subActive + bag.subActive + chestAdded.subActive, fromChest: chestAdded.subActive },
+        { key: 'P1',     label: 'Passive 1 (P1)',     color: 'text-amber-300', have: invested.subP1 + bag.subP1 + chestAdded.subP1,         fromChest: chestAdded.subP1 },
+        { key: 'P2',     label: 'Passive 2 (P2)',     color: 'text-violet-300', have: invested.subP2 + bag.subP2 + chestAdded.subP2,       fromChest: chestAdded.subP2 },
+        { key: 'P3',     label: 'Passive 3 / P4',     color: 'text-rose-300', have: invested.subP3 + bag.subP3 + chestAdded.subP3,         fromChest: chestAdded.subP3 }
       ];
 
       let totalSubMissing = 0;
@@ -938,29 +1192,32 @@
               <span>Target: <b class="text-slate-200">${fmt(branchTarget)}</b></span>
               <span>Have: <b class="text-slate-200">${fmt(b.have)}</b></span>
             </div>
-            ${b.fromChest > 0 ? `<div class="text-[11px] text-emerald-300 mt-1">+${fmt(b.fromChest)} from Relay Chests</div>` : ''}
+            ${b.fromChest > 0 ? `<div class="text-[11px] text-emerald-300 mt-1">+${fmt(b.fromChest)} from Chests</div>` : ''}
           </div>
         `;
       });
 
       // Totals in Bag + Chest Picks
-      const totalBagPlusChestCores = bag.cores + optSubCore.added.cores;
-      const totalBagPlusChestSub   = bag.subActive + bag.subP1 + bag.subP2 + bag.subP3 +
-                                     optSubCore.added.subActive + optSubCore.added.subP1 + optSubCore.added.subP2 + optSubCore.added.subP3;
-      const totalBagPlusChestVeins = bag.spiritveins + optDestiny.added.spiritveins;
-      const totalBagPlusChestGems  = bag.auroraGems + optDestiny.added.auroraGems;
+      const totalBagPlusChestCores    = bag.cores + chestAdded.cores;
+      const totalBagPlusChestSub      = bag.subActive + bag.subP1 + bag.subP2 + bag.subP3 +
+                                        chestAdded.subActive + chestAdded.subP1 + chestAdded.subP2 + chestAdded.subP3;
+      const totalBagPlusChestStellars = bag.stellars + chestAdded.stellars;
+      const totalBagPlusChestCot      = bag.cot + chestAdded.cot;
+      const totalBagPlusChestVeins    = bag.spiritveins + chestAdded.spiritveins;
+      const totalBagPlusChestGems     = bag.auroraGems + chestAdded.auroraGems;
 
-      // Main Resource Rows
       const rows = [
         {
-          name: 'Cores of Origin',
+          name: lockedPartialShardsSum > 0
+            ? `Cores of Origin (${lockedPartialShardsSum} Locked Shards Excluded)`
+            : 'Cores of Origin',
           color: 'text-rose-300',
           target: targetRow.cores,
           inHeroes: invested.cores,
           inBag: totalBagPlusChestCores,
           missing: Math.max(0, targetRow.cores - (invested.cores + totalBagPlusChestCores)),
           fmtVal: (v) => `${fmtDec(v, 2)} (${fmt(Math.round(v * 100))} Shards)`,
-          extraMissingText: (m) => `${fmtDec(m, 2)} Cores (${fmt(Math.round(m * 100))} Shards / ${fmtDec(m / 4, 2)} Full)`
+          extraMissingText: (m) => `${fmtDec(m, 2)} Cores (${fmt(Math.round(m * 100))} Universal Shards)`
         },
         {
           name: 'Sublimation (All 4 Branches)',
@@ -969,7 +1226,7 @@
           inHeroes: invested.subActive + invested.subP1 + invested.subP2 + invested.subP3,
           inBag: totalBagPlusChestSub,
           missing: totalSubMissing,
-          extraMissingText: (m) => `${fmt(m)} (${Math.ceil(m / 9000)}× 9k Relay Chests)`
+          extraMissingText: (m) => `${fmt(m)} (${Math.ceil(m / 45000)}× 45k Chests)`
         },
         {
           name: 'Spiritual Essences',
@@ -984,16 +1241,16 @@
           color: 'text-sky-300',
           target: targetRow.stellars,
           inHeroes: invested.stellars,
-          inBag: bag.stellars,
-          missing: Math.max(0, targetRow.stellars - (invested.stellars + bag.stellars))
+          inBag: totalBagPlusChestStellars,
+          missing: Math.max(0, targetRow.stellars - (invested.stellars + totalBagPlusChestStellars))
         },
         {
           name: 'CoT (Includes 5M per Trans Hero)',
           color: 'text-purple-300',
           target: targetRow.cot,
           inHeroes: invested.cot,
-          inBag: bag.cot,
-          missing: Math.max(0, targetRow.cot - (invested.cot + bag.cot))
+          inBag: totalBagPlusChestCot,
+          missing: Math.max(0, targetRow.cot - (invested.cot + totalBagPlusChestCot))
         },
         {
           name: 'Spiritveins',
@@ -1070,9 +1327,10 @@
           extraTrans: document.getElementById('hero_extraTrans').value,
         },
         infusionLevels,
+        partialCoreShards,
         bag: {
           fullCores: document.getElementById('bag_fullCores').value,
-          singleCores: document.getElementById('bag_singleCores').value,
+          coreChests50: document.getElementById('bag_coreChests50').value,
           coreShards: document.getElementById('bag_coreShards').value,
           subActive: document.getElementById('bag_subActive').value,
           subP1: document.getElementById('bag_subP1').value,
@@ -1086,16 +1344,25 @@
           auroraShards: document.getElementById('bag_auroraShards').value,
         },
         chests: {
+          sub90k: document.getElementById('chest_sub90k').value,
+          sub45k: document.getElementById('chest_sub45k').value,
+          sub1800: document.getElementById('chest_sub1800').value,
+          sub1: document.getElementById('chest_sub1').value,
+          transSphere: document.getElementById('chest_transSphere').value,
+          trans1: document.getElementById('chest_trans1').value,
+          monthlyF2p: document.getElementById('chest_monthlyF2p').value,
           relaySubCore: document.getElementById('chest_relaySubCore').value,
           relayDestiny: document.getElementById('chest_relayDestiny').value,
+          starExp: document.getElementById('chest_starExp').value,
+          imps: document.getElementById('chest_imps').value,
         }
       };
-      localStorage.setItem('ih_destiny_temple_v4', JSON.stringify(state));
+      localStorage.setItem('ih_destiny_temple_v5', JSON.stringify(state));
     }
 
     function loadFromStorage() {
       try {
-        const raw = localStorage.getItem('ih_destiny_temple_v4');
+        const raw = localStorage.getItem('ih_destiny_temple_v5');
         if (!raw) return;
         const s = JSON.parse(raw);
         if (s.currentLevel !== undefined) document.getElementById('currentLevel').value = s.currentLevel;
@@ -1110,6 +1377,11 @@
           infusionLevels = s.infusionLevels;
           document.getElementById('infusionCount').value = infusionLevels.length;
           renderInfusionInputs();
+        }
+        if (Array.isArray(s.partialCoreShards)) {
+          partialCoreShards = s.partialCoreShards;
+          document.getElementById('partialCoreCount').value = partialCoreShards.length;
+          renderPartialCoreInputs();
         }
         if (s.bag) {
           Object.keys(s.bag).forEach(k => {
@@ -1127,7 +1399,7 @@
     }
 
     function resetAll() {
-      localStorage.removeItem('ih_destiny_temple_v4');
+      localStorage.removeItem('ih_destiny_temple_v5');
       location.reload();
     }
 
