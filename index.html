@@ -90,7 +90,7 @@
         </div>
         <div class="flex items-center gap-1.5">
           <button onclick="adjustVal('hero_extraTrans', -1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">-</button>
-          <input id="hero_extraTrans" type="number" min="0" value="0" oninput="saveAndCalc()" class="w-20 bg-slate-900 border border-slate-700 rounded h-8 text-center font-bold text-purple-300 text-sm" />
+          <input id="hero_extraTrans" type="number" min="0" value="0" placeholder="0" oninput="saveAndCalc()" class="w-20 bg-slate-900 border border-slate-700 rounded h-8 text-center font-bold text-purple-300 text-sm focus:outline-none focus:border-purple-400" />
           <button onclick="adjustVal('hero_extraTrans', 1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">+</button>
         </div>
       </div>
@@ -110,7 +110,7 @@
           <div class="flex items-center gap-2">
             <span class="text-xs text-slate-300 font-medium">How many Infusion heroes?</span>
             <button onclick="changeArrCount('infusion', -1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">-</button>
-            <input id="infusionCount" type="number" min="0" max="30" value="0" oninput="onArrCountInput('infusion')" class="w-16 bg-slate-900 border border-cyan-500/40 rounded h-8 text-center font-bold text-cyan-300 text-sm" />
+            <input id="infusionCount" type="number" min="0" max="30" value="0" placeholder="0" oninput="onArrCountInput('infusion')" class="w-16 bg-slate-900 border border-cyan-500/40 rounded h-8 text-center font-bold text-cyan-300 text-sm focus:outline-none focus:border-cyan-400" />
             <button onclick="changeArrCount('infusion', 1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">+</button>
           </div>
         </div>
@@ -146,16 +146,16 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
-            <label class="block text-xs text-slate-300 font-medium mb-1">Ready Full Cores (3★ = 400/400 on 1 Hero)</label>
-            <input id="bag_fullCores" type="number" min="0" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-rose-400" />
+            <label class="block text-xs text-slate-300 font-medium mb-1">Ready Full Cores (3★ = 400 Shards)</label>
+            <input id="bag_fullCores" type="number" min="0" value="0" placeholder="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-rose-400" />
           </div>
           <div>
-            <label class="block text-xs text-slate-300 font-medium mb-1">50-Shard Core Chests (Universal = 0.5 Core)</label>
-            <input id="bag_coreChests50" type="number" min="0" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-rose-400" />
+            <label class="block text-xs text-slate-300 font-medium mb-1">50-Shard Chests (Universal = 0.5 Core)</label>
+            <input id="bag_coreChests50" type="number" min="0" value="0" placeholder="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-rose-400" />
           </div>
           <div>
             <label class="block text-xs text-slate-300 font-medium mb-1">Universal Core Shards (100 Shards = 1 Core)</label>
-            <input id="bag_coreShards" type="number" min="0" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-rose-400" />
+            <input id="bag_coreShards" type="number" min="0" value="0" placeholder="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-rose-400" />
           </div>
         </div>
 
@@ -167,7 +167,7 @@
             </div>
             <div class="flex items-center gap-1.5">
               <button onclick="changeArrCount('partialCore', -1)" class="w-7 h-7 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300 text-xs">-</button>
-              <input id="partialCoreCount" type="number" min="0" max="30" value="0" oninput="onArrCountInput('partialCore')" class="w-14 bg-slate-900 border border-rose-500/40 rounded h-7 text-center font-bold text-rose-300 text-xs" />
+              <input id="partialCoreCount" type="number" min="0" max="30" value="0" placeholder="0" oninput="onArrCountInput('partialCore')" class="w-14 bg-slate-900 border border-rose-500/40 rounded h-7 text-center font-bold text-rose-300 text-xs focus:outline-none focus:border-rose-400" />
               <button onclick="changeArrCount('partialCore', 1)" class="w-7 h-7 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300 text-xs">+</button>
             </div>
           </div>
@@ -183,19 +183,19 @@
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div>
             <label class="block text-xs text-blue-300 font-medium mb-1">Active Subli</label>
-            <input id="bag_subActive" type="text" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-blue-400" />
+            <input id="bag_subActive" type="text" value="0" placeholder="e.g. 180k" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-blue-400" />
           </div>
           <div>
             <label class="block text-xs text-amber-300 font-medium mb-1">Passive 1 (P1)</label>
-            <input id="bag_subP1" type="text" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-amber-400" />
+            <input id="bag_subP1" type="text" value="0" placeholder="e.g. 180k" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-amber-400" />
           </div>
           <div>
             <label class="block text-xs text-violet-300 font-medium mb-1">Passive 2 (P2)</label>
-            <input id="bag_subP2" type="text" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-violet-400" />
+            <input id="bag_subP2" type="text" value="0" placeholder="e.g. 180k" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-violet-400" />
           </div>
           <div>
             <label class="block text-xs text-rose-300 font-medium mb-1">Passive 3 / P4</label>
-            <input id="bag_subP3" type="text" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-rose-400" />
+            <input id="bag_subP3" type="text" value="0" placeholder="e.g. 180k" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-rose-400" />
           </div>
         </div>
       </div>
@@ -204,27 +204,27 @@
       <div class="grid grid-cols-2 lg:grid-cols-6 gap-3">
         <div class="bg-slate-850 border border-slate-800 rounded-xl p-3">
           <label class="block text-xs text-amber-300 font-semibold mb-1">Spiritual Essences</label>
-          <input id="bag_essences" type="text" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-amber-400" />
+          <input id="bag_essences" type="text" value="0" placeholder="e.g. 5M" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-amber-400" />
         </div>
         <div class="bg-slate-850 border border-slate-800 rounded-xl p-3">
           <label class="block text-xs text-sky-300 font-semibold mb-1">Stellar Shards</label>
-          <input id="bag_stellars" type="text" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-sky-400" />
+          <input id="bag_stellars" type="text" value="0" placeholder="e.g. 50M" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-sky-400" />
         </div>
         <div class="bg-slate-850 border border-slate-800 rounded-xl p-3">
           <label class="block text-xs text-purple-300 font-semibold mb-1">CoT (Trans Crystals)</label>
-          <input id="bag_cot" type="text" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-purple-400" />
+          <input id="bag_cot" type="text" value="0" placeholder="e.g. 20M" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-purple-400" />
         </div>
         <div class="bg-slate-850 border border-slate-800 rounded-xl p-3">
           <label class="block text-xs text-orange-300 font-semibold mb-1">Spiritveins</label>
-          <input id="bag_spiritveins" type="text" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-orange-400" />
+          <input id="bag_spiritveins" type="text" value="0" placeholder="e.g. 1.5M" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-orange-400" />
         </div>
         <div class="bg-slate-850 border border-slate-800 rounded-xl p-3">
           <label class="block text-xs text-cyan-300 font-semibold mb-1">Aurora Gems (Whole)</label>
-          <input id="bag_auroraGems" type="text" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-cyan-400" />
+          <input id="bag_auroraGems" type="text" value="0" placeholder="e.g. 45" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-cyan-400" />
         </div>
         <div class="bg-slate-850 border border-slate-800 rounded-xl p-3">
           <label class="block text-xs text-cyan-200 font-semibold mb-1">Aurora Shards (5k=1)</label>
-          <input id="bag_auroraShards" type="text" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-cyan-400" />
+          <input id="bag_auroraShards" type="text" value="0" placeholder="e.g. 3750" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-cyan-400" />
         </div>
       </div>
     </section>
@@ -239,7 +239,7 @@
         </div>
       </div>
 
-      <!-- Group A: Sublimation Chests (90k, 45k, 9k, 1800, 1) -->
+      <!-- Group A: Sublimation Chests -->
       <div class="bg-slate-850 border border-slate-800 rounded-xl p-4 space-y-3">
         <div>
           <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Sublimation Selection Chests</span>
@@ -248,23 +248,23 @@
         <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
           <div>
             <label class="block text-xs text-slate-300 font-semibold mb-1">90k Sub Chests</label>
-            <input id="chest_sub90k" type="text" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-emerald-300 font-bold text-sm focus:outline-none focus:border-emerald-400" />
+            <input id="chest_sub90k" type="text" value="0" placeholder="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-emerald-300 font-bold text-sm focus:outline-none focus:border-emerald-400" />
           </div>
           <div>
             <label class="block text-xs text-slate-300 font-semibold mb-1">45k Sub Chests</label>
-            <input id="chest_sub45k" type="text" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-emerald-300 font-bold text-sm focus:outline-none focus:border-emerald-400" />
+            <input id="chest_sub45k" type="text" value="0" placeholder="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-emerald-300 font-bold text-sm focus:outline-none focus:border-emerald-400" />
           </div>
           <div>
             <label class="block text-xs text-slate-300 font-semibold mb-1">9k Sub Chests</label>
-            <input id="chest_sub9k" type="text" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-emerald-300 font-bold text-sm focus:outline-none focus:border-emerald-400" />
+            <input id="chest_sub9k" type="text" value="0" placeholder="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-emerald-300 font-bold text-sm focus:outline-none focus:border-emerald-400" />
           </div>
           <div>
             <label class="block text-xs text-slate-300 font-semibold mb-1">1,800 Sub Chests</label>
-            <input id="chest_sub1800" type="text" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-emerald-300 font-bold text-sm focus:outline-none focus:border-emerald-400" />
+            <input id="chest_sub1800" type="text" value="0" placeholder="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-emerald-300 font-bold text-sm focus:outline-none focus:border-emerald-400" />
           </div>
           <div class="col-span-2 sm:col-span-1">
             <label class="block text-xs text-slate-300 font-semibold mb-1">1 Sub Chests (1 pt)</label>
-            <input id="chest_sub1" type="text" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-emerald-300 font-bold text-sm focus:outline-none focus:border-emerald-400" />
+            <input id="chest_sub1" type="text" value="0" placeholder="e.g. 45k" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-emerald-300 font-bold text-sm focus:outline-none focus:border-emerald-400" />
           </div>
         </div>
         <div id="plan_pureSub" class="bg-slate-900/90 border border-slate-800 rounded-lg p-3 text-xs"></div>
@@ -279,11 +279,11 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label class="block text-xs text-slate-300 font-semibold mb-1">Transcendence Spheres (250k Stellar or 250k CoT)</label>
-            <input id="chest_transSphere" type="text" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sky-300 font-bold text-sm focus:outline-none focus:border-sky-400" />
+            <input id="chest_transSphere" type="text" value="0" placeholder="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sky-300 font-bold text-sm focus:outline-none focus:border-sky-400" />
           </div>
           <div>
             <label class="block text-xs text-slate-300 font-semibold mb-1">Trans Chests (1 Stellar or 1 CoT each)</label>
-            <input id="chest_trans1" type="text" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sky-300 font-bold text-sm focus:outline-none focus:border-sky-400" />
+            <input id="chest_trans1" type="text" value="0" placeholder="e.g. 1.5M" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sky-300 font-bold text-sm focus:outline-none focus:border-sky-400" />
           </div>
         </div>
         <div id="plan_transChests" class="bg-slate-900/90 border border-slate-800 rounded-lg p-3 text-xs"></div>
@@ -508,7 +508,6 @@
       saveAndCalc();
     }
 
-    // Infusion Hero Refund
     function getSingleInfusionRefund(lvl) {
       const L = Math.max(1, Math.min(75, parseInt(lvl) || 1));
       const lvls16to40 = Math.max(0, Math.min(L, 40) - 15);
@@ -557,7 +556,7 @@
                  <button type="button" onclick="setArrVal('partialCore',${i},300)" class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300">300</button>`
             }
             <input type="number" min="1" max="${isInf ? 75 : 399}" value="${v}" oninput="setArrVal('${type}',${i},this.value,true)"
-              class="w-14 bg-slate-850 border border-slate-700 rounded px-2 py-1 text-center font-bold text-white text-xs" />
+              class="w-14 bg-slate-850 border border-slate-700 rounded px-2 py-1 text-center font-bold text-white text-xs focus:outline-none focus:border-amber-400" />
           </div>
         </div>
       `).join('');
@@ -652,7 +651,6 @@
     }
 
     function initUI() {
-      // Populate Temple Level Dropdowns
       const curSel = document.getElementById('currentLevel');
       const tgtSel = document.getElementById('targetLevel');
       const lvlOptions = TEMPLE_LEVELS.map(row => {
@@ -664,7 +662,6 @@
       curSel.value = "1";
       tgtSel.value = "5";
 
-      // Populate D0-D6 Hero Grid
       document.getElementById('heroGrid').innerHTML = HERO_DEFS.map(h => `
         <div class="bg-slate-850 border border-slate-800 rounded-xl p-3 flex flex-col justify-between">
           <div class="flex items-center justify-between gap-1 mb-1">
@@ -674,13 +671,12 @@
           <p class="text-[11px] text-slate-500 mb-2">${h.desc}</p>
           <div class="flex items-center gap-1">
             <button onclick="adjustVal('hero_${h.id}', -1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">-</button>
-            <input id="hero_${h.id}" type="number" min="0" value="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded h-8 text-center font-bold text-white text-sm" />
+            <input id="hero_${h.id}" type="number" min="0" value="0" placeholder="0" oninput="saveAndCalc()" class="w-full bg-slate-900 border border-slate-700 rounded h-8 text-center font-bold text-white text-sm focus:outline-none focus:border-amber-400" />
             <button onclick="adjustVal('hero_${h.id}', 1)" class="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">+</button>
           </div>
         </div>
       `).join('');
 
-      // Populate Mixed Chests Grid
       document.getElementById('mixedChestsGrid').innerHTML = MIXED_CHESTS.map(c => `
         <div class="bg-slate-850 border border-slate-800 rounded-xl p-4 flex flex-col justify-between space-y-3 ${c.colSpan || ''}">
           <div class="flex items-start justify-between gap-3">
@@ -689,7 +685,7 @@
               <h3 class="text-sm font-bold text-white mt-1.5">${c.title}</h3>
               <p class="text-xs text-slate-400 mt-0.5">${c.desc}</p>
             </div>
-            <input id="chest_${c.id}" type="text" value="0" oninput="saveAndCalc()" class="w-20 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-center font-bold text-white text-sm focus:outline-none focus:border-amber-400" />
+            <input id="chest_${c.id}" type="text" value="0" placeholder="0" oninput="saveAndCalc()" class="w-20 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-center font-bold text-white text-sm focus:outline-none focus:border-amber-400" />
           </div>
           <div id="plan_${c.id}" class="bg-slate-900/90 border border-slate-800 rounded-lg p-3 text-xs"></div>
         </div>
@@ -708,7 +704,6 @@
       const targetRow = TEMPLE_LEVELS.find(r => r.level === tgtLvl) || TEMPLE_LEVELS[0];
       document.getElementById('resTargetLvlLabel').textContent = targetRow.label;
 
-      // Owned Heroes
       const invested = {
         cores: 0, subActive: 0, subP1: 0, subP2: 0, subP3: 0,
         essences: 0, stellars: 0, cot: getNum('hero_extraTrans') * 5000000, spiritveins: 0, auroraGems: 0
@@ -731,7 +726,6 @@
       });
       document.getElementById('ownedTotalHeroes').textContent = totalOwnedDestiny;
 
-      // Infusion Refunds
       const infTotals = { stellars: 0, cot: 0, essences: 0, cores: 0, subActive: 0, subP1: 0, subP2: 0, subP3: 0 };
       infusionLevels.forEach(lvl => {
         const r = getSingleInfusionRefund(lvl);
@@ -754,7 +748,6 @@
       }
       Object.keys(infTotals).forEach(k => invested[k] += infTotals[k]);
 
-      // Hero-Specific Cores Logic
       const fullCoresInBag = getNum('bag_fullCores');
       const coreChests50   = getNum('bag_coreChests50');
       const looseUniShards = getNum('bag_coreShards');
@@ -873,7 +866,7 @@
         `;
       }
 
-      // 2. Allocate Trans Spheres (250k) & 1-pt Trans Chests
+      // 2. Allocate Trans Spheres & Trans Chests
       const cSphere = getNum('chest_transSphere');
       const cTrans1 = getNum('chest_trans1');
       const rSphere = allocateChestType(cSphere, [
@@ -1080,7 +1073,8 @@
         const s = JSON.parse(raw);
         INPUT_IDS.forEach(id => {
           const el = document.getElementById(id);
-          if (el && s[id] !== undefined) el.value = s[id];
+          // If the saved value is an empty string, set it back to "0"
+          if (el && s[id] !== undefined) el.value = s[id] === '' ? '0' : s[id];
         });
         if (Array.isArray(s.infusionLevels)) {
           infusionLevels = s.infusionLevels;
