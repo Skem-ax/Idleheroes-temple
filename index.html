@@ -244,11 +244,11 @@
       { id: 'd6', label: 'D6', desc: '2.40M Veins', color: 'fuchsia', gems: 60, costs: { stellars:24929590, spiritveins:2400536, auroraGems:60, cotOff: 4610000 } }
     ];
     const MIXED_CHESTS = [
-      { id: 'monthlyF2p', badge: 'amber', title: 'Monthly F2P Chest', desc: '2,5k Stellar/CoT or 180 Sub', color: 'amber', opts: [{key:'Stellars', deficitKey:'stellars', amt:2500, c:'sky'}, {key:'CoT', deficitKey:'cot', amt:2500, c:'purple'}, 'SUB_180'] },
-      { id: 'relaySubCore', badge: 'emerald', title: 'Relay 1× Sub / Core Chest', desc: '9k Sub or 5 Core Shards', color: 'emerald', opts: ['SUB_9000', {key:'Cores', deficitKey:'cores', amt:0.05, c:'rose'}] },
-      { id: 'relayDestiny', badge: 'cyan', title: 'Relay 1× Destiny Pick Chest', desc: '30k Veins or 3,750 Gems', color: 'cyan', opts: [{key:'Spiritveins', deficitKey:'spiritveins', amt:30000, c:'orange'}, {key:'AuroraGems', deficitKey:'auroraGems', amt:0.75, c:'cyan'}] },
-      { id: 'starExp', badge: 'violet', title: 'Star Expedition Chest', desc: '25k S/CoT, 1800 Sub, 1 Core, 5k Veins...', color: 'violet', opts: [{key:'Stellars', deficitKey:'stellars', amt:25000, c:'sky'}, {key:'CoT', deficitKey:'cot', amt:25000, c:'purple'}, 'SUB_1800', {key:'Cores', deficitKey:'cores', amt:0.01, c:'rose'}, {key:'Spiritveins', deficitKey:'spiritveins', amt:5000, c:'orange'}, {key:'AuroraGems', deficitKey:'auroraGems', amt:0.125, c:'cyan'}] },
-      { id: 'imps', badge: 'rose', title: 'Imp\'s Chest', desc: '62k S/CoT, 4.5k Sub, 3 Cores, 12k Veins...', color: 'rose', colSpan: 'md:col-span-2', opts: [{key:'Stellars', deficitKey:'stellars', amt:62000, c:'sky'}, {key:'CoT', deficitKey:'cot', amt:62000, c:'purple'}, 'SUB_4500', {key:'Cores', deficitKey:'cores', amt:0.03, c:'rose'}, {key:'Spiritveins', deficitKey:'spiritveins', amt:12000, c:'orange'}, {key:'AuroraGems', deficitKey:'auroraGems', amt:0.3, c:'cyan'}] }
+      { id: 'monthlyF2p', badge: 'amber', title: 'Monthly F2P Chest', desc: '2,5k Stellar/CoT or 180 Sub', color: 'amber', opts: [{key:'Stellars', deficitKey:'stellars', amount:2500, c:'sky'}, {key:'CoT', deficitKey:'cot', amount:2500, c:'purple'}, 'SUB_180'] },
+      { id: 'relaySubCore', badge: 'emerald', title: 'Relay 1× Sub / Core Chest', desc: '9k Sub or 5 Core Shards', color: 'emerald', opts: ['SUB_9000', {key:'Cores', deficitKey:'cores', amount:0.05, c:'rose'}] },
+      { id: 'relayDestiny', badge: 'cyan', title: 'Relay 1× Destiny Pick Chest', desc: '30k Veins or 3,750 Gems', color: 'cyan', opts: [{key:'Spiritveins', deficitKey:'spiritveins', amount:30000, c:'orange'}, {key:'AuroraGems', deficitKey:'auroraGems', amount:0.75, c:'cyan'}] },
+      { id: 'starExp', badge: 'violet', title: 'Star Expedition Chest', desc: '25k S/CoT, 1800 Sub, 1 Core, 5k Veins...', color: 'violet', opts: [{key:'Stellars', deficitKey:'stellars', amount:25000, c:'sky'}, {key:'CoT', deficitKey:'cot', amount:25000, c:'purple'}, 'SUB_1800', {key:'Cores', deficitKey:'cores', amount:0.01, c:'rose'}, {key:'Spiritveins', deficitKey:'spiritveins', amount:5000, c:'orange'}, {key:'AuroraGems', deficitKey:'auroraGems', amount:0.125, c:'cyan'}] },
+      { id: 'imps', badge: 'rose', title: 'Imp\'s Chest', desc: '62k S/CoT, 4.5k Sub, 3 Cores, 12k Veins...', color: 'rose', colSpan: 'md:col-span-2', opts: [{key:'Stellars', deficitKey:'stellars', amount:62000, c:'sky'}, {key:'CoT', deficitKey:'cot', amount:62000, c:'purple'}, 'SUB_4500', {key:'Cores', deficitKey:'cores', amount:0.03, c:'rose'}, {key:'Spiritveins', deficitKey:'spiritveins', amount:12000, c:'orange'}, {key:'AuroraGems', deficitKey:'auroraGems', amount:0.3, c:'cyan'}] }
     ];
 
     const INPUT_IDS = [
@@ -329,6 +329,7 @@
       let rem = count, picks = { saved: 0 }, added = {};
       opts.forEach(o => { picks[o.key]=0; added[o.deficitKey]=0; });
       while(rem > 0) {
+        // Find which option clears the MOST deficit relative to what the chest offers
         const act = opts.map(o => ({...o, req: deficits[o.deficitKey]/o.amount})).filter(o => o.req > 1e-9).sort((a,b) => b.req - a.req);
         if(!act.length) { picks.saved += rem; break; }
         const step = rem > 2000 ? Math.min(rem, Math.max(1, act.length===1 ? Math.ceil(act[0].req) : Math.floor(act[0].req - act[1].req) || Math.floor(rem/1000))) : 1;
