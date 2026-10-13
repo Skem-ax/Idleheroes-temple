@@ -1,0 +1,1656 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Idle Heroes • Destiny Temple Calculator</title>
+  <link rel="icon" type="image/webp" href="icons/divine_power.webp" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              ink: '#060c18',
+              panel: '#0d1829',
+              card: '#122035',
+              border: '#23364f',
+              borderLight: '#324a6b',
+              gold: '#e0c777',
+              goldSoft: '#b59e56',
+              goldMuted: '#6f6032',
+              cyan: '#38bdf8',
+              emerald: '#34d399',
+              rose: '#fb7185',
+              purple: '#c084fc'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
+    :root {
+      --bg-ink: #060c18;
+      --bg-panel: #0d1829;
+      --bg-card: #122035;
+      --border-line: #23364f;
+      --border-line-hover: #3b557b;
+      --text-gold: #e0c777;
+      --text-muted: #8ca2bf;
+    }
+    * {
+      box-sizing: border-box;
+      scrollbar-width: thin;
+      scrollbar-color: #2a4161 #080f1d;
+    }
+    button, select, input[type="number"] {
+      cursor: pointer;
+    }
+    body {
+      background-color: var(--bg-ink);
+      color: #e2e8f0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      overflow-x: hidden;
+    }
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .dash-panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-line);
+      border-radius: 0.875rem;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.45);
+      position: relative;
+    }
+    .dash-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-line);
+      border-radius: 0.625rem;
+    }
+    .btn-stepper {
+      width: 1.5rem;
+      height: 1.5rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0.375rem;
+      background: #182942;
+      border: 1px solid var(--border-line);
+      color: #cbd5e1;
+      font-size: 0.85rem;
+      font-weight: 700;
+      transition: all 0.15s ease;
+      cursor: pointer;
+      user-select: none;
+    }
+    .btn-stepper:hover {
+      background: #233b5c;
+      color: var(--text-gold);
+      border-color: var(--border-line-hover);
+    }
+    .btn-stepper:active {
+      transform: scale(0.95);
+    }
+    .input-clean {
+      background: #08111e;
+      border: 1px solid var(--border-line);
+      border-radius: 0.45rem;
+      color: #f8fafc;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-align: center;
+      transition: border-color 0.15s ease;
+      outline: none;
+    }
+    .input-clean:focus {
+      border-color: var(--text-gold);
+      box-shadow: 0 0 0 2px rgba(224, 199, 119, 0.15);
+    }
+    .action-icon-btn {
+      width: 1.75rem;
+      height: 1.75rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0.45rem;
+      background: #14243b;
+      border: 1px solid var(--border-line);
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .action-icon-btn:hover {
+      background: #1e3352;
+      color: var(--text-gold);
+      border-color: var(--text-gold);
+    }
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      background: rgba(4, 9, 18, 0.82);
+      backdrop-filter: blur(8px);
+    }
+    .resource-icon {
+      width: 1.15rem;
+      height: 1.15rem;
+      object-fit: contain;
+      display: inline-block;
+      vertical-align: -0.2rem;
+      margin-right: 0.25rem;
+      flex-shrink: 0;
+    }
+    .results-table th,
+    .results-table td {
+      border-bottom: 1px solid rgba(50, 74, 107, 0.7);
+    }
+    .results-table th + th,
+    .results-table td + td {
+      border-left: 1px solid rgba(50, 74, 107, 0.45);
+    }
+    .results-table tbody tr:last-child td {
+      border-bottom: 0;
+    }
+    .results-table td {
+      overflow-wrap: anywhere;
+      line-height: 1.35;
+    }
+    /* Mobile results drawer */
+    @media (max-width: 1023px) {
+      #step5.drawer-mode {
+        position: fixed;
+        inset: 0;
+        z-index: 90;
+        background: var(--bg-ink);
+        overflow-y: auto;
+        padding: 1rem;
+        display: none;
+      }
+      #step5.drawer-mode.drawer-open {
+        display: block;
+      }
+    }
+    @media (max-width: 480px) {
+      #step5 .results-table {
+        font-size: 11px;
+      }
+      #step5 .results-table th,
+      #step5 .results-table td {
+        padding-top: 0.6rem;
+        padding-bottom: 0.6rem;
+      }
+      #step5 .results-resource-label {
+        display: none;
+      }
+      #step5 .resource-icon {
+        margin-right: 0;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen text-slate-200 antialiased selection:bg-brand-gold/30 selection:text-white">
+
+  <!-- Application Header -->
+  <header class="border-b border-brand-border bg-brand-ink/90 backdrop-blur sticky top-0 z-40">
+    <div class="max-w-[1600px] mx-auto px-4 py-3 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-amber-600 to-brand-gold flex items-center justify-center font-black text-slate-950 text-sm shadow-md">
+          DT
+        </div>
+        <div>
+          <h1 class="text-base sm:text-lg font-extrabold tracking-tight text-white flex items-center gap-2">
+            Idle Heroes <span class="text-xs px-2 py-0.5 rounded bg-brand-card border border-brand-border text-brand-gold font-mono">Destiny Temple Calculator</span>
+          </h1>
+          <p class="text-[11px] text-brand-muted hidden sm:block">Full resource audit, infusion refunds, and smart pick chest optimizer</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2.5">
+        <button onclick="toggleMobileResults()" class="lg:hidden px-3 py-1.5 rounded-lg bg-brand-gold/20 border border-brand-gold/40 text-brand-gold font-bold text-xs flex items-center gap-1.5 hover:bg-brand-gold/30 transition">
+          📊 <span>View Results</span>
+        </button>
+        <button onclick="resetAllData()" class="px-3 py-1.5 rounded-lg bg-brand-card hover:bg-rose-950/40 hover:text-rose-300 border border-brand-border hover:border-rose-500/40 font-medium text-xs text-slate-300 transition flex items-center gap-1">
+          ↺ <span>Reset</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Dashboard Main Grid Container -->
+  <main class="max-w-[1600px] mx-auto p-3 sm:p-4 md:p-5 space-y-4">
+
+    <!-- ==================== TOP ROW: S1 (~25%) & S2 (~75%) ==================== -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+
+      <!-- SECTION 1: TEMPLE LEVELS (~25% width / 3 cols) -->
+      <section id="step1" class="lg:col-span-3 dash-panel p-4 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between border-b border-brand-border/70 pb-3 mb-3">
+            <div class="flex items-center gap-2.5">
+              <span class="w-6 h-6 rounded-md bg-brand-gold/20 border border-brand-gold/40 text-brand-gold font-bold text-xs flex items-center justify-center">1</span>
+              <div>
+                <h2 class="text-sm font-bold text-white tracking-wide">Temple Levels</h2>
+                <p class="text-[11px] text-brand-muted">Target milestone planner</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Level Selectors -->
+          <div class="grid grid-cols-2 gap-3 mb-4">
+            <!-- Current Level -->
+            <div class="dash-card p-3 text-center">
+              <label class="block text-[10px] uppercase font-bold tracking-wider text-brand-muted mb-1.5" for="currentLevel">Current</label>
+              <div class="relative">
+                <select id="currentLevel" onchange="onLevelChange()" class="w-full bg-[#08111e] border border-brand-border rounded-lg py-2 px-2 text-center text-sm font-bold text-white focus:outline-none focus:border-brand-gold cursor-pointer transition" aria-label="Current temple level"></select>
+              </div>
+              <span id="currentDpBadge" class="inline-flex mt-2 text-[10px] font-bold font-mono px-1.5 py-0.5 rounded bg-slate-500/10 text-slate-300 border border-slate-500/30">DP +0</span>
+              <div id="currentReqIcons" class="mt-2 text-[11px] flex flex-wrap items-center justify-center gap-1 text-slate-400 min-h-[22px]"></div>
+            </div>
+
+            <!-- Target Level -->
+            <div class="dash-card p-3 text-center border-brand-gold/40 bg-brand-gold/5">
+              <label class="block text-[10px] uppercase font-bold tracking-wider text-brand-gold mb-1.5" for="targetLevel">Target</label>
+              <div class="relative">
+                <select id="targetLevel" onchange="onLevelChange()" class="w-full bg-[#08111e] border border-brand-gold/50 rounded-lg py-2 px-2 text-center text-sm font-bold text-brand-gold focus:outline-none focus:border-brand-gold cursor-pointer transition" aria-label="Target temple level"></select>
+              </div>
+              <span id="targetDpBadge" class="inline-flex mt-2 text-[10px] font-bold font-mono px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/30">DP +3</span>
+              <div id="targetReqIcons" class="mt-2 text-[11px] flex flex-wrap items-center justify-center gap-1 text-brand-gold font-semibold min-h-[22px]"></div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- SECTION 2: DESTINY HEROES & INFUSIONS (~75% width / 9 cols) -->
+      <section id="step2" class="lg:col-span-9 dash-panel p-4 flex flex-col justify-between">
+        <!-- Section Header -->
+        <div class="flex items-center justify-between flex-wrap gap-2 border-b border-brand-border/70 pb-3 mb-3">
+          <div class="flex items-center gap-2.5">
+            <span class="w-6 h-6 rounded-md bg-brand-gold/20 border border-brand-gold/40 text-brand-gold font-bold text-xs flex items-center justify-center">2</span>
+            <div>
+              <h2 class="text-sm font-bold text-white tracking-wide">Destiny Heroes, Transcendence & Infusions</h2>
+              <p class="text-[11px] text-brand-muted"><span class="text-brand-gold font-semibold">D0 = D1 Lv.1</span> • Each Destiny Hero provides 5M CoT + 4 Cores + 4× 180k Sublis credit</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-[11px] text-brand-muted">Total Destiny Heroes Owned:</span>
+            <span id="totalOwnedHeroesBadge" class="px-2 py-0.5 rounded bg-brand-card border border-brand-gold/40 text-brand-gold font-mono font-bold text-xs">0</span>
+          </div>
+        </div>
+
+        <!-- Section 2 Internal Grid: Left 7 Hero Cards & Right Stacked Sidebars -->
+        <div class="grid grid-cols-1 xl:grid-cols-12 gap-3.5 items-stretch">
+
+          <!-- Left: 7 Destiny Hero Cards (xl: 8 cols) -->
+          <div class="xl:col-span-8 2xl:col-span-9">
+            <div id="destinyHeroCards" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+              <!-- Populated by renderHeroCards() -->
+            </div>
+          </div>
+
+          <!-- Right: Stacked Transcendence & Infusions (xl: 4 cols) -->
+          <div class="xl:col-span-4 2xl:col-span-3 flex flex-col justify-between gap-2.5">
+
+            <!-- Card 1: Other Transcendence (Top) -->
+            <div class="dash-card p-3 border-purple-500/30 flex flex-col justify-between">
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-1.5">
+                  <img src="icons/cot.webp" class="resource-icon m-0" alt="CoT" onerror="imgFallback(this,'CoT')">
+                  <h3 class="text-xs font-bold text-purple-300">Other Transcendence</h3>
+                </div>
+                <button onclick="openModal('modalTransInfo')" class="action-icon-btn text-[11px]" title="Transcendence details">ⓘ</button>
+              </div>
+              <p class="text-[11px] text-brand-muted mb-2.5">Non-Destiny trans heroes (+5M CoT each)</p>
+              <div class="flex items-center justify-between bg-[#08111e] border border-brand-border rounded-lg p-1.5">
+                <span class="text-xs font-semibold text-slate-300 ml-1">Heroes</span>
+                <div class="flex items-center gap-1">
+                  <button onclick="adjustInput('hero_extraTrans', -1)" class="btn-stepper">−</button>
+                  <input id="hero_extraTrans" type="number" min="0" value="0" placeholder="0" oninput="saveAndCalc()" class="input-clean w-12 h-6 text-purple-300" />
+                  <button onclick="adjustInput('hero_extraTrans', 1)" class="btn-stepper">+</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 2: Infusions (Temporary Regression) (Bottom) -->
+            <div class="dash-card p-3 border-cyan-500/30 flex flex-col justify-between">
+              <div class="flex items-center justify-between mb-1.5">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-cyan-400 font-bold text-xs">🌀 Infusions</span>
+                  <span class="text-[10px] text-brand-muted">(Temp. Regression)</span>
+                </div>
+                <div class="flex items-center gap-1">
+                  <button onclick="openModal('modalRegressionInfo')" class="action-icon-btn text-[11px]" title="Temporary regression info">ⓘ</button>
+                  <button onclick="openModal('modalInfusionManage')" class="action-icon-btn text-cyan-300 hover:text-cyan-200 text-xs" title="Manage Infusion heroes">⚙</button>
+                </div>
+              </div>
+
+              <!-- Front page strictly visual display -->
+              <div class="space-y-2 mt-1">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="text-brand-muted text-[11px]">Infused Heroes:</span>
+                  <span id="infusionCountBadge" class="font-bold text-cyan-300 font-mono">0 configured</span>
+                </div>
+                
+                <!-- Chips view of configured levels -->
+                <div id="infusionChipsContainer" class="flex flex-wrap gap-1 min-h-[26px] max-h-[58px] overflow-y-auto py-0.5">
+                  <span class="text-[11px] text-slate-500 italic">None configured. Click ⚙ to configure.</span>
+                </div>
+
+                <!-- Live Refund Summary -->
+                <div id="infusionRefundPills" class="hidden text-[10px] border-t border-brand-border/60 pt-2 flex flex-wrap gap-1.5 font-mono">
+                  <!-- Filled dynamically -->
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ==================== BOTTOM ROW: S3 (~29%), S4 (~29%), S5 (~42%) ==================== -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+
+      <!-- SECTION 3: BAG INVENTORY (~29% width / 3.5-4 cols -> lg:col-span-3 xl:col-span-3) -->
+      <section id="step3" class="lg:col-span-4 xl:col-span-3 dash-panel p-4 flex flex-col justify-between">
+        <div>
+          <!-- Section 3 Header -->
+          <div class="flex items-center justify-between border-b border-brand-border/70 pb-3 mb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-md bg-brand-gold/20 border border-brand-gold/40 text-brand-gold font-bold text-xs flex items-center justify-center">3</span>
+              <div>
+                <h2 class="text-sm font-bold text-white tracking-wide">Bag Inventory</h2>
+                <p class="text-[11px] text-brand-muted">Read-only live status</p>
+              </div>
+            </div>
+            <button onclick="openModal('modalBagManage')" class="px-2 py-1 rounded bg-brand-card hover:bg-[#1a2d47] border border-brand-border hover:border-brand-gold/50 text-xs font-semibold text-brand-gold transition flex items-center gap-1.5" title="Edit Bag Resources">
+              <span>⚙</span> <span>Manage</span>
+            </button>
+          </div>
+
+          <!-- Bag Highlights Overview -->
+          <div class="space-y-2.5">
+            <!-- Cores Card -->
+            <div class="dash-card p-2.5 border-rose-500/30">
+              <div class="flex items-center justify-between text-xs mb-1">
+                <span class="font-bold text-rose-300 flex items-center gap-1">
+                  <img src="icons/core_chest.webp" class="resource-icon m-0" alt="Cores" onerror="imgFallback(this,'Cores')"> Usable Cores
+                </span>
+                <span id="bagSummaryCoresVal" class="font-mono font-bold text-rose-300">0.00</span>
+              </div>
+              <div id="bagPartialHeroesBadge" class="text-[10px] text-brand-muted flex items-center justify-between">
+                <span>Partial hero shards:</span>
+                <span id="bagSummaryPartialCount" class="font-mono text-slate-300">0 heroes</span>
+              </div>
+            </div>
+
+            <!-- Sublimations Card -->
+            <div class="dash-card p-2.5 border-emerald-500/30">
+              <div class="flex items-center justify-between text-xs mb-1.5">
+                <span class="font-bold text-emerald-300 flex items-center gap-1">
+                  <img src="icons/subs.webp" class="resource-icon m-0" alt="Subs" onerror="imgFallback(this,'Sub')"> Opened Sublis
+                </span>
+                <span id="bagSummarySubTotal" class="font-mono font-bold text-emerald-300">0</span>
+              </div>
+              <div class="grid grid-cols-4 gap-1 text-[10px] text-center font-mono">
+                <div class="bg-[#08111e] rounded p-1 border border-blue-500/30 text-blue-300" id="bagSummarySubActive">Act: 0</div>
+                <div class="bg-[#08111e] rounded p-1 border border-amber-500/30 text-amber-300" id="bagSummarySubP1">P1: 0</div>
+                <div class="bg-[#08111e] rounded p-1 border border-violet-500/30 text-violet-300" id="bagSummarySubP2">P2: 0</div>
+                <div class="bg-[#08111e] rounded p-1 border border-rose-500/30 text-rose-300" id="bagSummarySubP3">P3: 0</div>
+              </div>
+            </div>
+
+            <!-- Currencies Grid -->
+            <div class="grid grid-cols-2 gap-1.5 text-xs font-mono">
+              <div class="dash-card p-2 flex items-center justify-between">
+                <span class="text-[11px] text-slate-300 flex items-center"><img src="icons/stellar.webp" class="resource-icon m-0" alt="Stellar" onerror="imgFallback(this,'St')"> Stellar</span>
+                <span id="bagSummaryStellar" class="text-sky-300 font-bold">0</span>
+              </div>
+              <div class="dash-card p-2 flex items-center justify-between">
+                <span class="text-[11px] text-slate-300 flex items-center"><img src="icons/cot.webp" class="resource-icon m-0" alt="CoT" onerror="imgFallback(this,'CoT')"> CoT</span>
+                <span id="bagSummaryCot" class="text-purple-300 font-bold">0</span>
+              </div>
+              <div class="dash-card p-2 flex items-center justify-between">
+                <span class="text-[11px] text-slate-300 flex items-center"><img src="icons/spiritual_essence.webp" class="resource-icon m-0" alt="Essence" onerror="imgFallback(this,'Ess')"> Essence</span>
+                <span id="bagSummaryEssence" class="text-amber-300 font-bold">0</span>
+              </div>
+              <div class="dash-card p-2 flex items-center justify-between">
+                <span class="text-[11px] text-slate-300 flex items-center"><img src="icons/spiritvein.webp" class="resource-icon m-0" alt="Veins" onerror="imgFallback(this,'Vein')"> Veins</span>
+                <span id="bagSummaryVeins" class="text-orange-300 font-bold">0</span>
+              </div>
+              <div class="dash-card p-2 col-span-2 flex items-center justify-between">
+                <span class="text-[11px] text-slate-300 flex items-center"><img src="icons/aurora_gem.webp" class="resource-icon m-0" alt="Gems" onerror="imgFallback(this,'Gem')"> Aurora Gems & Shards</span>
+                <span id="bagSummaryGems" class="text-cyan-300 font-bold">0.00</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-3 text-center">
+          <p class="text-[10px] text-brand-muted">Click ⚙ Manage to input your bag contents</p>
+        </div>
+      </section>
+
+      <!-- SECTION 4: CHESTS & OPTIMIZER (~29% width / 4 cols -> lg:col-span-4 xl:col-span-4) -->
+      <section id="step4" class="lg:col-span-4 xl:col-span-4 dash-panel p-4 flex flex-col justify-between">
+        <div>
+          <!-- Section 4 Header -->
+          <div class="flex items-center justify-between border-b border-brand-border/70 pb-3 mb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-md bg-brand-gold/20 border border-brand-gold/40 text-brand-gold font-bold text-xs flex items-center justify-center">4</span>
+              <div>
+                <h2 class="text-sm font-bold text-white tracking-wide">Chests & Optimizer</h2>
+                <p class="text-[11px] text-brand-muted">Smart Pick allocation</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <button onclick="openModal('modalOptimizerInfo')" class="action-icon-btn text-xs" title="Optimizer algorithm details">ⓘ</button>
+              <button onclick="openModal('modalChestsManage')" class="px-2 py-1 rounded bg-brand-card hover:bg-[#1a2d47] border border-brand-border hover:border-brand-gold/50 text-xs font-semibold text-brand-gold transition flex items-center gap-1.5" title="Edit Chest Counts">
+                <span>⚙</span> <span>Manage</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Optimizer Recommendations Front-page Cards -->
+          <div class="space-y-2.5">
+            <!-- Pure Sublimation Chests Allocation -->
+            <div class="dash-card p-2.5 border-emerald-500/30">
+              <div class="flex items-center justify-between text-xs mb-1.5">
+                <span class="font-bold text-emerald-300">Sublimation Chest Picks</span>
+                <span id="optSummaryPureSubTotal" class="text-[11px] text-slate-400 font-mono">0 chests</span>
+              </div>
+              <div id="optSummaryPureSubBadges" class="flex flex-wrap gap-1 text-[11px]">
+                <span class="text-[11px] text-slate-500 italic">No sublimation chests entered.</span>
+              </div>
+            </div>
+
+            <!-- Transcendence Spheres / Chests Allocation -->
+            <div class="dash-card p-2.5 border-purple-500/30">
+              <div class="flex items-center justify-between text-xs mb-1.5">
+                <span class="font-bold text-purple-300">Transcendence Picks</span>
+                <span id="optSummaryTransTotal" class="text-[11px] text-slate-400 font-mono">0 chests</span>
+              </div>
+              <div id="optSummaryTransBadges" class="flex flex-wrap gap-1 text-[11px]">
+                <span class="text-[11px] text-slate-500 italic">No spheres or trans chests entered.</span>
+              </div>
+            </div>
+
+            <!-- Mixed Chests Allocation -->
+            <div class="dash-card p-2.5 border-brand-border">
+              <div class="flex items-center justify-between text-xs mb-1.5">
+                <span class="font-bold text-brand-gold">Mixed Chests Allocation</span>
+                <span id="optSummaryMixedTotal" class="text-[11px] text-slate-400 font-mono">0 chests</span>
+              </div>
+              <div id="optSummaryMixedBadges" class="flex flex-wrap gap-1 text-[11px] max-h-[85px] overflow-y-auto">
+                <span class="text-[11px] text-slate-500 italic">No mixed chests entered.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-3 text-center">
+          <p class="text-[10px] text-brand-muted">Click ⚙ Manage to enter chest counts</p>
+        </div>
+      </section>
+
+      <!-- SECTION 5: LIVE RESULTS (~42% width / 5 cols -> lg:col-span-4 xl:col-span-5) -->
+      <section id="step5" class="drawer-mode lg:col-span-4 xl:col-span-5 dash-panel p-4 flex flex-col justify-between">
+        <div>
+          <!-- Section 5 Header -->
+          <div class="flex items-center justify-between flex-wrap gap-2 border-b border-brand-border/70 pb-3 mb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-md bg-brand-gold/20 border border-brand-gold/40 text-brand-gold font-bold text-xs flex items-center justify-center">5</span>
+              <div>
+                <h2 class="text-sm font-bold text-white tracking-wide">Results & Gaps</h2>
+                <p id="resSubHeader" class="text-[11px] text-brand-muted">Target milestone audit</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <div id="resOverallBadge" class="px-2.5 py-1 rounded-md text-xs font-bold font-mono">
+                Checking...
+              </div>
+              <button type="button" onclick="toggleMobileResults()" class="lg:hidden px-2 py-1 rounded-md border border-brand-border text-brand-muted hover:text-brand-gold hover:border-brand-gold/50 text-xs font-bold transition" aria-label="Close results">
+                ← Back
+              </button>
+            </div>
+          </div>
+
+          <!-- Hero Status Banner -->
+          <div id="resHeroAlertBanner" class="dash-card p-2 mb-3 text-xs flex items-center justify-between border-brand-border bg-[#08111e]">
+            <span class="text-slate-300">Destiny Heroes Check:</span>
+            <span id="resHeroStatusSpan" class="font-bold font-mono">0 / 5</span>
+          </div>
+
+          <!-- Sublimation 4-Branch Status Grid -->
+          <div class="mb-3">
+            <h3 class="text-[10px] font-bold uppercase tracking-wider text-brand-muted mb-1.5">Sublimation Branches</h3>
+            <div class="grid grid-cols-3 gap-1 text-[10px]">
+              <div id="cardSubActive" class="dash-card p-1.5 border-blue-500/30">
+                <div class="flex justify-between items-center"><span class="text-blue-300 font-bold">Active</span><span id="badgeSubActive" class="font-mono font-bold">--</span></div>
+                <div class="font-mono text-slate-400" id="valSubActive">0 / 0</div>
+              </div>
+              <div id="cardSubP1" class="dash-card p-1.5 border-amber-500/30">
+                <div class="flex justify-between items-center"><span class="text-amber-300 font-bold">P1</span><span id="badgeSubP1" class="font-mono font-bold">--</span></div>
+                <div class="font-mono text-slate-400" id="valSubP1">0 / 0</div>
+              </div>
+              <div id="cardSubP2" class="dash-card p-1.5 border-violet-500/30">
+                <div class="flex justify-between items-center"><span class="text-violet-300 font-bold">P2</span><span id="badgeSubP2" class="font-mono font-bold">--</span></div>
+                <div class="font-mono text-slate-400" id="valSubP2">0 / 0</div>
+              </div>
+              <div id="cardSubP3" class="dash-card p-1.5 border-rose-500/30">
+                <div class="flex justify-between items-center"><span class="text-rose-300 font-bold flex items-center gap-0.5"><img src="icons/subs.webp" class="w-3.5 h-3.5 object-contain" alt="Subs">P3</span><span id="badgeSubP3" class="font-mono font-bold">--</span></div>
+                <div class="font-mono text-slate-400" id="valSubP3">0 / 0</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Comprehensive Comparison Table (No horizontal scroll, fully fitted) -->
+          <div class="dash-card overflow-hidden border-brand-border">
+            <table class="results-table w-full table-fixed text-left text-[11px] sm:text-xs border-collapse">
+              <thead>
+                <tr class="bg-[#08111e] border-b border-brand-border text-brand-muted text-[10px] uppercase font-bold tracking-wider">
+                  <th class="w-[28%] py-2 px-1.5 sm:px-2.5">Resource</th>
+                  <th class="w-[17.5%] py-2 px-1 text-right">Target</th>
+                  <th class="w-[15%] py-2 px-1 text-right">Heroes</th>
+                  <th class="w-[20%] py-2 px-1 text-right">Bag+Box</th>
+                  <th class="w-[19.5%] py-2 px-1.5 sm:px-2.5 text-right">Missing</th>
+                </tr>
+              </thead>
+              <tbody id="resultsTableBody" class="divide-y divide-brand-border/40 font-mono">
+                <!-- Dynamically populated rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ==================== MODALS CONTAINER ==================== -->
+
+  <!-- MODAL: Infusion Manager (⚙) -->
+  <div id="modalInfusionManage" class="modal-backdrop hidden" onclick="if(event.target===this)closeModal('modalInfusionManage')">
+    <div class="dash-panel p-5 max-w-xl w-full max-h-[90vh] overflow-y-auto space-y-4 border-cyan-500/40">
+      <div class="flex items-start justify-between border-b border-brand-border pb-3">
+        <div>
+          <h3 class="text-base font-bold text-white flex items-center gap-2">
+            <span>⚙</span> Configure Infusion Heroes
+          </h3>
+          <p class="text-xs text-brand-muted">Select each hero's level to calculate temporary regression refunds</p>
+        </div>
+        <button onclick="closeModal('modalInfusionManage')" class="action-icon-btn">✕</button>
+      </div>
+
+      <!-- Add / Remove Count Controls -->
+      <div class="dash-card p-3 flex items-center justify-between">
+        <div>
+          <span class="text-xs font-bold text-white">Number of Infusion Heroes</span>
+          <p class="text-[11px] text-brand-muted">Maximum 30 heroes</p>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button onclick="changeInfusionCount(-1)" class="btn-stepper w-8 h-8 text-base">−</button>
+          <input id="modalInfusionInputCount" type="number" min="0" max="30" value="0" oninput="onInfusionCountDirectInput()" class="input-clean w-14 h-8 text-sm text-cyan-300" />
+          <button onclick="changeInfusionCount(1)" class="btn-stepper w-8 h-8 text-base">+</button>
+        </div>
+      </div>
+
+      <!-- List of Infusion Heroes -->
+      <div id="modalInfusionList" class="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- Detailed Breakdown Box -->
+      <div id="modalInfusionDetailedBreakdown" class="dash-card p-3 text-xs space-y-1.5 bg-[#08111e] border-cyan-500/30">
+        <!-- Live summary -->
+      </div>
+
+      <div class="flex justify-end">
+        <button onclick="closeModal('modalInfusionManage')" class="px-4 py-2 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-300 font-bold text-xs transition">
+          Done & Apply
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Temporary Regression Visual Info (ⓘ) -->
+  <div id="modalRegressionInfo" class="modal-backdrop hidden" onclick="if(event.target===this)closeModal('modalRegressionInfo')">
+    <div class="dash-panel p-5 max-w-lg w-full space-y-4 border-cyan-500/40">
+      <div class="flex items-start justify-between border-b border-brand-border pb-3">
+        <div>
+          <h3 class="text-base font-bold text-white flex items-center gap-2">
+            <span>ⓘ</span> Temporary Regression in Destiny Temple
+          </h3>
+          <p class="text-xs text-brand-muted">How infusion regression works</p>
+        </div>
+        <button onclick="closeModal('modalRegressionInfo')" class="action-icon-btn">✕</button>
+      </div>
+      <div class="text-xs text-slate-300 space-y-3 leading-relaxed">
+        <p>In Idle Heroes, players frequently <strong>regress high-level infusion heroes temporarily</strong> to reclaim materials (Stellars, CoT, Cores of Origin, Sublimation, and Spiritual Essences) to satisfy high Temple milestone conditions without losing original investments.</p>
+        <div class="dash-card p-3 border-brand-border space-y-1 font-mono text-[11px]">
+          <div class="text-cyan-300 font-bold">Refund rates per infusion hero:</div>
+          <div>• Lv.16–40: 300k Stellars + 300k CoT per level</div>
+          <div>• Lv.41–75: 300k Stellars + 38k Essence per level</div>
+          <div>• Lv.41–70: Sublimation branches (up to 180k per branch)</div>
+          <div>• Lv.56, 61, 66, 71: +1 Core of Origin each (up to 4 Cores at Lv.75)</div>
+        </div>
+        <p class="text-brand-muted text-[11px]">Any resources recovered are automatically credited toward satisfying your selected Temple target level.</p>
+      </div>
+      <div class="flex justify-end">
+        <button onclick="closeModal('modalRegressionInfo')" class="px-4 py-1.5 rounded-lg bg-brand-card hover:bg-brand-border text-white font-medium text-xs">Got it</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Transcendence Info (ⓘ) -->
+  <div id="modalTransInfo" class="modal-backdrop hidden" onclick="if(event.target===this)closeModal('modalTransInfo')">
+    <div class="dash-panel p-5 max-w-md w-full space-y-4 border-purple-500/40">
+      <div class="flex items-start justify-between border-b border-brand-border pb-3">
+        <div>
+          <h3 class="text-base font-bold text-white flex items-center gap-2">
+            <span>ⓘ</span> Other Transcendence Heroes
+          </h3>
+          <p class="text-xs text-brand-muted">Crystal of Transcendence Valuation</p>
+        </div>
+        <button onclick="closeModal('modalTransInfo')" class="action-icon-btn">✕</button>
+      </div>
+      <div class="text-xs text-slate-300 space-y-2.5 leading-relaxed">
+        <p>Each non-Destiny Transcendence hero in your account represents an investment of <strong>5,000,000 Crystals of Transcendence (CoT)</strong>.</p>
+        <p>Entering your non-Destiny trans heroes here gives you credit for that CoT in the calculator, ensuring you know whether you have enough overall Transcendence capital to fulfill Temple milestones.</p>
+      </div>
+      <div class="flex justify-end">
+        <button onclick="closeModal('modalTransInfo')" class="px-4 py-1.5 rounded-lg bg-brand-card hover:bg-brand-border text-white font-medium text-xs">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Bag Inventory Management (⚙) -->
+  <div id="modalBagManage" class="modal-backdrop hidden" onclick="if(event.target===this)closeModal('modalBagManage')">
+    <div class="dash-panel p-5 max-w-2xl w-full max-h-[90vh] overflow-y-auto space-y-4 border-brand-gold/40">
+      <div class="flex items-start justify-between border-b border-brand-border pb-3">
+        <div>
+          <h3 class="text-base font-bold text-white flex items-center gap-2">
+            <span>⚙</span> Manage Bag Inventory
+          </h3>
+          <p class="text-xs text-brand-muted">Enter materials and unopened resources currently in your bag</p>
+        </div>
+        <button onclick="closeModal('modalBagManage')" class="action-icon-btn">✕</button>
+      </div>
+
+      <!-- Cores Section -->
+      <div class="dash-card p-3.5 border-rose-500/30 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-rose-300 flex items-center gap-1">
+            <img src="icons/core_chest.webp" class="resource-icon m-0" alt="Cores" onerror="imgFallback(this,'Cores')"> Cores of Origin
+          </span>
+          <span class="text-[11px] text-brand-muted">400 Shards = 1 Hero Core</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+          <div>
+            <label class="block text-[11px] text-slate-300 mb-1" for="bag_fullCores">Full Cores (400 Shards)</label>
+            <input id="bag_fullCores" type="text" placeholder="0" oninput="saveAndCalc()" class="input-clean w-full h-8 px-2 text-left focus:border-rose-400 font-mono" />
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-300 mb-1" for="bag_coreChests50">50-Shard Chests</label>
+            <input id="bag_coreChests50" type="text" placeholder="0" oninput="saveAndCalc()" class="input-clean w-full h-8 px-2 text-left focus:border-rose-400 font-mono" />
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-300 mb-1" for="bag_coreShards">Universal Shards</label>
+            <input id="bag_coreShards" type="text" placeholder="0" oninput="saveAndCalc()" class="input-clean w-full h-8 px-2 text-left focus:border-rose-400 font-mono" />
+          </div>
+        </div>
+
+        <!-- Heroes with Partial Cores -->
+        <div class="border-t border-brand-border/60 pt-3 space-y-2">
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="text-xs font-bold text-white">Heroes with Partial Cores</span>
+              <p class="text-[10px] text-brand-muted">Prevents locking hero-specific shards</p>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <button onclick="changePartialCoreCount(-1)" class="btn-stepper w-7 h-7 text-xs">−</button>
+              <input id="partialCoreCount" type="number" min="0" max="30" value="0" oninput="onPartialCountInput()" class="input-clean w-10 h-7 text-xs text-rose-300" />
+              <button onclick="changePartialCoreCount(1)" class="btn-stepper w-7 h-7 text-xs">+</button>
+            </div>
+          </div>
+          <div id="modalPartialCoresList" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[160px] overflow-y-auto pr-1">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Sublimation Opened -->
+      <div class="dash-card p-3.5 border-emerald-500/30 space-y-2.5">
+        <span class="text-xs font-bold text-emerald-300 flex items-center gap-1">
+          <img src="icons/subs.webp" class="resource-icon m-0" alt="Subs" onerror="imgFallback(this,'Sub')"> Sublimation Opened in Bag
+        </span>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <div>
+            <label class="block text-[10px] text-blue-300 font-bold mb-1" for="bag_subActive">Active</label>
+            <input id="bag_subActive" type="text" placeholder="e.g. 180k" oninput="saveAndCalc()" class="input-clean w-full h-8 px-2 text-left font-mono" />
+          </div>
+          <div>
+            <label class="block text-[10px] text-amber-300 font-bold mb-1" for="bag_subP1">Passive 1</label>
+            <input id="bag_subP1" type="text" placeholder="e.g. 180k" oninput="saveAndCalc()" class="input-clean w-full h-8 px-2 text-left font-mono" />
+          </div>
+          <div>
+            <label class="block text-[10px] text-violet-300 font-bold mb-1" for="bag_subP2">Passive 2</label>
+            <input id="bag_subP2" type="text" placeholder="e.g. 180k" oninput="saveAndCalc()" class="input-clean w-full h-8 px-2 text-left font-mono" />
+          </div>
+          <div>
+            <label class="block text-[10px] text-rose-300 font-bold mb-1" for="bag_subP3">Passive 3</label>
+            <input id="bag_subP3" type="text" placeholder="e.g. 180k" oninput="saveAndCalc()" class="input-clean w-full h-8 px-2 text-left font-mono" />
+          </div>
+        </div>
+      </div>
+
+      <!-- General Currencies -->
+      <div class="dash-card p-3.5 border-brand-border space-y-2.5">
+        <span class="text-xs font-bold text-brand-gold">Main Currencies</span>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+          <div>
+            <label class="block text-[11px] text-amber-300 mb-1" for="bag_essences">Essences</label>
+            <input id="bag_essences" type="text" placeholder="e.g. 5M" oninput="saveAndCalc()" class="input-clean w-full h-8 px-2 text-left font-mono" />
+          </div>
+          <div>
+            <label class="block text-[11px] text-sky-300 mb-1" for="bag_stellars">Stellars</label>
+            <input id="bag_stellars" type="text" placeholder="e.g. 50M" oninput="saveAndCalc()" class="input-clean w-full h-8 px-2 text-left font-mono" />
+          </div>
+          <div>
+            <label class="block text-[11px] text-purple-300 mb-1" for="bag_cot">CoT</label>
+            <input id="bag_cot" type="text" placeholder="e.g. 20M" oninput="saveAndCalc()" class="input-clean w-full h-8 px-2 text-left font-mono" />
+          </div>
+          <div>
+            <label class="block text-[11px] text-orange-300 mb-1" for="bag_spiritveins">Spiritveins</label>
+            <input id="bag_spiritveins" type="text" placeholder="e.g. 1.5M" oninput="saveAndCalc()" class="input-clean w-full h-8 px-2 text-left font-mono" />
+          </div>
+          <div>
+            <label class="block text-[11px] text-cyan-300 mb-1" for="bag_auroraGems">Aurora Gems</label>
+            <input id="bag_auroraGems" type="text" placeholder="e.g. 45" oninput="saveAndCalc()" class="input-clean w-full h-8 px-2 text-left font-mono" />
+          </div>
+          <div>
+            <label class="block text-[11px] text-cyan-200 mb-1" for="bag_auroraShards">Gem Shards (5000=1)</label>
+            <input id="bag_auroraShards" type="text" placeholder="e.g. 3750" oninput="saveAndCalc()" class="input-clean w-full h-8 px-2 text-left font-mono" />
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end">
+        <button onclick="closeModal('modalBagManage')" class="px-4 py-2 rounded-lg bg-brand-gold/20 hover:bg-brand-gold/30 border border-brand-gold/40 text-brand-gold font-bold text-xs transition">
+          Save & Update Dashboard
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Chests Management (⚙) -->
+  <div id="modalChestsManage" class="modal-backdrop hidden" onclick="if(event.target===this)closeModal('modalChestsManage')">
+    <div class="dash-panel p-5 max-w-3xl w-full max-h-[90vh] overflow-y-auto space-y-4 border-brand-gold/40">
+      <div class="flex items-start justify-between border-b border-brand-border pb-3">
+        <div>
+          <h3 class="text-base font-bold text-white flex items-center gap-2">
+            <span>⚙</span> Configure Selection Chests
+          </h3>
+          <p class="text-xs text-brand-muted">Input your unopened chests to calculate optimal allocations</p>
+        </div>
+        <button onclick="closeModal('modalChestsManage')" class="action-icon-btn">✕</button>
+      </div>
+
+      <!-- Sublimation Pure Chests -->
+      <div class="dash-card p-3.5 border-emerald-500/30 space-y-2">
+        <span class="text-xs font-bold text-emerald-300">Pure Sublimation Chests</span>
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+          <div><label class="block text-[10px] text-slate-300 mb-1" for="chest_sub90k">90k Chests</label><input id="chest_sub90k" type="text" placeholder="0" oninput="saveAndCalc()" class="input-clean w-full h-8 px-2 font-mono" /></div>
+          <div><label class="block text-[10px] text-slate-300 mb-1" for="chest_sub45k">45k Chests</label><input id="chest_sub45k" type="text" placeholder="0" oninput="saveAndCalc()" class="input-clean w-full h-8 px-2 font-mono" /></div>
+          <div><label class="block text-[10px] text-slate-300 mb-1" for="chest_sub9k">9k Chests</label><input id="chest_sub9k" type="text" placeholder="0" oninput="saveAndCalc()" class="input-clean w-full h-8 px-2 font-mono" /></div>
+          <div><label class="block text-[10px] text-slate-300 mb-1" for="chest_sub1800">1,800 Chests</label><input id="chest_sub1800" type="text" placeholder="0" oninput="saveAndCalc()" class="input-clean w-full h-8 px-2 font-mono" /></div>
+          <div><label class="block text-[10px] text-slate-300 mb-1" for="chest_sub1">1-pt Chests</label><input id="chest_sub1" type="text" placeholder="0" oninput="saveAndCalc()" class="input-clean w-full h-8 px-2 font-mono" /></div>
+        </div>
+      </div>
+
+      <!-- Trans Spheres / Chests -->
+      <div class="dash-card p-3.5 border-purple-500/30 space-y-2">
+        <span class="text-xs font-bold text-purple-300">Transcendence Spheres & Chests</span>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div><label class="block text-[11px] text-slate-300 mb-1" for="chest_transSphere">Spheres (250k Stellar or CoT)</label><input id="chest_transSphere" type="text" placeholder="0" oninput="saveAndCalc()" class="input-clean w-full h-8 px-2 font-mono" /></div>
+          <div><label class="block text-[11px] text-slate-300 mb-1" for="chest_trans1">1-pt Trans Chests</label><input id="chest_trans1" type="text" placeholder="e.g. 1.5M" oninput="saveAndCalc()" class="input-clean w-full h-8 px-2 font-mono" /></div>
+        </div>
+      </div>
+
+      <!-- Mixed Selection Chests -->
+      <div class="dash-card p-3.5 border-brand-border space-y-3">
+        <span class="text-xs font-bold text-brand-gold">Mixed Selection Chests</span>
+        <div id="modalMixedChestsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <div class="flex justify-end">
+        <button onclick="closeModal('modalChestsManage')" class="px-4 py-2 rounded-lg bg-brand-gold/20 hover:bg-brand-gold/30 border border-brand-gold/40 text-brand-gold font-bold text-xs transition">
+          Save & Calculate Allocations
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Optimizer Info (ⓘ) -->
+  <div id="modalOptimizerInfo" class="modal-backdrop hidden" onclick="if(event.target===this)closeModal('modalOptimizerInfo')">
+    <div class="dash-panel p-5 max-w-md w-full space-y-3.5 border-brand-border">
+      <div class="flex items-start justify-between border-b border-brand-border pb-3">
+        <div>
+          <h3 class="text-base font-bold text-white flex items-center gap-2">
+            <span>ⓘ</span> Smart Pick Optimizer Logic
+          </h3>
+          <p class="text-xs text-brand-muted">Zero-waste allocation algorithm</p>
+        </div>
+        <button onclick="closeModal('modalOptimizerInfo')" class="action-icon-btn">✕</button>
+      </div>
+      <div class="text-xs text-slate-300 space-y-2 leading-relaxed">
+        <p>The optimizer calculates your exact deficits for every resource needed for your chosen target level, then allocates chests in optimal order:</p>
+        <ol class="list-decimal pl-4 space-y-1 text-brand-muted">
+          <li><strong>Single-purpose chests</strong> (e.g. pure Sublimation) are prioritized to satisfy their specific requirements first.</li>
+          <li><strong>Flexible chests</strong> (e.g. Spheres or Mixed Chests) are dynamically routed to whichever resource has the highest remaining relative deficit.</li>
+          <li>Once requirements are fully met, surplus chests are tagged as <strong>Saved</strong> so you don't overspend resources!</li>
+        </ol>
+      </div>
+      <div class="flex justify-end">
+        <button onclick="closeModal('modalOptimizerInfo')" class="px-4 py-1.5 rounded-lg bg-brand-card hover:bg-brand-border text-white font-medium text-xs">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- TEMPLE LEVELS MATRIX ---
+    const TEMPLE_LEVELS = [
+      { level: 1, label: "1", dp: 0, d: [1,0,0,0,0,0], heroes: 1, cores: 4, sublis: 720000, essences: 1248120, stellars: 14929100, cot: 5420000, spiritveins: 0, auroraGems: 5 },
+      { level: 2, label: "2", dp: 0, d: [3,0,0,0,0,0], heroes: 3, cores: 12, sublis: 2160000, essences: 3744360, stellars: 47251920, cot: 16260000, spiritveins: 591708, auroraGems: 15 },
+      { level: 3, label: "3", dp: 1, d: [2,2,0,0,0,0], heroes: 4, cores: 16, sublis: 2880000, essences: 4992480, stellars: 65312560, cot: 22860000, spiritveins: 1343344, auroraGems: 34 },
+      { level: 4, label: "4", dp: 2, d: [0,1,2,0,0,0], heroes: 3, cores: 12, sublis: 2160000, essences: 3744360, stellars: 53686920, cot: 19530000, spiritveins: 2136108, auroraGems: 54 },
+      { level: 5, label: "5", dp: 3, d: [2,1,1,1,0,0], heroes: 5, cores: 20, sublis: 3600000, essences: 6240600, stellars: 87003200, cot: 31290000, spiritveins: 2966180, auroraGems: 75 },
+      { level: 6, label: "6", dp: 4, d: [0,2,2,1,0,0], heroes: 5, cores: 20, sublis: 3600000, essences: 6240600, stellars: 90798200, cot: 33220000, spiritveins: 3876980, auroraGems: 98 },
+      { level: 7, label: "7", dp: 4, d: [1,1,2,2,0,0], heroes: 6, cores: 24, sublis: 4320000, essences: 7488720, stellars: 109848840, cot: 40310000, spiritveins: 4866216, auroraGems: 123 },
+      { level: 8, label: "8", dp: 5, d: [0,0,2,2,1,0], heroes: 5, cores: 20, sublis: 3600000, essences: 6240600, stellars: 99543200, cot: 37660000, spiritveins: 5975780, auroraGems: 151 },
+      { level: 9, label: "9", dp: 5, d: [0,0,2,3,1,0], heroes: 6, cores: 24, sublis: 4320000, essences: 7488720, stellars: 119748840, cot: 45340000, spiritveins: 7242216, auroraGems: 183 },
+      { level: 10, label: "10", dp: 6, d: [0,0,3,2,2,0], heroes: 7, cores: 28, sublis: 5040000, essences: 8736840, stellars: 140284480, cot: 53200000, spiritveins: 8587852, auroraGems: 217 },
+      { level: 11, label: "11", dp: 6, d: [0,0,2,2,2,1], heroes: 7, cores: 28, sublis: 5040000, essences: 8736840, stellars: 146823430, cot: 56470000, spiritveins: 10157552, auroraGems: 256 },
+      { level: 12, label: "12", dp: 7, d: [0,0,1,3,3,1], heroes: 8, cores: 32, sublis: 5760000, essences: 9984960, stellars: 170989070, cot: 66170000, spiritveins: 12374388, auroraGems: 312 },
+      { level: 13, label: "13", dp: 7, d: [0,0,1,3,3,2], heroes: 9, cores: 36, sublis: 6480000, essences: 11233080, stellars: 195918660, cot: 76200000, spiritveins: 14774924, auroraGems: 372 },
+      { level: 14, label: "14", dp: 8, d: [0,0,0,4,3,3], heroes: 10, cores: 40, sublis: 7200000, essences: 12481200, stellars: 222663250, cot: 87150000, spiritveins: 17611060, auroraGems: 443 },
+      { level: 15, label: "15", dp: 8, d: [0,0,0,5,4,3], heroes: 12, cores: 48, sublis: 8640000, essences: 14977440, stellars: 265219530, cot: 103610000, spiritveins: 20658732, auroraGems: 520 },
+      { level: 16, label: "16", dp: 9, d: [0,0,0,6,4,4], heroes: 14, cores: 56, sublis: 10080000, essences: 17473680, stellars: 310354760, cot: 121320000, spiritveins: 24325704, auroraGems: 612 },
+      { level: 17, label: "17", dp: 9, d: [0,0,0,8,6,4], heroes: 18, cores: 72, sublis: 12960000, essences: 22466160, stellars: 395467320, cot: 154240000, spiritveins: 30421048, auroraGems: 766 },
+      { level: 18, label: "18", dp: 9, d: [0,0,0,10,6,5], heroes: 21, cores: 84, sublis: 15120000, essences: 26210520, stellars: 460808190, cot: 179630000, spiritveins: 35354456, auroraGems: 890 },
+      { level: 19, label: "19", dp: 10, d: [0,0,0,12,8,5], heroes: 25, cores: 100, sublis: 18000000, essences: 31203000, stellars: 545920750, cot: 212550000, spiritveins: 41449800, auroraGems: 1044 },
+      { level: 20, label: "20", dp: 10, d: [0,0,0,12,8,6], heroes: 26, cores: 104, sublis: 18720000, essences: 32451120, stellars: 570850340, cot: 222580000, spiritveins: 43850336, auroraGems: 1104 },
+      { level: 21, label: "21", dp: 10, d: [0,0,0,14,10,6], heroes: 30, cores: 120, sublis: 21600000, essences: 37443600, stellars: 655962900, cot: 255500000, spiritveins: 49945680, auroraGems: 1258 },
+      { level: 22, label: "22", dp: 10, d: [0,0,0,16,12,8], heroes: 36, cores: 144, sublis: 25920000, essences: 44932320, stellars: 790934640, cot: 308480000, spiritveins: 60842096, auroraGems: 1532 },
+      { level: 23, label: "23", dp: 11, d: [0,0,0,16,14,8], heroes: 38, cores: 152, sublis: 27360000, essences: 47428560, stellars: 835635920, cot: 326040000, spiritveins: 64404568, auroraGems: 1622 },
+      { level: 24, label: "24*", dp: 11, d: [0,0,0,16,16,10], heroes: 42, cores: 168, sublis: 30240000, essences: 52421040, stellars: 930196380, cot: 363660000, spiritveins: 72768112, auroraGems: 1832 },
+      { level: 25, label: "25*", dp: 12, d: [0,0,0,18,16,12], heroes: 46, cores: 184, sublis: 33120000, essences: 57413520, stellars: 1020466840, cot: 399080000, spiritveins: 80102056, auroraGems: 2016 },
+      { level: 26, label: "26*", dp: 12, d: [0,0,0,18,18,12], heroes: 48, cores: 192, sublis: 34560000, essences: 59909760, stellars: 1065168120, cot: 416640000, spiritveins: 83664528, auroraGems: 2106 },
+      { level: 27, label: "27*", dp: 13, d: [0,0,0,20,18,14], heroes: 52, cores: 208, sublis: 37440000, essences: 64902240, stellars: 1155438580, cot: 452060000, spiritveins: 90998472, auroraGems: 2290 },
+      { level: 28, label: "28*", dp: 13, d: [0,0,0,20,20,14], heroes: 54, cores: 216, sublis: 38880000, essences: 67398480, stellars: 1200139860, cot: 469620000, spiritveins: 94560944, auroraGems: 2380 },
+      { level: 29, label: "29*", dp: 14, d: [0,0,0,22,20,16], heroes: 58, cores: 232, sublis: 41760000, essences: 72390960, layout: null, stellars: 1290410320, cot: 505040000, spiritveins: 101894888, auroraGems: 2564 },
+      { level: 30, label: "30*", dp: 15, d: [0,0,0,22,22,16], heroes: 60, cores: 240, sublis: 43200000, essences: 74887200, stellars: 1335111600, cot: 522600000, spiritveins: 105457360, auroraGems: 2654 }
+    ];
+
+    // --- DESTINY HERO DEFINITIONS (D0 to D6) ---
+    const HERO_DEFS = [
+      { id: 'd1_1', label: 'D0', desc: 'D1 Lv.1', iconIndex: 1, color: 'teal', costs: { stellars: 14929100, spiritveins: 0, auroraGems: 5, cotOff: 0 } },
+      { id: 'd1',   label: 'D1', desc: '197k Vein', iconIndex: 1, color: 'emerald', costs: { stellars: 15750640, spiritveins: 197236, auroraGems: 5, cotOff: 0 } },
+      { id: 'd2',   label: 'D2', desc: '474k Vein', iconIndex: 2, color: 'sky', costs: { stellars: 16893670, spiritveins: 474436, auroraGems: 12, cotOff: 590000 } },
+      { id: 'd3',   label: 'D3', desc: '831k Vein', iconIndex: 3, color: 'violet', costs: { stellars: 18390640, spiritveins: 830836, auroraGems: 21, cotOff: 1340000 } },
+      { id: 'd4',   label: 'D4', desc: '1.27M Vein', iconIndex: 4, color: 'amber', costs: { stellars: 20205640, spiritveins: 1266436, auroraGems: 32, cotOff: 2260000 } },
+      { id: 'd5',   label: 'D5', desc: '1.78M Vein', iconIndex: 5, color: 'rose', costs: { stellars: 22350640, spiritveins: 1781236, auroraGems: 45, cotOff: 3360000 } },
+      { id: 'd6',   label: 'D6', desc: '2.40M Vein', iconIndex: 6, color: 'fuchsia', costs: { stellars: 24929590, spiritveins: 2400536, auroraGems: 60, cotOff: 4610000 } }
+    ];
+
+    // --- MIXED CHESTS DEFINITIONS ---
+    const MIXED_CHESTS = [
+      { id: 'monthlyF2p', title: 'Monthly F2P Chest', desc: '2.5k Stellar/CoT or 180 Sub', badge: 'amber', opts: [{key:'Stellars', deficitKey:'stellars', amount:2500, c:'sky'}, {key:'CoT', deficitKey:'cot', amount:2500, c:'purple'}, 'SUB_180'] },
+      { id: 'relaySubCore', title: 'Relay Sub / Core Chest', desc: '9k Sub or 5 Core Shards', badge: 'emerald', opts: ['SUB_9000', {key:'Cores', deficitKey:'cores', amount:0.05, c:'rose'}] },
+      { id: 'relayDestiny', title: 'Relay Destiny Pick Chest', desc: '30k Veins or 3,750 Gem Shards', badge: 'cyan', opts: [{key:'Spiritveins', deficitKey:'spiritveins', amount:30000, c:'orange'}, {key:'AuroraGems', deficitKey:'auroraGems', amount:0.75, c:'cyan'}] },
+      { id: 'starExp', title: 'Star Expedition Chest', desc: '25k S/CoT, 1.8k Sub, 1 Core, 5k Vein', badge: 'violet', opts: [{key:'Stellars', deficitKey:'stellars', amount:25000, c:'sky'}, {key:'CoT', deficitKey:'cot', amount:25000, c:'purple'}, 'SUB_1800', {key:'Cores', deficitKey:'cores', amount:0.01, c:'rose'}, {key:'Spiritveins', deficitKey:'spiritveins', amount:5000, c:'orange'}, {key:'AuroraGems', deficitKey:'auroraGems', amount:0.125, c:'cyan'}] },
+      { id: 'imps', title: 'Imp\'s Chest', desc: '62k S/CoT, 4.5k Sub, 3 Cores, 12k Vein', badge: 'rose', opts: [{key:'Stellars', deficitKey:'stellars', amount:62000, c:'sky'}, {key:'CoT', deficitKey:'cot', amount:62000, c:'purple'}, 'SUB_4500', {key:'Cores', deficitKey:'cores', amount:0.03, c:'rose'}, {key:'Spiritveins', deficitKey:'spiritveins', amount:12000, c:'orange'}, {key:'AuroraGems', deficitKey:'auroraGems', amount:0.3, c:'cyan'}] }
+    ];
+
+    // All persistent input element IDs
+    const INPUT_IDS = [
+      'currentLevel', 'targetLevel',
+      ...HERO_DEFS.map(h => 'hero_' + h.id), 'hero_extraTrans',
+      'bag_fullCores', 'bag_coreChests50', 'bag_coreShards', 'bag_subActive', 'bag_subP1', 'bag_subP2', 'bag_subP3', 'bag_essences', 'bag_stellars', 'bag_cot', 'bag_spiritveins', 'bag_auroraGems', 'bag_auroraShards',
+      'chest_sub90k', 'chest_sub45k', 'chest_sub9k', 'chest_sub1800', 'chest_sub1', 'chest_transSphere', 'chest_trans1', ...MIXED_CHESTS.map(c => 'chest_' + c.id)
+    ];
+
+    let infusionLevels = [];
+    let partialCoreShards = [];
+    // --- PARSING & FORMATTING UTILITIES ---
+    function parseNum(val) {
+      if (val === null || val === undefined) return 0;
+      let s = String(val).trim().toLowerCase();
+      if (!s) return 0;
+      // Handle European comma decimal (e.g. 2,5m -> 2.5m)
+      if (s.includes(',') && !s.includes('.')) {
+        const parts = s.split(',');
+        if (parts.length === 2 && parts[1].length <= 3) {
+          s = parts[0] + '.' + parts[1];
+        } else {
+          s = s.replace(/,/g, '');
+        }
+      } else {
+        s = s.replace(/,/g, '');
+      }
+      let mult = 1;
+      if (s.endsWith('b')) { mult = 1e9; s = s.slice(0, -1); }
+      else if (s.endsWith('m')) { mult = 1e6; s = s.slice(0, -1); }
+      else if (s.endsWith('k')) { mult = 1e3; s = s.slice(0, -1); }
+      const n = parseFloat(s);
+      return isNaN(n) ? 0 : Math.max(0, n * mult);
+    }
+
+    const getNum = id => {
+      const el = document.getElementById(id);
+      return el ? parseNum(el.value) : 0;
+    };
+
+    const fmt = n => Math.round(n).toLocaleString('en-US');
+    const fmtDec = (n, d = 2) => Math.abs(n - Math.round(n)) < 1e-6 ? fmt(n) : Number(n.toFixed(d)).toLocaleString('en-US');
+    const fmtShort = n => {
+      const a = Math.abs(n);
+      if (a >= 1e9) return (n / 1e9).toFixed(2) + 'B';
+      if (a >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+      if (a >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+      return fmtDec(n, 1);
+    };
+
+    function imgFallback(img, text) {
+      img.onerror = null;
+      img.src = `https://placehold.co/32x32/142236/e0c777?text=${encodeURIComponent(text || 'IH')}`;
+    }
+
+    function adjustInput(id, delta) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const cur = Math.max(0, parseInt(el.value) || 0);
+      el.value = Math.max(0, cur + delta);
+      saveAndCalc();
+    }
+
+    // Modal helpers
+    function openModal(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden');
+      }
+    }
+    function closeModal(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+      }
+    }
+    function toggleMobileResults() {
+      const p = document.getElementById('step5');
+      p.classList.toggle('drawer-open');
+    }
+    // --- INFUSION REFUND LOGIC ---
+    function getSingleInfusionRefund(lvl) {
+      const L = Math.max(1, Math.min(75, parseInt(lvl) || 1));
+      const lvls16to40 = Math.max(0, Math.min(L, 40) - 15);
+      const lvls41to75 = Math.max(0, L - 40);
+
+      const stellars = (lvls16to40 + lvls41to75) * 300000;
+      const cot = lvls16to40 * 300000;
+      const essences = lvls41to75 * 38000;
+
+      let cores = 0;
+      if (L >= 56) cores++;
+      if (L >= 61) cores++;
+      if (L >= 66) cores++;
+      if (L >= 71) cores++;
+
+      function calcBranchSub(startLvl, endLvl) {
+        if (L <= startLvl) return 0;
+        if (L >= endLvl) return 180000;
+        const steps = Math.min(7, Math.floor(((L - startLvl) / (endLvl - startLvl)) * 7));
+        return Math.min(180000, steps * 25800);
+      }
+
+      return {
+        stellars, cot, essences, cores,
+        subActive: calcBranchSub(41, 48),
+        subP1:     calcBranchSub(48, 55),
+        subP2:     calcBranchSub(55, 62),
+        subP3:     calcBranchSub(62, 70)
+      };
+    }
+
+    // --- SMART ALLOCATION ALGORITHM ---
+    function allocateChestType(count, opts, deficits) {
+      let rem = count, picks = { saved: 0 }, added = {};
+      opts.forEach(o => { picks[o.key] = 0; added[o.deficitKey] = 0; });
+      while (rem > 0) {
+        const active = opts
+          .map(o => ({ ...o, req: (deficits[o.deficitKey] || 0) / o.amount }))
+          .filter(o => o.req > 1e-9)
+          .sort((a, b) => b.req - a.req);
+
+        if (!active.length) {
+          picks.saved += rem;
+          break;
+        }
+
+        const step = rem > 2000
+          ? Math.min(rem, Math.max(1, active.length === 1 ? Math.ceil(active[0].req) : Math.floor(active[0].req - active[1].req) || Math.floor(rem / 1000)))
+          : 1;
+
+        picks[active[0].key] += step;
+        added[active[0].deficitKey] += step * active[0].amount;
+        deficits[active[0].deficitKey] = Math.max(0, deficits[active[0].deficitKey] - (step * active[0].amount));
+        rem -= step;
+      }
+      return { picks, added };
+    }
+
+    const expandSubOpts = (amt) => ['Active','P1','P2','P3'].map(k => ({
+      key: k, deficitKey: 'sub' + k, amount: amt, c: { Active: 'blue', P1: 'amber', P2: 'violet', P3: 'rose' }[k]
+    }));
+
+    function processChests(id, rawOpts, defs, chestAddedObj) {
+      const count = getNum('chest_' + id);
+      let opts = [];
+      rawOpts.forEach(o => typeof o === 'string' && o.startsWith('SUB_') ? opts.push(...expandSubOpts(parseInt(o.split('_')[1]))) : opts.push(o));
+      const r = allocateChestType(count, opts, defs);
+      Object.keys(r.added).forEach(k => chestAddedObj[k] = (chestAddedObj[k] || 0) + r.added[k]);
+
+      const badges = [];
+      opts.forEach(o => {
+        if (r.picks[o.key] > 0) {
+          const gain = o.deficitKey === 'cores' ? fmtDec(r.added[o.deficitKey]) + ' Cores' : o.deficitKey === 'auroraGems' ? fmtDec(r.added[o.deficitKey]) + ' Gems' : fmtShort(r.added[o.deficitKey]);
+          badges.push(`<span class="px-1.5 py-0.5 rounded bg-${o.c}-500/20 border border-${o.c}-500/40 text-${o.c}-300 text-[10px] font-mono">${fmt(r.picks[o.key])}× ${o.key} (+${gain})</span>`);
+        }
+      });
+      if (r.picks.saved > 0) badges.push(`<span class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-300 text-[10px] font-mono">${fmt(r.picks.saved)}× Save</span>`);
+
+      const planEl = document.getElementById('plan_' + id);
+      if (planEl) {
+        planEl.innerHTML = count ? `<div class="flex flex-wrap gap-1 mt-1">${badges.join('')}</div>` : `<span class="text-slate-500 text-[11px]">Enter quantity</span>`;
+      }
+      return { count, badges };
+    }
+    // --- UI BUILDERS & EVENT HANDLERS ---
+    function renderHeroCards() {
+      const container = document.getElementById('destinyHeroCards');
+      if (!container) return;
+      container.innerHTML = HERO_DEFS.map(h => `
+        <div class="dash-card p-2 flex flex-col justify-between border-brand-border/80 hover:border-brand-borderLight transition group">
+          <div class="flex items-center justify-between pb-1 border-b border-brand-border/60">
+            <span class="text-xs font-extrabold text-${h.color}-400 font-mono">${h.label}</span>
+          </div>
+          <div class="my-1.5 flex justify-center">
+            <img src="icons/dt_${h.iconIndex}.webp" alt="${h.label}" class="w-8 h-8 object-contain drop-shadow" onerror="imgFallback(this,'${h.label}')">
+          </div>
+          <div class="text-[9px] font-mono text-slate-300 space-y-0.5 border-t border-brand-border/40 pt-1 mb-1.5 leading-tight">
+            <div class="flex justify-between"><span>Stell:</span><span class="text-sky-300 font-bold">${fmtShort(h.costs.stellars)}</span></div>
+            <div class="flex justify-between"><span>Vein:</span><span class="text-orange-300 font-bold">${fmtShort(h.costs.spiritveins)}</span></div>
+            <div class="flex justify-between"><span>Gems:</span><span class="text-cyan-300 font-bold">${h.costs.auroraGems}</span></div>
+          </div>
+          <div class="flex items-center justify-between bg-[#08111e] rounded p-0.5 border border-brand-border">
+            <button onclick="adjustInput('hero_${h.id}', -1)" class="btn-stepper w-5 h-5 text-xs">−</button>
+            <input id="hero_${h.id}" type="number" min="0" value="0" placeholder="0" oninput="saveAndCalc()" class="input-clean w-7 h-5 text-[11px] border-none bg-transparent" />
+            <button onclick="adjustInput('hero_${h.id}', 1)" class="btn-stepper w-5 h-5 text-xs">+</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderModalMixedChests() {
+      const container = document.getElementById('modalMixedChestsGrid');
+      if (!container) return;
+      container.innerHTML = MIXED_CHESTS.map(c => `
+        <div class="dash-card p-3 border-brand-border space-y-2">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <span class="text-xs font-bold text-white">${c.title}</span>
+              <p class="text-[10px] text-brand-muted">${c.desc}</p>
+            </div>
+            <input id="chest_${c.id}" type="text" value="0" placeholder="0" oninput="saveAndCalc()" class="input-clean w-16 h-8 text-xs font-mono font-bold" />
+          </div>
+          <div id="plan_${c.id}" class="text-[11px] text-slate-400"></div>
+        </div>
+      `).join('');
+    }
+
+    // Infusion UI in modal
+    function renderInfusionModalList() {
+      const listEl = document.getElementById('modalInfusionList');
+      if (!listEl) return;
+      listEl.innerHTML = infusionLevels.map((lvl, idx) => `
+        <div class="dash-card p-2 flex items-center justify-between text-xs border-brand-border/70">
+          <span class="font-bold text-cyan-300 font-mono">Hero #${idx + 1}</span>
+          <div class="flex items-center gap-2">
+            <label class="text-brand-muted text-[11px]" for="infusionLevel_${idx}">Level:</label>
+            <input id="infusionLevel_${idx}" type="number" min="1" max="75" value="${lvl}" onchange="updateInfusionLevel(${idx}, this.value)" class="input-clean w-16 h-7 text-xs text-cyan-300 font-mono" aria-label="Infusion hero ${idx + 1} level">
+            <button type="button" onclick="removeInfusionHero(${idx})" class="text-rose-400 hover:text-rose-300 px-1 font-bold" title="Remove">✕</button>
+          </div>
+        </div>
+      `).join('') || `<div class="text-slate-500 text-xs italic py-2">No infusion heroes configured.</div>`;
+    }
+
+    function updateInfusionLevel(idx, val) {
+      infusionLevels[idx] = Math.max(1, Math.min(75, parseInt(val) || 1));
+      saveAndCalc();
+      renderInfusionModalList();
+    }
+
+    function removeInfusionHero(idx) {
+      infusionLevels.splice(idx, 1);
+      document.getElementById('modalInfusionInputCount').value = infusionLevels.length;
+      saveAndCalc();
+      renderInfusionModalList();
+    }
+
+    function changeInfusionCount(delta) {
+      const newCount = Math.max(0, Math.min(30, infusionLevels.length + delta));
+      while (infusionLevels.length < newCount) infusionLevels.push(75);
+      infusionLevels.length = newCount;
+      document.getElementById('modalInfusionInputCount').value = newCount;
+      renderInfusionModalList();
+      saveAndCalc();
+    }
+
+    function onInfusionCountDirectInput() {
+      const target = Math.max(0, Math.min(30, parseInt(document.getElementById('modalInfusionInputCount').value) || 0));
+      while (infusionLevels.length < target) infusionLevels.push(75);
+      infusionLevels.length = target;
+      renderInfusionModalList();
+      saveAndCalc();
+    }
+
+    // Partial Cores UI in Bag modal
+    function renderPartialCoresModalList() {
+      const container = document.getElementById('modalPartialCoresList');
+      if (!container) return;
+      container.innerHTML = partialCoreShards.map((shards, idx) => `
+        <div class="dash-card p-2 flex items-center justify-between text-xs border-brand-border/70">
+          <span class="font-bold text-rose-300 font-mono">#${idx + 1}</span>
+          <div class="flex items-center gap-1">
+            <button type="button" onclick="setPartialVal(${idx}, 100)" class="btn-stepper w-auto px-1.5 h-6 text-[10px]">100</button>
+            <button type="button" onclick="setPartialVal(${idx}, 200)" class="btn-stepper w-auto px-1.5 h-6 text-[10px]">200</button>
+            <button type="button" onclick="setPartialVal(${idx}, 300)" class="btn-stepper w-auto px-1.5 h-6 text-[10px]">300</button>
+            <input type="number" min="1" max="399" value="${shards}" oninput="setPartialVal(${idx}, this.value)" class="input-clean w-12 h-6 text-xs text-rose-300 font-mono" />
+          </div>
+        </div>
+      `).join('') || `<div class="text-slate-500 text-xs italic py-1 col-span-2">No heroes with partial cores added.</div>`;
+    }
+
+    function setPartialVal(idx, val) {
+      partialCoreShards[idx] = Math.max(1, Math.min(399, parseInt(val) || 1));
+      const input = document.querySelectorAll('#modalPartialCoresList input')[idx];
+      if (input) input.value = partialCoreShards[idx];
+      saveAndCalc();
+    }
+
+    function changePartialCoreCount(delta) {
+      const newCount = Math.max(0, Math.min(30, partialCoreShards.length + delta));
+      while (partialCoreShards.length < newCount) partialCoreShards.push(100);
+      partialCoreShards.length = newCount;
+      document.getElementById('partialCoreCount').value = newCount;
+      renderPartialCoresModalList();
+      saveAndCalc();
+    }
+
+    function onPartialCountInput() {
+      const target = Math.max(0, Math.min(30, parseInt(document.getElementById('partialCoreCount').value) || 0));
+      while (partialCoreShards.length < target) partialCoreShards.push(100);
+      partialCoreShards.length = target;
+      renderPartialCoresModalList();
+      saveAndCalc();
+    }
+
+    function onLevelChange() {
+      const currentInput = document.getElementById('currentLevel');
+      const targetInput = document.getElementById('targetLevel');
+      const cur = Math.max(0, Math.min(30, parseInt(currentInput.value) || 0));
+      let tgt = Math.max(0, Math.min(30, parseInt(targetInput.value) || 0));
+      currentInput.value = cur;
+      targetInput.value = tgt;
+      if (tgt < cur) {
+        targetInput.value = cur;
+      }
+      saveAndCalc();
+    }
+    // --- MAIN CALCULATION & UI UPDATE ---
+    function saveAndCalc() {
+      // 1. Build and persist state
+      const state = { infusionLevels, partialCoreShards };
+      INPUT_IDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) state[id] = el.value === '' ? '0' : el.value;
+      });
+      localStorage.setItem('ih_destiny_temple_v7', JSON.stringify(state));
+
+      // 2. Read temple levels
+      const cLvl = parseInt(document.getElementById('currentLevel').value) || 0;
+      const tLvl = parseInt(document.getElementById('targetLevel').value) || 1;
+      const curRow = TEMPLE_LEVELS.find(x => x.level === cLvl);
+      const tgtRow = TEMPLE_LEVELS.find(x => x.level === tLvl) || TEMPLE_LEVELS[0];
+
+      // Update Section 1 UI
+      document.getElementById('currentDpBadge').textContent = `DP +${curRow?.dp || 0}`;
+      document.getElementById('targetDpBadge').textContent = `DP +${tgtRow.dp}`;
+
+      const renderReqHeroIcons = (row) => {
+        if (!row) return '<span>None</span>';
+        const heroCount = `<span class="inline-flex items-center gap-0.5 text-white">Heroes ×${row.heroes}</span>`;
+        const icons = row.d.map((c, i) => c ? `<span class="inline-flex items-center gap-0.5"><img src="icons/dt_${i+1}.webp" class="${row === tgtRow ? 'w-6 h-6' : 'w-4 h-4'} object-contain inline" alt="D${i+1}" onerror="imgFallback(this,'D')">×${c}</span>` : '').join(' ');
+        return `${heroCount}${icons ? ` ${icons}` : ''}`;
+      };
+      document.getElementById('currentReqIcons').innerHTML = renderReqHeroIcons(curRow);
+      document.getElementById('targetReqIcons').innerHTML = renderReqHeroIcons(tgtRow);
+
+      // 3. Count invested hero resources
+      let totDestinyHeroes = 0;
+      let invested = {
+        cores: 0, subActive: 0, subP1: 0, subP2: 0, subP3: 0, essences: 0,
+        stellars: 0, cot: getNum('hero_extraTrans') * 5000000, spiritveins: 0, auroraGems: 0
+      };
+
+      HERO_DEFS.forEach(h => {
+        const count = getNum('hero_' + h.id);
+        totDestinyHeroes += count;
+        invested.cores += count * 4;
+        invested.subActive += count * 180000;
+        invested.subP1 += count * 180000;
+        invested.subP2 += count * 180000;
+        invested.subP3 += count * 180000;
+        invested.essences += count * 1248120;
+        invested.cot += count * 5420000;
+        invested.stellars += count * h.costs.stellars;
+        invested.spiritveins += count * h.costs.spiritveins;
+        invested.auroraGems += count * h.costs.auroraGems;
+        invested.cot += count * (h.costs.cotOff || 0);
+      });
+      document.getElementById('totalOwnedHeroesBadge').textContent = totDestinyHeroes;
+
+      // 4. Calculate Infusion Refunds
+      let infTotals = { stellars: 0, cot: 0, essences: 0, cores: 0, subActive: 0, subP1: 0, subP2: 0, subP3: 0 };
+      infusionLevels.forEach(lvl => {
+        const r = getSingleInfusionRefund(lvl);
+        Object.keys(infTotals).forEach(k => infTotals[k] += r[k]);
+      });
+
+      // Update Infusions front-page visual components
+      document.getElementById('infusionCountBadge').textContent = `${infusionLevels.length} configured`;
+      const chipsContainer = document.getElementById('infusionChipsContainer');
+      if (infusionLevels.length > 0) {
+        chipsContainer.innerHTML = infusionLevels.map((lvl, idx) => `
+          <span class="px-1.5 py-0.5 rounded bg-[#08111e] border border-cyan-500/40 text-cyan-300 font-mono text-[10px] font-bold">#${idx+1}: Lv.${lvl}</span>
+        `).join('');
+
+        const refPills = document.getElementById('infusionRefundPills');
+        refPills.classList.remove('hidden');
+        refPills.innerHTML = `
+          <span class="text-sky-300">+${fmtShort(infTotals.stellars)} St</span>
+          <span class="text-purple-300">+${fmtShort(infTotals.cot)} CoT</span>
+          <span class="text-amber-300">+${fmtShort(infTotals.essences)} Ess</span>
+          <span class="text-rose-300">+${infTotals.cores} Cores</span>
+          <span class="text-emerald-300">+${fmtShort(infTotals.subActive + infTotals.subP1 + infTotals.subP2 + infTotals.subP3)} Sub</span>
+        `;
+      } else {
+        chipsContainer.innerHTML = `<span class="text-[11px] text-slate-500 italic">None configured. Click ⚙ to configure.</span>`;
+        document.getElementById('infusionRefundPills').classList.add('hidden');
+      }
+
+      // Add infusions to invested pool
+      Object.keys(infTotals).forEach(k => invested[k] += infTotals[k]);
+
+      // Detailed modal breakdown for infusions
+      const modalInfEl = document.getElementById('modalInfusionDetailedBreakdown');
+      if (modalInfEl) {
+        modalInfEl.innerHTML = `
+          <div class="font-bold text-cyan-300 mb-1">Total Refunded Materials:</div>
+          <div class="grid grid-cols-2 gap-1 text-[11px] font-mono">
+            <div>Stellars: <b class="text-sky-300">+${fmt(infTotals.stellars)}</b></div>
+            <div>CoT: <b class="text-purple-300">+${fmt(infTotals.cot)}</b></div>
+            <div>Essences: <b class="text-amber-300">+${fmt(infTotals.essences)}</b></div>
+            <div>Cores: <b class="text-rose-300">+${infTotals.cores}</b></div>
+            <div class="col-span-2">Sublimation: <b class="text-emerald-300">+${fmt(infTotals.subActive + infTotals.subP1 + infTotals.subP2 + infTotals.subP3)}</b></div>
+          </div>
+        `;
+      }
+
+      // 5. Cores & Universal Shards Allocation
+      const fCores = getNum('bag_fullCores');
+      const c50 = getNum('bag_coreChests50');
+      const cSh = getNum('bag_coreShards');
+      const uniShards = Math.round(c50 * 50 + cSh);
+
+      const remHeroSlots = Math.ceil(Math.max(0, tgtRow.cores - invested.cores - (fCores * 4)) / 4);
+      const parts = partialCoreShards.map((s, i) => ({ i: i + 1, s })).sort((a, b) => b.s - a.s);
+      const usableParts = parts.slice(0, remHeroSlots);
+      const lockedParts = parts.slice(remHeroSlots);
+      const usablePartsSum = usableParts.reduce((a, p) => a + p.s, 0);
+      const lockedPartsSum = lockedParts.reduce((a, p) => a + p.s, 0);
+
+      const bagCores = (fCores * 4) + ((uniShards + usablePartsSum) / 100);
+
+      // Update Section 3 Bag Front-page UI
+      document.getElementById('bagSummaryCoresVal').textContent = `${fmtDec(bagCores)} Cores`;
+      document.getElementById('bagSummaryPartialCount').textContent = partialCoreShards.length ? `${partialCoreShards.length} (${lockedPartsSum > 0 ? lockedPartsSum + ' locked' : 'all usable'})` : '0 heroes';
+
+      const bag = {
+        cores: bagCores,
+        subActive: getNum('bag_subActive'),
+        subP1: getNum('bag_subP1'),
+        subP2: getNum('bag_subP2'),
+        subP3: getNum('bag_subP3'),
+        essences: getNum('bag_essences'),
+        stellars: getNum('bag_stellars'),
+        cot: getNum('bag_cot'),
+        spiritveins: getNum('bag_spiritveins'),
+        auroraGems: getNum('bag_auroraGems') + (getNum('bag_auroraShards') / 5000)
+      };
+
+      document.getElementById('bagSummarySubTotal').textContent = fmtShort(bag.subActive + bag.subP1 + bag.subP2 + bag.subP3);
+      document.getElementById('bagSummarySubActive').textContent = `Act: ${fmtShort(bag.subActive)}`;
+      document.getElementById('bagSummarySubP1').textContent = `P1: ${fmtShort(bag.subP1)}`;
+      document.getElementById('bagSummarySubP2').textContent = `P2: ${fmtShort(bag.subP2)}`;
+      document.getElementById('bagSummarySubP3').textContent = `P3: ${fmtShort(bag.subP3)}`;
+      document.getElementById('bagSummaryStellar').textContent = fmtShort(bag.stellars);
+      document.getElementById('bagSummaryCot').textContent = fmtShort(bag.cot);
+      document.getElementById('bagSummaryEssence').textContent = fmtShort(bag.essences);
+      document.getElementById('bagSummaryVeins').textContent = fmtShort(bag.spiritveins);
+      document.getElementById('bagSummaryGems').textContent = fmtDec(bag.auroraGems, 2);
+
+      // 6. Calculate Deficits
+      let defs = {};
+      Object.keys(bag).forEach(k => {
+        const required = k.startsWith('sub') ? tgtRow.heroes * 180000 : tgtRow[k];
+        defs[k] = Math.max(0, required - invested[k] - bag[k]);
+      });
+
+      // 7. Chest Optimizer Allocation
+      let chestAdded = {
+        cores: 0, subActive: 0, subP1: 0, subP2: 0, subP3: 0,
+        stellars: 0, cot: 0, spiritveins: 0, auroraGems: 0
+      };
+
+      // Pure Sublimations
+      let totalPureSubChests = 0;
+      let pureSubBadges = [];
+      [90000, 45000, 9000, 1800, 1].forEach(amt => {
+        const isK = amt >= 1000;
+        const id = 'sub' + (amt > 1 ? (isK ? amt / 1000 + 'k' : amt) : 1);
+        const count = getNum('chest_' + id);
+        totalPureSubChests += count;
+        if (count > 0) {
+          const res = allocateChestType(count, expandSubOpts(amt), defs);
+          Object.keys(res.added).forEach(k => chestAdded[k] += res.added[k]);
+          ['Active', 'P1', 'P2', 'P3'].forEach(k => {
+            if (res.picks[k] > 0) {
+              const col = { Active: 'blue', P1: 'amber', P2: 'violet', P3: 'rose' }[k];
+              pureSubBadges.push(`<span class="px-1.5 py-0.5 rounded bg-${col}-500/20 border border-${col}-500/40 text-${col}-300 font-mono text-[10px]">${fmt(res.picks[k])}× ${k} (${fmtShort(amt)})</span>`);
+            }
+          });
+        }
+      });
+
+      document.getElementById('optSummaryPureSubTotal').textContent = `${fmt(totalPureSubChests)} chests`;
+      document.getElementById('optSummaryPureSubBadges').innerHTML = pureSubBadges.length ? pureSubBadges.join('') : `<span class="text-slate-500 italic">No pure sub chests entered.</span>`;
+
+      // Trans Spheres & 1-pt
+      const sphCount = getNum('chest_transSphere');
+      const tr1Count = getNum('chest_trans1');
+      const totalTransChests = sphCount + tr1Count;
+      let transBadges = [];
+
+      if (sphCount > 0) {
+        const rS = allocateChestType(sphCount, [
+          { key: 'Stellars', deficitKey: 'stellars', amount: 250000, c: 'sky' },
+          { key: 'CoT', deficitKey: 'cot', amount: 250000, c: 'purple' }
+        ], defs);
+        Object.keys(rS.added).forEach(k => chestAdded[k] += rS.added[k]);
+        if (rS.picks.Stellars) transBadges.push(`<span class="px-1.5 py-0.5 rounded bg-sky-500/20 border border-sky-500/40 text-sky-300 font-mono text-[10px]">${fmt(rS.picks.Stellars)}× Sph → Stellars</span>`);
+        if (rS.picks.CoT) transBadges.push(`<span class="px-1.5 py-0.5 rounded bg-purple-500/20 border border-purple-500/40 text-purple-300 font-mono text-[10px]">${fmt(rS.picks.CoT)}× Sph → CoT</span>`);
+      }
+      if (tr1Count > 0) {
+        const rT = allocateChestType(tr1Count, [
+          { key: 'Stellars', deficitKey: 'stellars', amount: 1, c: 'sky' },
+          { key: 'CoT', deficitKey: 'cot', amount: 1, c: 'purple' }
+        ], defs);
+        Object.keys(rT.added).forEach(k => chestAdded[k] += rT.added[k]);
+        if (rT.picks.Stellars) transBadges.push(`<span class="px-1.5 py-0.5 rounded bg-sky-500/20 border border-sky-500/40 text-sky-300 font-mono text-[10px]">${fmt(rT.picks.Stellars)}× 1-pt → Stellars</span>`);
+        if (rT.picks.CoT) transBadges.push(`<span class="px-1.5 py-0.5 rounded bg-purple-500/20 border border-purple-500/40 text-purple-300 font-mono text-[10px]">${fmt(rT.picks.CoT)}× 1-pt → CoT</span>`);
+      }
+
+      document.getElementById('optSummaryTransTotal').textContent = `${fmt(totalTransChests)} chests`;
+      document.getElementById('optSummaryTransBadges').innerHTML = transBadges.length ? transBadges.join('') : `<span class="text-slate-500 italic">No spheres or trans chests entered.</span>`;
+
+      // Mixed Chests
+      let totalMixedChests = 0;
+      let allMixedBadges = [];
+      MIXED_CHESTS.forEach(c => {
+        const r = processChests(c.id, c.opts, defs, chestAdded);
+        totalMixedChests += r.count;
+        if (r.badges.length) allMixedBadges.push(...r.badges);
+      });
+
+      document.getElementById('optSummaryMixedTotal').textContent = `${fmt(totalMixedChests)} chests`;
+      document.getElementById('optSummaryMixedBadges').innerHTML = allMixedBadges.length ? allMixedBadges.join('') : `<span class="text-slate-500 italic">No mixed chests entered.</span>`;
+
+      // 8. Section 5 Results Table & Status Breakdown
+      document.getElementById('resSubHeader').textContent = `Target Level ${tgtRow.label} Audit`;
+
+      const branchTarget = tgtRow.heroes * 180000;
+      ['Active', 'P1', 'P2', 'P3'].forEach(k => {
+        const have = invested['sub' + k] + bag['sub' + k] + chestAdded['sub' + k];
+        const missing = Math.max(0, branchTarget - have);
+        const card = document.getElementById('cardSub' + k);
+        const badge = document.getElementById('badgeSub' + k);
+        const val = document.getElementById('valSub' + k);
+
+        if (missing === 0) {
+          badge.className = 'font-mono text-[10px] font-bold text-emerald-400';
+          badge.textContent = '✓ Ready';
+          card.classList.remove('border-rose-500/40');
+          card.classList.add('border-emerald-500/40');
+        } else {
+          badge.className = 'font-mono text-[10px] font-bold text-rose-400';
+          badge.textContent = `-${fmtShort(missing)}`;
+          card.classList.remove('border-emerald-500/40');
+          card.classList.add('border-rose-500/40');
+        }
+        val.textContent = `${fmtShort(have)} / ${fmtShort(branchTarget)}`;
+      });
+
+      // Hero requirement alert
+      const heroesDiff = Math.max(0, tgtRow.heroes - totDestinyHeroes);
+      const resHeroBanner = document.getElementById('resHeroAlertBanner');
+      const resHeroSpan = document.getElementById('resHeroStatusSpan');
+      if (heroesDiff === 0) {
+        resHeroBanner.className = 'dash-card p-2 mb-3 text-xs flex items-center justify-between border-emerald-500/40 bg-emerald-950/20';
+        resHeroSpan.className = 'font-bold font-mono text-emerald-300';
+        resHeroSpan.textContent = `✓ ${totDestinyHeroes} / ${tgtRow.heroes} Ready`;
+      } else {
+        resHeroBanner.className = 'dash-card p-2 mb-3 text-xs flex items-center justify-between border-amber-500/40 bg-amber-950/20';
+        resHeroSpan.className = 'font-bold font-mono text-amber-300';
+        resHeroSpan.textContent = `${totDestinyHeroes} / ${tgtRow.heroes} (Need ${heroesDiff} more)`;
+      }
+
+      // Comparison Table Rows
+      let anyMissingResource = heroesDiff > 0;
+      const rows = [
+        {
+          name: lockedPartsSum > 0 ? `Cores (${lockedPartsSum} locked excl.)` : 'Cores of Origin',
+          icon: 'icons/core_chest.webp',
+          col: 'text-rose-300',
+          tar: tgtRow.cores,
+          her: invested.cores,
+          bagAndChests: bag.cores + chestAdded.cores,
+          fmtVal: v => `${fmtDec(v, 2)} (${fmt(Math.round(v * 100))} sh.)`,
+          exTxt: m => `${fmtDec(m, 2)} Cores`
+        },
+        {
+          name: 'Sublimation (All 4)',
+          icon: 'icons/subs.webp',
+          col: 'text-emerald-300',
+          tar: tgtRow.sublis,
+          her: invested.subActive + invested.subP1 + invested.subP2 + invested.subP3,
+          bagAndChests: bag.subActive + bag.subP1 + bag.subP2 + bag.subP3 + chestAdded.subActive + chestAdded.subP1 + chestAdded.subP2 + chestAdded.subP3,
+          miss: defs.subActive + defs.subP1 + defs.subP2 + defs.subP3,
+          exTxt: m => `${fmtShort(m)} (${Math.ceil(m / 45000)}× 45k)`
+        },
+        {
+          name: 'Essences',
+          icon: 'icons/spiritual_essence.webp',
+          col: 'text-amber-300',
+          tar: tgtRow.essences,
+          her: invested.essences,
+          bagAndChests: bag.essences,
+          miss: defs.essences
+        },
+        {
+          name: 'Stellars',
+          icon: 'icons/stellar.webp',
+          col: 'text-sky-300',
+          tar: tgtRow.stellars,
+          her: invested.stellars,
+          bagAndChests: bag.stellars + chestAdded.stellars,
+          miss: defs.stellars
+        },
+        {
+          name: 'CoT (w/ Trans)',
+          icon: 'icons/cot.webp',
+          col: 'text-purple-300',
+          tar: tgtRow.cot,
+          her: invested.cot,
+          bagAndChests: bag.cot + chestAdded.cot,
+          miss: defs.cot
+        },
+        {
+          name: 'Spiritveins',
+          icon: 'icons/spiritvein.webp',
+          col: 'text-orange-300',
+          tar: tgtRow.spiritveins,
+          her: invested.spiritveins,
+          bagAndChests: bag.spiritveins + chestAdded.spiritveins,
+          miss: defs.spiritveins
+        },
+        {
+          name: 'Aurora Gems',
+          icon: 'icons/aurora_gem.webp',
+          col: 'text-cyan-300',
+          tar: tgtRow.auroraGems,
+          her: invested.auroraGems,
+          bagAndChests: bag.auroraGems + chestAdded.auroraGems,
+          miss: defs.auroraGems,
+          fmtVal: v => `${fmtDec(v, 2)} (${fmt(Math.round(v * 5000))} sh.)`,
+          exTxt: m => `${fmtDec(m, 2)} Gems`
+        }
+      ];
+
+      document.getElementById('resultsTableBody').innerHTML = rows.map(r => {
+        const targetVal = r.tar;
+        const totalHave = r.her + r.bagAndChests;
+        const missing = r.miss !== undefined ? r.miss : Math.max(0, targetVal - totalHave);
+        if (missing > 1e-6) anyMissingResource = true;
+
+        return `
+          <tr class="hover:bg-brand-card/50 transition">
+            <td class="py-2 px-1.5 sm:px-2.5 font-bold ${r.col} truncate">
+              <img src="${r.icon}" class="resource-icon" alt="${r.name}" onerror="imgFallback(this,'')"><span class="results-resource-label">${r.name}</span>
+            </td>
+            <td class="py-2 px-1 text-right text-slate-300 font-medium">${fmtShort(targetVal)}</td>
+            <td class="py-2 px-1 text-right text-brand-muted">${fmtShort(r.her)}</td>
+            <td class="py-2 px-1 text-right text-slate-300">${r.fmtVal ? r.fmtVal(r.bagAndChests) : fmtShort(r.bagAndChests)}</td>
+            <td class="py-2 px-1.5 sm:px-2.5 text-right font-bold whitespace-normal">
+              ${missing <= 1e-6
+                ? `<span class="text-emerald-400">✓ Ready</span>`
+                : `<span class="text-rose-400">-${r.exTxt ? r.exTxt(missing) : fmtShort(missing)}</span>`
+              }
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      // Overall Badge
+      const overallBadge = document.getElementById('resOverallBadge');
+      if (anyMissingResource) {
+        overallBadge.className = 'px-2.5 py-1 rounded-md text-xs font-bold font-mono bg-amber-500/20 border border-amber-500/40 text-amber-300';
+        overallBadge.textContent = 'Missing Resources';
+      } else {
+        overallBadge.className = 'px-2.5 py-1 rounded-md text-xs font-bold font-mono bg-emerald-500/20 border border-emerald-500/40 text-emerald-300';
+        overallBadge.textContent = '✓ All Ready!';
+      }
+    }
+    // --- INITIALIZATION ---
+    function initApp() {
+      // 1. Populate temple level dropdowns
+      const currentSel = document.getElementById('currentLevel');
+      const targetSel = document.getElementById('targetLevel');
+      const optionsHtml = `<option value="0">Level 0 (None)</option>` + TEMPLE_LEVELS.map(r => `<option value="${r.level}">Level ${r.label}</option>`).join('');
+      currentSel.innerHTML = optionsHtml;
+      targetSel.innerHTML = optionsHtml;
+      currentSel.value = "1";
+      targetSel.value = "5";
+
+      // 2. Render Hero Cards & Modals
+      renderHeroCards();
+      renderModalMixedChests();
+
+      // 3. Load stored state
+      try {
+        const stored = JSON.parse(localStorage.getItem('ih_destiny_temple_v7') || localStorage.getItem('ih_destiny_temple_v6') || '{}');
+        INPUT_IDS.forEach(id => {
+          const el = document.getElementById(id);
+          if (el && stored[id] !== undefined) {
+            el.value = stored[id] === '' ? '0' : stored[id];
+          }
+        });
+        if (stored.infusionLevels && Array.isArray(stored.infusionLevels)) {
+          infusionLevels = stored.infusionLevels;
+        }
+        if (stored.partialCoreShards && Array.isArray(stored.partialCoreShards)) {
+          partialCoreShards = stored.partialCoreShards;
+        }
+      } catch (err) {
+        console.error('Failed to load state', err);
+      }
+
+      // Update counters in modals
+      const infInput = document.getElementById('modalInfusionInputCount');
+      if (infInput) infInput.value = infusionLevels.length;
+      const partInput = document.getElementById('partialCoreCount');
+      if (partInput) partInput.value = partialCoreShards.length;
+
+      renderInfusionModalList();
+      renderPartialCoresModalList();
+
+      // 4. Initial calculation
+      saveAndCalc();
+    }
+
+    function resetAllData() {
+      localStorage.removeItem('ih_destiny_temple_v7');
+      localStorage.removeItem('ih_destiny_temple_v6');
+      location.reload();
+    }
+
+    window.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>
