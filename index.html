@@ -1096,19 +1096,27 @@
       if (L >= 66) cores++;
       if (L >= 71) cores++;
 
-      function calcBranchSub(startLvl, endLvl) {
-        if (L <= startLvl) return 0;
-        if (L >= endLvl) return 180000;
-        const steps = Math.min(7, Math.floor(((L - startLvl) / (endLvl - startLvl)) * 7));
-        return Math.min(180000, steps * 25800);
-      }
+      let subActive = 0, subP1 = 0, subP2 = 0, subP3 = 0;
+      
+      // Active: 7 Nodes
+      const activeLevels = [42, 43, 44, 45, 47, 48, 49];
+      activeLevels.forEach(l => { if (L >= l) subActive += 25800; });
+      
+      // Passive 1: 7 Nodes
+      const p1Levels = [50, 52, 53, 54, 55, 57, 58];
+      p1Levels.forEach(l => { if (L >= l) subP1 += 25800; });
+      
+      // Passive 2: 7 Nodes
+      const p2Levels = [59, 60, 62, 63, 64, 65, 67];
+      p2Levels.forEach(l => { if (L >= l) subP2 += 25800; });
+      
+      // Passive 3: 7 Nodes
+      const p3Levels = [68, 69, 70, 72, 73, 74, 75];
+      p3Levels.forEach(l => { if (L >= l) subP3 += 25800; });
 
       return {
         stellars, cot, essences, cores,
-        subActive: calcBranchSub(41, 48),
-        subP1:     calcBranchSub(48, 55),
-        subP2:     calcBranchSub(55, 62),
-        subP3:     calcBranchSub(62, 70)
+        subActive, subP1, subP2, subP3
       };
     }
 
@@ -1663,9 +1671,7 @@
       let totalMixedChests = 0;
       let allMixedBadges = [];
       [...MIXED_CHESTS, ...customChests].forEach(c => {
-        if (c.id.startsWith('cc_')) {
-           c.count = getNum('chest_' + c.id);
-        }
+        // Read directly from the DOM so we always calculate with real-time numbers
         const r = processChests(c.id, c.opts, defs, chestAdded);
         totalMixedChests += r.count;
         if (r.badges.length) allMixedBadges.push(...r.badges);
