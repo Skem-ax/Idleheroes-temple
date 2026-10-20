@@ -295,6 +295,7 @@
 
           <!-- Bottom Row: 3 Configuration Cards -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5 items-stretch mt-auto">
+            
             <!-- Card 1: Other Transcendence -->
             <div class="dash-card p-3 border-purple-500/30 flex flex-col justify-between h-full">
               <div class="flex items-center justify-between mb-2">
@@ -359,6 +360,7 @@
                 </div>
               </div>
             </div>
+
           </div>
         </div>
       </section>
@@ -495,11 +497,11 @@
             <!-- Mixed Chests Allocation -->
             <div class="dash-card p-2.5 border-brand-border">
               <div class="flex items-center justify-between text-xs mb-1.5">
-                <span class="font-bold text-brand-gold">Mixed Chests Allocation</span>
+                <span class="font-bold text-brand-gold">Mixed & Custom Chests</span>
                 <span id="optSummaryMixedTotal" class="text-[11px] text-slate-400 font-mono">0 chests</span>
               </div>
               <div id="optSummaryMixedBadges" class="flex flex-wrap gap-1 text-[11px] max-h-[85px] overflow-y-auto">
-                <span class="text-[11px] text-slate-500 italic">No mixed chests entered.</span>
+                <span class="text-[11px] text-slate-500 italic">No mixed or custom chests entered.</span>
               </div>
             </div>
           </div>
@@ -541,7 +543,7 @@
           <!-- Sublimation 4-Branch Status Grid -->
           <div class="mb-3">
             <h3 class="text-[10px] font-bold uppercase tracking-wider text-brand-muted mb-1.5">Sublimation Branches</h3>
-            <div class="grid grid-cols-3 gap-1 text-[10px]">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-1 text-[10px]">
               <div id="cardSubActive" class="dash-card p-1.5 border-blue-500/30">
                 <div class="flex justify-between items-center"><span class="text-blue-300 font-bold">Active</span><span id="badgeSubActive" class="font-mono font-bold">--</span></div>
                 <div class="font-mono text-slate-400" id="valSubActive">0 / 0</div>
@@ -855,9 +857,38 @@
         </div>
       </div>
 
+      <!-- Predefined Mixed Chests -->
       <div class="dash-card p-3.5 border-brand-border space-y-3">
-        <span class="text-xs font-bold text-brand-gold">Mixed Selection Chests</span>
+        <span class="text-xs font-bold text-brand-gold">Standard Selection Chests</span>
         <div id="modalMixedChestsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+      </div>
+
+      <!-- Custom Chests Builder -->
+      <div class="dash-card p-3.5 border-brand-gold/40 space-y-3 mt-4">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-brand-gold">Custom Selection Chests</span>
+          <button onclick="document.getElementById('customChestForm').classList.toggle('hidden')" class="px-2 py-1 rounded bg-brand-gold/20 hover:bg-brand-gold/30 text-brand-gold text-[10px] font-bold transition">+ New Chest</button>
+        </div>
+        
+        <!-- Grid for saved custom chests -->
+        <div id="modalCustomChestsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+
+        <!-- Hidden Form to Add New -->
+        <div id="customChestForm" class="hidden bg-[#08111e] border border-brand-border rounded p-3 space-y-3">
+          <input id="cc_title" placeholder="Chest Name (e.g. VIP Event Chest)" class="input-clean w-full h-8 px-2 text-left font-bold text-white text-xs placeholder:font-normal" />
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <div><label class="block text-[10px] text-slate-400 mb-1">Stellars</label><input id="cc_stellars" class="input-clean w-full h-7 px-2 font-mono" placeholder="0"/></div>
+            <div><label class="block text-[10px] text-slate-400 mb-1">CoT</label><input id="cc_cot" class="input-clean w-full h-7 px-2 font-mono" placeholder="0"/></div>
+            <div><label class="block text-[10px] text-slate-400 mb-1">Essences</label><input id="cc_essences" class="input-clean w-full h-7 px-2 font-mono" placeholder="0"/></div>
+            <div><label class="block text-[10px] text-slate-400 mb-1">Veins</label><input id="cc_veins" class="input-clean w-full h-7 px-2 font-mono" placeholder="0"/></div>
+            <div><label class="block text-[10px] text-slate-400 mb-1">Sublimation Pts</label><input id="cc_sub" class="input-clean w-full h-7 px-2 font-mono" placeholder="0"/></div>
+            <div><label class="block text-[10px] text-slate-400 mb-1">Core Shards</label><input id="cc_coreshards" class="input-clean w-full h-7 px-2 font-mono" placeholder="0"/></div>
+            <div><label class="block text-[10px] text-slate-400 mb-1">Gem Shards</label><input id="cc_gemshards" class="input-clean w-full h-7 px-2 font-mono" placeholder="0"/></div>
+          </div>
+          <div class="flex justify-end pt-2 border-t border-brand-border/60">
+             <button type="button" onclick="saveCustomChest()" class="px-3 py-1.5 rounded bg-brand-gold/20 hover:bg-brand-gold/30 text-brand-gold text-[10px] font-bold transition">Add to Optimizer</button>
+          </div>
+        </div>
       </div>
 
       <div class="flex justify-end">
@@ -976,26 +1007,28 @@
     let nonTransLevels = [];
     let infusionLevels = [];
     let partialCoreShards = [];
+    let customChests = [];
 
     // --- PARSING & FORMATTING UTILITIES ---
     function parseNum(val) {
       if (val === null || val === undefined) return 0;
       let s = String(val).trim().toLowerCase();
       if (!s) return 0;
-      if (s.includes(',') && !s.includes('.')) {
-        const parts = s.split(',');
-        if (parts.length === 2 && parts[1].length <= 3) {
-          s = parts[0] + '.' + parts[1];
-        } else {
-          s = s.replace(/,/g, '');
-        }
-      } else {
-        s = s.replace(/,/g, '');
-      }
+
+      // Extract multipliers
       let mult = 1;
       if (s.endsWith('b')) { mult = 1e9; s = s.slice(0, -1); }
       else if (s.endsWith('m')) { mult = 1e6; s = s.slice(0, -1); }
       else if (s.endsWith('k')) { mult = 1e3; s = s.slice(0, -1); }
+
+      // Identify if a comma is being used as a European decimal (e.g. 1,5) or a thousands separator (e.g. 100,000)
+      const parts = s.split(',');
+      if (parts.length === 2 && !s.includes('.') && parts[1].length !== 3) {
+        s = parts[0] + '.' + parts[1]; // It's a European decimal
+      } else {
+        s = s.replace(/,/g, ''); // It's a standard thousands separator
+      }
+
       const n = parseFloat(s);
       return isNaN(n) ? 0 : Math.max(0, n * mult);
     }
@@ -1176,6 +1209,70 @@
       `).join('');
     }
 
+    // Custom Chests Builder
+    function renderModalCustomChests() {
+      const container = document.getElementById('modalCustomChestsGrid');
+      if (!container) return;
+      container.innerHTML = customChests.map((c, i) => `
+        <div class="dash-card p-3 border-brand-gold/20 space-y-2 relative group">
+          <button type="button" onclick="deleteCustomChest(${i})" class="absolute top-2 right-2 text-rose-500 hidden group-hover:block text-xs" title="Delete Chest">🗑️</button>
+          <div class="flex items-start justify-between gap-2 pr-6">
+            <div>
+              <span class="text-xs font-bold text-brand-gold">${c.title}</span>
+              <div class="text-[9px] text-brand-muted mt-0.5 flex flex-wrap gap-1 leading-tight">
+                 ${c.opts.map(o => {
+                    if (typeof o === 'string') return `<span>${fmtShort(parseInt(o.replace('SUB_','')))} Sub</span>`;
+                    let a = o.amount;
+                    if(o.key==='Cores') a = Math.round(a*100)+' Shards';
+                    else if(o.key==='AuroraGems') a = Math.round(a*5000)+' Shards';
+                    else a = fmtShort(a);
+                    return `<span>${a} ${o.key.replace('AuroraGems','Gems').replace('Spiritveins','Veins')}</span>`;
+                 }).join('<span class="text-slate-600">|</span>')}
+              </div>
+            </div>
+            <input id="chest_${c.id}" type="text" value="${c.count || 0}" placeholder="0" oninput="saveAndCalc()" class="input-clean w-14 h-8 text-xs font-mono font-bold flex-shrink-0" />
+          </div>
+          <div id="plan_${c.id}" class="text-[11px] text-slate-400"></div>
+        </div>
+      `).join('') || `<div class="text-[11px] text-slate-500 italic py-1 col-span-2">No custom chests created.</div>`;
+    }
+
+    function saveCustomChest() {
+      const title = document.getElementById('cc_title').value.trim() || 'Custom Chest';
+      const stellars = parseNum(document.getElementById('cc_stellars').value);
+      const cot = parseNum(document.getElementById('cc_cot').value);
+      const essences = parseNum(document.getElementById('cc_essences').value);
+      const veins = parseNum(document.getElementById('cc_veins').value);
+      const sub = parseNum(document.getElementById('cc_sub').value);
+      const coreShards = parseNum(document.getElementById('cc_coreshards').value);
+      const gemShards = parseNum(document.getElementById('cc_gemshards').value);
+
+      const newOpts = [];
+      if (stellars > 0) newOpts.push({key:'Stellars', deficitKey:'stellars', amount:stellars, c:'sky'});
+      if (cot > 0) newOpts.push({key:'CoT', deficitKey:'cot', amount:cot, c:'purple'});
+      if (essences > 0) newOpts.push({key:'Essences', deficitKey:'essences', amount:essences, c:'amber'});
+      if (veins > 0) newOpts.push({key:'Spiritveins', deficitKey:'spiritveins', amount:veins, c:'orange'});
+      if (coreShards > 0) newOpts.push({key:'Cores', deficitKey:'cores', amount:coreShards/100, c:'rose'});
+      if (gemShards > 0) newOpts.push({key:'AuroraGems', deficitKey:'auroraGems', amount:gemShards/5000, c:'cyan'});
+      if (sub > 0) newOpts.push('SUB_' + sub);
+
+      if (newOpts.length > 0) {
+         customChests.push({ id: 'cc_' + Date.now(), title, opts: newOpts, count: 0 });
+         ['title','stellars','cot','essences','veins','sub','coreshards','gemshards'].forEach(k => document.getElementById('cc_'+k).value = '');
+         document.getElementById('customChestForm').classList.add('hidden');
+         renderModalCustomChests();
+         saveAndCalc();
+      } else {
+         alert("Please enter at least one resource amount to create a chest.");
+      }
+    }
+
+    function deleteCustomChest(idx) {
+      customChests.splice(idx, 1);
+      renderModalCustomChests();
+      saveAndCalc();
+    }
+
     // Non-Trans Tenants UI in modal
     function renderNonTransModalList() {
       const listEl = document.getElementById('modalNonTransList');
@@ -1330,13 +1427,19 @@
 
     // --- MAIN CALCULATION & UI UPDATE ---
     function saveAndCalc() {
+      // Pre-fetch custom chest counts BEFORE saving state
+      customChests.forEach(c => {
+        const el = document.getElementById('chest_' + c.id);
+        if (el) c.count = el.value;
+      });
+
       // 1. Build and persist state
-      const state = { nonTransLevels, infusionLevels, partialCoreShards };
+      const state = { nonTransLevels, infusionLevels, partialCoreShards, customChests };
       INPUT_IDS.forEach(id => {
         const el = document.getElementById(id);
         if (el) state[id] = el.value === '' ? '0' : el.value;
       });
-      localStorage.setItem('ih_destiny_temple_v8', JSON.stringify(state));
+      localStorage.setItem('ih_destiny_temple_v10', JSON.stringify(state));
 
       // 2. Read temple levels
       const cLvl = parseInt(document.getElementById('currentLevel').value) || 0;
@@ -1412,7 +1515,6 @@
         Object.keys(infTotals).forEach(k => infTotals[k] += r[k]);
       });
 
-      // Update Infusions front-page visual components
       document.getElementById('infusionCountBadge').textContent = `${infusionLevels.length} configured`;
       const chipsContainer = document.getElementById('infusionChipsContainer');
       if (infusionLevels.length > 0) {
@@ -1557,17 +1659,20 @@
       document.getElementById('optSummaryTransTotal').textContent = `${fmt(totalTransChests)} chests`;
       document.getElementById('optSummaryTransBadges').innerHTML = transBadges.length ? transBadges.join('') : `<span class="text-slate-500 italic">No spheres or trans chests entered.</span>`;
 
-      // Mixed Chests
+      // Mixed & Custom Chests
       let totalMixedChests = 0;
       let allMixedBadges = [];
-      MIXED_CHESTS.forEach(c => {
+      [...MIXED_CHESTS, ...customChests].forEach(c => {
+        if (c.id.startsWith('cc_')) {
+           c.count = getNum('chest_' + c.id);
+        }
         const r = processChests(c.id, c.opts, defs, chestAdded);
         totalMixedChests += r.count;
         if (r.badges.length) allMixedBadges.push(...r.badges);
       });
 
       document.getElementById('optSummaryMixedTotal').textContent = `${fmt(totalMixedChests)} chests`;
-      document.getElementById('optSummaryMixedBadges').innerHTML = allMixedBadges.length ? allMixedBadges.join('') : `<span class="text-slate-500 italic">No mixed chests entered.</span>`;
+      document.getElementById('optSummaryMixedBadges').innerHTML = allMixedBadges.length ? allMixedBadges.join('') : `<span class="text-slate-500 italic">No mixed or custom chests entered.</span>`;
 
       // Results Breakdowns
       document.getElementById('resSubHeader').textContent = `Target Level ${tgtRow.label} Audit`;
@@ -1730,7 +1835,13 @@
 
       // 3. Load stored state
       try {
-        const stored = JSON.parse(localStorage.getItem('ih_destiny_temple_v8') || localStorage.getItem('ih_destiny_temple_v7') || localStorage.getItem('ih_destiny_temple_v6') || '{}');
+        const savedData = localStorage.getItem('ih_destiny_temple_v10') || 
+                          localStorage.getItem('ih_destiny_temple_v9') || 
+                          localStorage.getItem('ih_destiny_temple_v8') || 
+                          localStorage.getItem('ih_destiny_temple_v7') || 
+                          localStorage.getItem('ih_destiny_temple_v6') || '{}';
+        const stored = JSON.parse(savedData);
+        
         INPUT_IDS.forEach(id => {
           const el = document.getElementById(id);
           if (el && stored[id] !== undefined) {
@@ -1745,6 +1856,9 @@
         }
         if (stored.partialCoreShards && Array.isArray(stored.partialCoreShards)) {
           partialCoreShards = stored.partialCoreShards;
+        }
+        if (stored.customChests && Array.isArray(stored.customChests)) {
+          customChests = stored.customChests;
         }
       } catch (err) {
         console.error('Failed to load state', err);
@@ -1761,12 +1875,15 @@
       renderNonTransModalList();
       renderInfusionModalList();
       renderPartialCoresModalList();
+      renderModalCustomChests();
 
       // 4. Initial calculation
       saveAndCalc();
     }
 
     function resetAllData() {
+      localStorage.removeItem('ih_destiny_temple_v10');
+      localStorage.removeItem('ih_destiny_temple_v9');
       localStorage.removeItem('ih_destiny_temple_v8');
       localStorage.removeItem('ih_destiny_temple_v7');
       localStorage.removeItem('ih_destiny_temple_v6');
